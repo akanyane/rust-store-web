@@ -1,5 +1,6 @@
+import { formatNumber, formatUnits } from "./format.ts";
 import type { FormErrors } from "./validation.ts";
-import type { OrderStatus } from "./types.ts";
+import type { AdminStats, LowStockItem, OrderStatus } from "./types.ts";
 
 /** Itens por página nas listas do console (o design mostra "1–10 of 312"). */
 export const ADMIN_PAGE_SIZE = 10;
@@ -218,4 +219,64 @@ export function validateVariant(fields: VariantFields): FormErrors {
     ["price", priceError(fields.price)],
     ["stock", stockError(fields.stock)],
   ]);
+}
+
+// ---------- Painel ----------
+
+/** Quantos pedidos recentes o painel mostra. */
+export const DASHBOARD_RECENT_ORDERS = 5;
+
+export interface StatCard {
+  key: "pending" | "to-ship" | "revenue" | "products";
+  label: string;
+  value: string;
+  /** Texto menor sob o valor. */
+  hint: string;
+  /** Para onde o cartão leva. */
+  href: string;
+  /** Pede atenção: há pedidos esperando alguma ação. */
+  attention: boolean;
+}
+
+/** Os quatro cartões do painel, a partir dos números da API. */
+export function dashboardCards(stats: AdminStats): StatCard[] {
+  return [
+    {
+      key: "pending",
+      label: "Pending orders",
+      value: formatNumber(stats.orders.pending),
+      hint: "Waiting for payment",
+      href: adminOrdersHref({ status: "pending" }),
+      attention: stats.orders.pending > 0,
+    },
+    {
+      key: "to-ship",
+      label: "Paid, to ship",
+      value: formatNumber(stats.orders.paid),
+      hint: "Paid and not shipped yet",
+      href: adminOrdersHref({ status: "paid" }),
+      attention: stats.orders.paid > 0,
+    },
+    {
+      key: "revenue",
+      label: "Revenue",
+      value: formatUnits(stats.revenue),
+      hint: "Paid, shipped and delivered orders",
+      href: adminOrdersHref(),
+      attention: false,
+    },
+    {
+      key: "products",
+      label: "Products",
+      value: `${formatNumber(stats.products.active)} active`,
+      hint: `${formatNumber(stats.products.inactive)} inactive`,
+      href: "/admin/products",
+      attention: false,
+    },
+  ];
+}
+
+/** Onde editar o produto de uma variante com pouco estoque. */
+export function lowStockHref(item: Pick<LowStockItem, "product_id">): string {
+  return `/admin/products/${encodeURIComponent(item.product_id)}`;
 }

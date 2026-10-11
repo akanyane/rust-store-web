@@ -3,9 +3,11 @@ import {
   adminOrdersHref,
   adminProductsHref,
   allowedTransitions,
+  dashboardCards,
   formatCreated,
   isOfferedTransition,
   isOrderStatus,
+  lowStockHref,
   ORDER_FILTERS,
   parseOrderFilter,
   parseProductSort,
@@ -17,7 +19,7 @@ import {
   validateProductEdit,
   validateVariant,
 } from "./admin.ts";
-import type { OrderStatus } from "./types.ts";
+import type { AdminStats, OrderStatus } from "./types.ts";
 
 Deno.test("allowedTransitions mirrors the API lifecycle", () => {
   const next = (status: OrderStatus) =>
@@ -236,5 +238,76 @@ Deno.test("validateProductEdit and validateVariant", () => {
     {
       sku: "At most 64 characters",
     },
+  );
+});
+
+const STATS: AdminStats = {
+  orders: {
+    total: 12,
+    pending: 3,
+    paid: 2,
+    shipped: 1,
+    delivered: 5,
+    cancelled: 1,
+  },
+  revenue: 1240,
+  products: { active: 7, inactive: 2 },
+  low_stock: [],
+};
+
+Deno.test("dashboardCards: four cards, each linking to where the number lives", () => {
+  const cards = dashboardCards(STATS);
+  assertEquals(cards.map((c) => c.key), [
+    "pending",
+    "to-ship",
+    "revenue",
+    "products",
+  ]);
+  assertEquals(cards.map((c) => c.href), [
+    "/admin/orders?status=pending",
+    "/admin/orders?status=paid",
+    "/admin/orders",
+    "/admin/products",
+  ]);
+});
+
+Deno.test("dashboardCards: values are formatted for people", () => {
+  const [pending, toShip, revenue, products] = dashboardCards(STATS);
+  assertEquals(pending.value, "3");
+  assertEquals(toShip.value, "2");
+  assertEquals(revenue.value, "1,240 unidades");
+  assertEquals(products.value, "7 active");
+  assertEquals(products.hint, "2 inactive");
+  assertEquals(
+    dashboardCards({ ...STATS, revenue: 1 })[2].value,
+    "1 unidade",
+  );
+});
+
+Deno.test("dashboardCards: only orders waiting for an action ask for attention", () => {
+  const attention = (stats: AdminStats) =>
+    dashboardCards(stats).filter((c) => c.attention).map((c) => c.key);
+  assertEquals(attention(STATS), ["pending", "to-ship"]);
+  assertEquals(
+    attention({ ...STATS, orders: { ...STATS.orders, pending: 0 } }),
+    ["to-ship"],
+  );
+  assertEquals(
+    attention({
+      ...STATS,
+      orders: { ...STATS.orders, pending: 0, paid: 0 },
+    }),
+    [],
+  );
+});
+
+Deno.test("lowStockHref: opens the product, with the id encoded", () => {
+  assertEquals(
+    lowStockHref({ product_id: "abc123" }),
+    "/admin/products/abc123",
+  );
+  assertEquals(
+    lowStockHref({ product_id: "a/b c" }),
+    "/admin/products/a%2Fb%20c",
   );
 });

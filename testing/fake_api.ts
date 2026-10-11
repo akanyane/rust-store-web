@@ -1,5 +1,6 @@
 import type {
   AdminOrder,
+  AdminStats,
   Cart,
   Customer,
   Session,
@@ -54,6 +55,22 @@ export const ANA_PROFILE: Customer = {
 
 export const EMPTY_CART: Cart = { items: [], total: 0, can_checkout: false };
 
+export function emptyStats(): AdminStats {
+  return {
+    orders: {
+      total: 0,
+      pending: 0,
+      paid: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+    },
+    revenue: 0,
+    products: { active: 0, inactive: 0 },
+    low_stock: [],
+  };
+}
+
 export function order(overrides: Partial<AdminOrder> = {}): AdminOrder {
   return {
     id: "ord1abcdefgh",
@@ -101,6 +118,8 @@ export class FakeApi {
   readonly calls: Call[] = [];
   /** Os pedidos que `GET /admin/orders/:id` e `PUT /admin/orders/:id/status` enxergam. */
   readonly orders = new Map<string, AdminOrder>();
+  /** O que `GET /admin/stats` devolve; o teste troca o que precisar. */
+  stats: AdminStats = emptyStats();
   private readonly routes: {
     method: string;
     parts: string[];
@@ -144,6 +163,13 @@ export class FakeApi {
           : apiError(token ? 404 : 401, "not found"),
     );
     this.on("GET /cart", () => jsonResponse(EMPTY_CART));
+    this.on(
+      "GET /admin/stats",
+      ({ token }) =>
+        token === "session-boss"
+          ? jsonResponse(this.stats)
+          : apiError(403, "forbidden"),
+    );
     this.on("GET /admin/orders", ({ token }) => {
       if (token !== "session-boss") return apiError(403, "forbidden");
       const all = [...this.orders.values()];

@@ -2,6 +2,13 @@ import { Icon } from "./Icon.tsx";
 
 const LINKS = [
   {
+    href: "/admin",
+    label: "Dashboard",
+    icon: "dashboard" as const,
+    match: "/admin",
+    exact: true,
+  },
+  {
     href: "/admin/orders",
     label: "Orders",
     icon: "box" as const,
@@ -24,7 +31,9 @@ export function AdminNav(
 ) {
   const links = LINKS.map((link) => ({
     ...link,
-    current: path.startsWith(link.match),
+    current: "exact" in link
+      ? path === link.match
+      : path.startsWith(link.match),
   }));
   return (
     <>

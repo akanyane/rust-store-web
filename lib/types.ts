@@ -111,3 +111,29 @@ export interface Session {
 export interface AdminOrder extends Order {
   customer_id: string;
 }
+
+/** Variante com pouco estoque, como `GET /admin/stats` a lista. */
+export interface LowStockItem {
+  product_id: string;
+  product_name: string;
+  variant_id: string;
+  variant_name: string;
+  sku: string;
+  stock: number;
+}
+
+/** Os números do painel de admin (`GET /admin/stats`). Valores em unidades. */
+export interface AdminStats {
+  orders: {
+    total: number;
+    pending: number;
+    paid: number;
+    shipped: number;
+    delivered: number;
+    cancelled: number;
+  };
+  /** Soma dos totais dos pedidos pagos, enviados e entregues. */
+  revenue: number;
+  products: { active: number; inactive: number };
+  low_stock: LowStockItem[];
+}

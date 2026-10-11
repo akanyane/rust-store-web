@@ -30,14 +30,14 @@ Deno.test("sign in: a customer is signed in and the last username is remembered"
   });
 });
 
-Deno.test("sign in: an admin with no destination lands in the console", async () => {
+Deno.test("sign in: an admin with no destination lands in the dashboard", async () => {
   await withFakeApi(async () => {
     const reply = await new Browser(buildApp()).post(
       "/signin",
       form("boss", "boss-pass"),
     );
     assertEquals(reply.status, 303);
-    assertEquals(reply.location, "/admin/orders");
+    assertEquals(reply.location, "/admin");
   });
 });
 

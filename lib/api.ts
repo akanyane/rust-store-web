@@ -1,5 +1,6 @@
 import type {
   AdminOrder,
+  AdminStats,
   Cart,
   Customer,
   Order,
@@ -491,4 +492,10 @@ export async function deactivateVariant(
     }`,
     { method: "DELETE", token },
   );
+}
+
+// ---------- Admin: painel ----------
+
+export function getAdminStats(token: string): Promise<AdminStats> {
+  return json<AdminStats>("/admin/stats", { token });
 }

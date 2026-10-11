@@ -21,9 +21,9 @@ interface Data {
   error?: "credentials" | "unavailable";
 }
 
-/** Admin sem `next` (o formulário manda "/") vai para a lista de pedidos. */
+/** Admin sem `next` (o formulário manda "/") vai para o painel. */
 function adminLanding(next: string): string {
-  return next === "/" ? "/admin/orders" : next;
+  return next === "/" ? "/admin" : next;
 }
 
 export const handler = define.handlers({

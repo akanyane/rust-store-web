@@ -19,6 +19,15 @@ const ICONS = {
     ],
   },
   lock: { grid: 16, paths: ["M4.5 7.5h7v5.5h-7z", "M6 7.5V6a2 2 0 014 0v1.5"] },
+  dashboard: {
+    grid: 16,
+    paths: [
+      "M2.5 2.5h4.5v4.5H2.5z",
+      "M9 2.5h4.5v4.5H9z",
+      "M2.5 9h4.5v4.5H2.5z",
+      "M9 9h4.5v4.5H9z",
+    ],
+  },
   pause: { grid: 16, paths: ["M5.5 4v8M10.5 4v8"] },
   clock: {
     grid: 16,
