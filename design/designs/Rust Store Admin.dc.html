@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+body{margin:0;background:#E9E5E0;font-family:"Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+</style>
+</helmet>
+<div style="padding:56px 56px 8px;display:flex;flex-direction:column;gap:8px;max-width:1100px;color:#1F1B17">
+  <div style="font:500 12px var(--font-mono);color:#736960;letter-spacing:.06em;text-transform:uppercase">Rust Store · Admin console</div>
+  <h1 style="margin:0;font:600 40px/1.1 var(--font-sans);letter-spacing:-.02em">Admin screens</h1>
+  <p style="margin:4px 0 0;max-width:760px;font:400 15px/1.55 var(--font-sans);color:#5A5148;text-wrap:pretty">Same tokens as the storefront, with a dark side rail and denser tables so staff never mistake it for the shop. Customers appear only as ids. <a href="./Rust Store Storefront.dc.html">Storefront</a> · <a href="./Rust Store Design System.dc.html">Design system</a> · <a href="./Rust Store Handoff.dc.html">Fresh handoff</a>.</p>
+</div>
+
+<section data-screen-label="Admin orders" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">G · Orders <span style="font:400 14px var(--font-mono);color:#736960">/admin/orders · /admin/orders/:id</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">G1 · All orders · filter: All · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;align-items:stretch">
+        <dc-import name="Admin Nav" active="orders" hint-size="232px,100%"></dc-import>
+        <main style="flex:1;min-width:0;padding:28px 32px 32px;display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:baseline;gap:12px"><h1 style="margin:0;font:600 28px var(--font-sans);letter-spacing:-.01em">Orders</h1><span style="font:400 14px var(--font-sans);color:var(--text-2)">Newest first</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span id="sf" style="font:500 13px var(--font-sans);color:var(--text-2)">Status</span>
+            <div role="group" aria-labelledby="sf" style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)">
+              <sc-for list="{{ statusFilters }}" as="f" hint-placeholder-count="6"><a href="#" aria-current="{{ f.current }}" style="padding:6px 12px;border-radius:8px;text-decoration:none;font:{{ f.font }};color:{{ f.color }};background:{{ f.bg }};box-shadow:{{ f.shadow }}">{{ f.label }}</a></sc-for>
+            </div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font:400 14px var(--font-sans)">
+              <thead><tr style="background:var(--surface-2);text-align:left;font:600 12px var(--font-sans);color:var(--text-2)"><th style="padding:10px 16px">Order</th><th style="padding:10px 16px">Customer</th><th style="padding:10px 16px">Status</th><th style="padding:10px 16px;text-align:right">Total</th><th style="padding:10px 16px">Created</th><th style="padding:10px 16px">Paid</th><th style="padding:10px 16px"></th></tr></thead>
+              <tbody>
+                <sc-for list="{{ orders }}" as="o" hint-placeholder-count="10">
+                  <tr style="border-top:1px solid var(--border)">
+                    <td style="padding:11px 16px"><a href="#" style="font:600 13.5px var(--font-mono);color:var(--text)">#{{ o.id }}</a></td>
+                    <td style="padding:11px 16px;font:400 13px var(--font-mono);color:var(--text-2)">{{ o.customer }}</td>
+                    <td style="padding:11px 16px"><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--{{ o.tone }}-soft);color:var(--{{ o.tone }});font:600 12px var(--font-sans)">{{ o.icon }}{{ o.label }}</span></td>
+                    <td style="padding:11px 16px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600">{{ o.total }} <span style="font:500 12px var(--font-sans);color:var(--text-2)">unidades</span></td>
+                    <td style="padding:11px 16px;color:var(--text-2)">{{ o.created }}</td>
+                    <td style="padding:11px 16px;color:var(--text-2)">{{ o.paid }}</td>
+                    <td style="padding:11px 16px;text-align:right"><a href="#" style="font:600 13px var(--font-sans)">Open</a></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <nav aria-label="Pagination" style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font:400 14px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">1–10</b> of <b style="color:var(--text)">312</b></span>
+            <div style="display:flex;gap:6px;align-items:center;font:500 13px var(--font-sans)"><span style="height:34px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;color:var(--text-3)">← Previous</span><span style="padding:0 8px;color:var(--text-2)">Page 1 of 32</span><a href="#" style="height:34px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:8px;color:var(--text);text-decoration:none">Next →</a></div>
+          </nav>
+        </main>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">G2 · Orders · mobile</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Admin Nav" mobile="{{ true }}" active="orders" hint-size="100%,96px"></dc-import>
+        <main style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;justify-content:space-between;font:500 13px var(--font-sans);color:var(--text-2)">Status<span style="height:44px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--text);font:600 14px var(--font-sans)">Pending {{ icChevron }}</span></label>
+          <span style="font:400 13px var(--font-sans);color:var(--text-2)">Showing 1–3 of 3 pending</span>
+          <sc-for list="{{ ordersPending }}" as="o" hint-placeholder-count="3">
+            <a href="#" style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--text)">
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:600 14px var(--font-mono)">#{{ o.id }}</span><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--{{ o.tone }}-soft);color:var(--{{ o.tone }});font:600 12px var(--font-sans)">{{ o.icon }}{{ o.label }}</span></div>
+              <div style="display:flex;justify-content:space-between;font:400 13px var(--font-sans);color:var(--text-2)"><span>Customer <span style="font-family:var(--font-mono)">{{ o.customer }}</span> · {{ o.createdShort }}</span><b style="color:var(--text)">{{ o.total }}</b></div>
+            </a>
+          </sc-for>
+        </main>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">G3 · Filter with no results</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Admin Nav" mobile="{{ true }}" active="orders" hint-size="100%,96px"></dc-import>
+        <main style="padding:16px 16px 40px;display:flex;flex-direction:column;gap:16px">
+          <label style="display:flex;align-items:center;justify-content:space-between;font:500 13px var(--font-sans);color:var(--text-2)">Status<span style="height:44px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--text);font:600 14px var(--font-sans)">Shipped {{ icChevron }}</span></label>
+          <div style="border:1px dashed var(--border-strong);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:8px">
+            <b style="font:600 16px var(--font-sans)">No shipped orders</b>
+            <span style="font:400 14px/1.5 var(--font-sans);color:var(--text-2)">Nothing is waiting for delivery right now.</span>
+            <a href="#" style="font:600 14px var(--font-sans)">Show all orders</a>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">G4 · Order detail · change status refused (409) · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;align-items:stretch">
+        <dc-import name="Admin Nav" active="orders" hint-size="232px,100%"></dc-import>
+        <main style="flex:1;min-width:0;padding:24px 32px 36px;display:flex;flex-direction:column;gap:20px">
+          <a href="#" style="font:500 13.5px var(--font-sans);color:var(--text-2);text-decoration:none;width:max-content">← Orders</a>
+          <div style="display:flex;align-items:center;gap:12px"><h1 style="margin:0;font:600 28px var(--font-sans)">Order <span style="font-family:var(--font-mono);font-weight:500">#1048</span></h1><span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--warning-soft);color:var(--warning);font:600 12.5px var(--font-sans)">{{ icClock }}Pending</span></div>
+          <dl style="margin:0;display:grid;grid-template-columns:repeat(4,max-content);gap:4px 40px;font:400 13px var(--font-sans)">
+            <dt style="color:var(--text-2)">Customer</dt><dt style="color:var(--text-2)">Created</dt><dt style="color:var(--text-2)">Paid</dt><dt style="color:var(--text-2)">Total</dt>
+            <dd style="margin:0;font:500 14px var(--font-mono)">418</dd><dd style="margin:0;font:500 14px var(--font-sans)">Oct 9, 2026, 15:42</dd><dd style="margin:0;font:500 14px var(--font-sans)">—</dd><dd style="margin:0;font:600 14px var(--font-sans)">123 unidades</dd>
+          </dl>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start">
+            <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden">
+              <table style="width:100%;border-collapse:collapse;font:400 14px var(--font-sans)">
+                <thead><tr style="background:var(--surface-2);text-align:left;font:600 12px var(--font-sans);color:var(--text-2)"><th style="padding:10px 16px">Item</th><th style="padding:10px 16px">SKU</th><th style="padding:10px 16px;text-align:right">Unit price</th><th style="padding:10px 16px;text-align:right">Qty</th><th style="padding:10px 16px;text-align:right">Line total</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
+                    <tr style="border-top:1px solid var(--border)"><td style="padding:11px 16px;font-weight:600">{{ it.name }}</td><td style="padding:11px 16px;font:400 13px var(--font-mono);color:var(--text-2)">{{ it.sku }}</td><td style="padding:11px 16px;text-align:right">{{ it.unitPrice }}</td><td style="padding:11px 16px;text-align:right">{{ it.qty }}</td><td style="padding:11px 16px;text-align:right;font-weight:600">{{ it.lineTotal }}</td></tr>
+                  </sc-for>
+                  <tr style="border-top:1px solid var(--border);background:var(--surface-2)"><td colspan="4" style="padding:12px 16px;font-weight:600">Total</td><td style="padding:12px 16px;text-align:right;font:600 16px var(--font-sans)">123 unidades</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <form style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:14px">
+              <h2 style="margin:0;font:600 16px var(--font-sans)">Change status</h2>
+              <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+                <legend style="font:400 13px var(--font-sans);color:var(--text-2);margin-bottom:8px">From <b style="color:var(--text)">Pending</b> you can move to:</legend>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--accent);background:var(--accent-soft);font:600 14px var(--font-sans)"><span style="width:18px;height:18px;border-radius:50%;border:5px solid var(--accent);box-sizing:border-box;background:var(--surface)"></span>Paid</label>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);font:500 14px var(--font-sans)"><span style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-strong);box-sizing:border-box"></span>Cancelled <span style="font:400 12px var(--font-sans);color:var(--text-2)">· returns stock</span></label>
+              </fieldset>
+              <div role="alert" style="display:flex;gap:10px;padding:10px 12px;border-radius:10px;background:var(--danger-soft);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent);font:400 13px/1.45 var(--font-sans)"><span style="color:var(--danger);display:flex;padding-top:2px">{{ icAlert }}</span><span><b style="color:var(--danger)">Not changed (409):</b> invalid status change: order is already cancelled. The customer cancelled it a moment ago; reload to see the latest.</span></div>
+              <div style="display:flex;gap:8px"><button style="flex:1;height:42px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans)">Mark as paid</button><a href="#" style="height:42px;padding:0 14px;display:flex;align-items:center;border-radius:10px;border:1px solid var(--border-strong);color:var(--text);font:600 14px var(--font-sans);text-decoration:none">Reload</a></div>
+            </form>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">G5 · Change status control · every state</div>
+      <div data-theme="{{ theme }}" style="width:420px;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:14px">
+        <sc-for list="{{ statusMatrix }}" as="m" hint-placeholder-count="5">
+          <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:500 12.5px var(--font-sans);color:var(--text-2)">Current</span><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--{{ m.tone }}-soft);color:var(--{{ m.tone }});font:600 12px var(--font-sans)">{{ m.icon }}{{ m.label }}</span></div>
+            <sc-if value="{{ m.hasNext }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ m.next }}" as="n" hint-placeholder-count="1"><button style="height:38px;padding:0 14px;border-radius:9px;font:600 13.5px var(--font-sans);border:{{ n.border }};background:{{ n.bg }};color:{{ n.color }}">{{ n.text }}</button></sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.final }}" hint-placeholder-val="{{ false }}">
+              <span style="display:flex;gap:8px;align-items:center;font:400 13px var(--font-sans);color:var(--text-2)">{{ icLock }}{{ m.finalText }}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="Admin products" style="padding:40px 56px 80px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">H · Products <span style="font:400 14px var(--font-mono);color:#736960">/admin/products · /admin/products/new · /admin/products/:id</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">H1 · All products · filter: All · deactivate confirmation open · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;align-items:stretch;position:relative">
+        <dc-import name="Admin Nav" active="products" hint-size="232px,100%"></dc-import>
+        <main style="flex:1;min-width:0;padding:28px 32px 32px;display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><h1 style="margin:0;font:600 28px var(--font-sans)">Products</h1><a href="#" style="height:40px;padding:0 16px;display:flex;align-items:center;gap:8px;border-radius:10px;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);text-decoration:none">+ New product</a></div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div role="group" aria-label="Show" style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"><a href="#" style="padding:6px 12px;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Active</a><a href="#" style="padding:6px 12px;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Inactive</a><a href="#" aria-current="true" style="padding:6px 12px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow-1);font:600 13px var(--font-sans);color:var(--text);text-decoration:none">All</a></div>
+            <div role="group" aria-label="Sort" style="display:inline-flex;align-items:center;gap:8px;font:500 13px var(--font-sans);color:var(--text-2)">Sort<div style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"><a href="#" aria-current="true" style="padding:6px 12px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow-1);font:600 13px var(--font-sans);color:var(--text);text-decoration:none">Name</a><a href="#" style="padding:6px 12px;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Newest</a></div></div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font:400 14px var(--font-sans)">
+              <thead><tr style="background:var(--surface-2);text-align:left;font:600 12px var(--font-sans);color:var(--text-2)"><th style="padding:10px 16px">Product</th><th style="padding:10px 16px">ID</th><th style="padding:10px 16px">Status</th><th style="padding:10px 16px">Created</th><th style="padding:10px 16px;text-align:right">Actions</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ products }}" as="p" hint-placeholder-count="8">
+                  <tr style="border-top:1px solid var(--border);background:{{ p.rowBg }}">
+                    <td style="padding:10px 16px"><div style="display:flex;flex-direction:column;gap:2px"><a href="#" style="font:600 14px var(--font-sans);color:{{ p.nameColor }};text-decoration:none">{{ p.name }}</a><span style="font:400 12.5px var(--font-sans);color:var(--text-2)">{{ p.desc }}</span></div></td>
+                    <td style="padding:10px 16px;font:400 13px var(--font-mono);color:var(--text-2)">{{ p.id }}</td>
+                    <td style="padding:10px 16px"><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--{{ p.tone }}-soft);color:var(--{{ p.tone }});font:600 12px var(--font-sans)">{{ p.icon }}{{ p.status }}</span></td>
+                    <td style="padding:10px 16px;color:var(--text-2)">{{ p.created }}</td>
+                    <td style="padding:10px 16px;text-align:right;white-space:nowrap"><a href="#" style="font:600 13px var(--font-sans);margin-right:16px">Edit</a><a href="#" style="font:600 13px var(--font-sans);color:var(--text-2)">{{ p.toggle }}</a></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <span style="font:400 14px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">1–8</b> of <b style="color:var(--text)">61</b> · 57 active, 4 inactive</span>
+        </main>
+        <div style="position:absolute;inset:0;background:var(--overlay)"></div>
+        <div role="alertdialog" aria-modal="true" aria-labelledby="dq" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:440px;background:var(--surface);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow-3)">
+          <h2 id="dq" style="margin:0;font:600 19px var(--font-sans)">Deactivate "Oolong Tea"?</h2>
+          <p style="margin:0;font:400 14px/1.55 var(--font-sans);color:var(--text-2)">It disappears from the public catalog and shows as "No longer sold" in any cart that holds it. Existing orders keep their snapshot. Nothing is deleted; you can reactivate it at any time.</p>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px"><button autofocus="" style="height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">Keep active</button><button style="height:40px;padding:0 14px;border-radius:9px;border:0;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans)">Deactivate</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">H2 · Create product · validation (422)</div>
+      <div data-theme="{{ theme }}" style="width:560px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);background:var(--bg)">
+        <main style="padding:28px;display:flex;flex-direction:column;gap:18px">
+          <a href="#" style="font:500 13.5px var(--font-sans);color:var(--text-2);text-decoration:none;width:max-content">← Products</a>
+          <h1 style="margin:0;font:600 26px var(--font-sans)">New product</h1>
+          <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--danger-soft);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--danger);display:flex;padding-top:2px">{{ icAlert }}</span><div style="display:flex;flex-direction:column;gap:3px"><b style="color:var(--danger)">Please fix 2 fields</b><a href="#" style="color:var(--text)">Initial price: must be a whole number ≥ 1</a><a href="#" style="color:var(--text)">Initial stock: must be ≥ 0</a></div></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Name<input value="Pour-over Kit" style="height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Description<textarea rows="3" style="padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px/1.5 var(--font-sans);resize:vertical">Dripper, glass carafe and 100 filters.</textarea></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Initial price<span style="display:flex;align-items:center;height:42px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);padding:0 12px;gap:8px"><input aria-invalid="true" value="12.5" style="flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:400 15px var(--font-sans);outline:none"><span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span><span style="display:flex;gap:6px;font:500 12.5px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}Whole number ≥ 1, no decimals</span></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Initial stock<input aria-invalid="true" value="-4" style="height:42px;padding:0 12px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"><span style="display:flex;gap:6px;font:500 12.5px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}Must be ≥ 0</span></label>
+          </div>
+          <p style="margin:0;display:flex;gap:8px;font:400 13px/1.5 var(--font-sans);color:var(--text-2)"><span style="color:var(--info);display:flex;padding-top:2px">{{ icInfo }}</span>A default variant is created with this price and stock. Add more variants on the product page afterwards.</p>
+          <div style="display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:16px"><a href="#" style="height:42px;padding:0 16px;display:flex;align-items:center;border-radius:10px;border:1px solid var(--border-strong);color:var(--text);font:600 14px var(--font-sans);text-decoration:none">Cancel</a><button style="height:42px;padding:0 16px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans)">Create product</button></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">H3 · Product admin detail · all variants · edit variant with duplicate SKU · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;align-items:stretch">
+        <dc-import name="Admin Nav" active="products" hint-size="232px,100%"></dc-import>
+        <main style="flex:1;min-width:0;padding:24px 32px 36px;display:flex;flex-direction:column;gap:22px">
+          <a href="#" style="font:500 13.5px var(--font-sans);color:var(--text-2);text-decoration:none;width:max-content">← Products</a>
+          <div style="display:flex;align-items:center;gap:12px"><h1 style="margin:0;font:600 28px var(--font-sans)">Oolong Tea</h1><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--success-soft);color:var(--success);font:600 12px var(--font-sans)">{{ icCheck }}Active</span><span style="font:400 13px var(--font-mono);color:var(--text-3)">ID 10 · created Mar 2, 2026</span></div>
+          <form style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:18px 20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;gap:16px;align-items:end">
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans)">Name<input value="Oolong Tea" style="height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 14px var(--font-sans)"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans)">Description<input value="Roasted, honeyed leaves from a small farm." style="height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 14px var(--font-sans)"></label>
+            <div style="display:flex;align-items:center;gap:16px;height:40px"><span style="display:inline-flex;align-items:center;gap:8px;font:500 13.5px var(--font-sans)"><span role="switch" aria-checked="true" aria-label="Active" style="width:36px;height:22px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:flex-end;padding:2px;box-sizing:border-box"><span style="width:18px;height:18px;border-radius:50%;background:var(--surface)"></span></span>Active</span><button style="height:40px;padding:0 14px;border-radius:9px;border:0;background:var(--accent);color:var(--on-accent);font:600 13.5px var(--font-sans)">Save</button></div>
+          </form>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font:600 17px var(--font-sans)">Variants <span style="font:400 14px var(--font-sans);color:var(--text-2)">4, including 1 inactive</span></h2><button style="height:38px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 13.5px var(--font-sans)">+ Add variant</button></div>
+            <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden">
+              <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 110px 90px 120px 170px;gap:14px;padding:10px 16px;background:var(--surface-2);font:600 12px var(--font-sans);color:var(--text-2)"><span>Name</span><span>SKU</span><span style="text-align:right">Price</span><span style="text-align:right">Stock</span><span>Status</span><span style="text-align:right">Actions</span></div>
+              <sc-for list="{{ variants }}" as="v" hint-placeholder-count="3">
+                <div style="border-top:1px solid var(--border);padding:11px 16px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 110px 90px 120px 170px;gap:14px;align-items:center;font:400 14px var(--font-sans);background:{{ v.rowBg }};color:{{ v.ink }}">
+                  <span style="font-weight:600">{{ v.name }}</span><span style="font:400 13px var(--font-mono);color:var(--text-2)">{{ v.sku }}</span><span style="text-align:right">{{ v.price }}</span><span style="text-align:right;color:var({{ v.stockTone }});font-weight:600">{{ v.stock }}</span>
+                  <span><span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:var(--{{ v.tone }}-soft);color:var(--{{ v.tone }});font:600 12px var(--font-sans)">{{ v.icon }}{{ v.status }}</span></span>
+                  <span style="text-align:right;white-space:nowrap"><a href="#" style="font:600 13px var(--font-sans);margin-right:14px">Edit</a><a href="#" style="font:600 13px var(--font-sans);color:var(--text-2)">{{ v.toggle }}</a></span>
+                </div>
+              </sc-for>
+              <form style="border-top:1px solid var(--border);padding:14px 16px;background:var(--accent-soft);display:flex;flex-direction:column;gap:10px">
+                <span style="font:600 12.5px var(--font-sans);color:var(--accent-soft-text)">Editing "250 g bag"</span>
+                <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 110px 90px auto;gap:14px;align-items:start">
+                  <label style="display:flex;flex-direction:column;gap:5px;font:500 12.5px var(--font-sans)">Name<input value="250 g bag" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 14px var(--font-sans);min-width:0"></label>
+                  <label style="display:flex;flex-direction:column;gap:5px;font:500 12.5px var(--font-sans)">SKU<input aria-invalid="true" value="TEA-OOL-050" style="height:38px;padding:0 10px;border-radius:8px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 13.5px var(--font-mono);min-width:0"><span style="display:flex;gap:5px;font:500 12px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}sku: already used by "50 g tin"</span></label>
+                  <label style="display:flex;flex-direction:column;gap:5px;font:500 12.5px var(--font-sans)">Price<input value="45" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 14px var(--font-sans);min-width:0;text-align:right"></label>
+                  <label style="display:flex;flex-direction:column;gap:5px;font:500 12.5px var(--font-sans)">Stock<input value="2" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 14px var(--font-sans);min-width:0;text-align:right"></label>
+                  <div style="display:flex;gap:8px;padding-top:21px"><button style="height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 13px var(--font-sans)">Cancel</button><button style="height:38px;padding:0 12px;border-radius:8px;border:0;background:var(--accent);color:var(--on-accent);font:600 13px var(--font-sans)">Save variant</button></div>
+                </div>
+              </form>
+            </div>
+            <span style="font:400 12.5px var(--font-sans);color:var(--text-3)">Inactive variants stay listed here (dimmed) and are hidden from the catalog and carts. Nothing is ever deleted.</span>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">H4 · Products · mobile (dark)</div>
+      <div data-theme="dark" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Admin Nav" mobile="{{ true }}" active="products" hint-size="100%,96px"></dc-import>
+        <main style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><h1 style="margin:0;font:600 24px var(--font-sans)">Products</h1><a href="#" style="height:44px;padding:0 14px;display:flex;align-items:center;border-radius:10px;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);text-decoration:none">+ New</a></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"><a href="#" aria-current="true" style="padding:10px 0;text-align:center;border-radius:8px;background:var(--surface);font:600 13px var(--font-sans);color:var(--text);text-decoration:none">Active</a><a href="#" style="padding:10px 0;text-align:center;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Inactive</a><a href="#" style="padding:10px 0;text-align:center;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">All</a></div>
+          <span style="font:400 13px var(--font-sans);color:var(--text-2)">Showing 1–5 of 57 · Sort: Name</span>
+          <sc-for list="{{ productsActive }}" as="p" hint-placeholder-count="5">
+            <a href="#" style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px 14px;display:flex;justify-content:space-between;gap:12px;align-items:center;text-decoration:none;color:var(--text)"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font:600 14.5px var(--font-sans)">{{ p.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">ID {{ p.id }} · {{ p.created }}</span></div><span style="color:var(--text-3)">›</span></a>
+          </sc-for>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const h = React.createElement;
+    const svg = (d, s = 13) => h('svg', { width: s, height: s, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }, d.map((p, i) => h('path', { key: i, d: p })));
+    const P = { check: ['M3.5 8.5l3 3 6-7'], x: ['M4.5 4.5l7 7M11.5 4.5l-7 7'], alert: ['M8 2.5l6 11H2z', 'M8 7v3', 'M8 12.2v.1'], info: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 7.5V11', 'M8 5v.1'], clock: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 5v3l2 1.5'], box: ['M2.5 5L8 2.5 13.5 5v6L8 13.5 2.5 11z', 'M2.5 5L8 7.5 13.5 5', 'M8 7.5v6'], coin: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M5.5 8h5'], lock: ['M4.5 7.5h7v6h-7z', 'M6 7.5V5.5a2 2 0 014 0v2'], pause: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M6.5 6v4M9.5 6v4'], chev: ['M4 6l4 4 4-4'] };
+    const ic = {}; Object.keys(P).forEach(k => ic[k] = svg(P[k]));
+    const fmt = (n) => n.toLocaleString('en-US');
+    const ST = { pending: ['Pending', 'warning', ic.clock], paid: ['Paid', 'info', ic.coin], shipped: ['Shipped', 'accent', ic.box], delivered: ['Delivered', 'success', ic.check], cancelled: ['Cancelled', 'neutral', ic.x] };
+    const o = (id, customer, s, total, created, short, paid) => ({ id, customer, label: ST[s][0], tone: ST[s][1], icon: ST[s][2], total: fmt(total), created, createdShort: short, paid: paid || '—' });
+    const orders = [o(1048, '418', 'pending', 123, 'Oct 9, 15:42', 'Oct 9', ''), o(1047, '233', 'paid', 54, 'Oct 9, 12:10', 'Oct 9', 'Oct 9, 12:11'), o(1046, '418', 'pending', 18, 'Oct 9, 09:03', 'Oct 9', ''), o(1045, '507', 'cancelled', 160, 'Oct 8, 21:47', 'Oct 8', ''), o(1044, '091', 'shipped', 1240, 'Oct 8, 17:20', 'Oct 8', 'Oct 8, 17:24'), o(1043, '233', 'delivered', 37, 'Oct 7, 10:55', 'Oct 7', 'Oct 7, 10:56'), o(1042, '418', 'paid', 63, 'Oct 3, 14:02', 'Oct 3', 'Oct 3, 14:05'), o(1041, '612', 'pending', 9, 'Oct 3, 08:31', 'Oct 3', ''), o(1040, '091', 'delivered', 220, 'Oct 2, 19:14', 'Oct 2', 'Oct 2, 19:15'), o(1039, '507', 'shipped', 45, 'Oct 1, 16:40', 'Oct 1', 'Oct 1, 16:42')];
+    const filt = ['All', 'Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].map((label, i) => ({ label, current: i === 0 ? 'true' : undefined, font: i === 0 ? '600 13px var(--font-sans)' : '500 13px var(--font-sans)', color: i === 0 ? 'var(--text)' : 'var(--text-2)', bg: i === 0 ? 'var(--surface)' : 'transparent', shadow: i === 0 ? 'var(--shadow-1)' : 'none' }));
+    const prim = { border: '0', bg: 'var(--accent)', color: 'var(--on-accent)' };
+    const sec = { border: '1px solid var(--border-strong)', bg: 'var(--surface)', color: 'var(--text)' };
+    const m = (s, next, finalText) => ({ label: ST[s][0], tone: ST[s][1], icon: ST[s][2], next, hasNext: next.length > 0, final: !next.length, finalText });
+    const statusMatrix = [m('pending', [{ text: 'Mark as paid', ...prim }, { text: 'Cancel order', ...sec }]), m('paid', [{ text: 'Mark as shipped', ...prim }]), m('shipped', [{ text: 'Mark as delivered', ...prim }]), m('delivered', [], 'Final status. No further changes.'), m('cancelled', [], 'Final status. Stock was returned when cancelled.')];
+    const pr = (id, name, desc, active, created) => ({ id, name, desc, status: active ? 'Active' : 'Inactive', tone: active ? 'success' : 'neutral', icon: active ? ic.check : ic.pause, toggle: active ? 'Deactivate' : 'Reactivate', created: created || '—', rowBg: active ? 'transparent' : 'var(--surface-2)', nameColor: active ? 'var(--text)' : 'var(--text-2)' });
+    const products = [pr(1, 'Beeswax Candle', 'Hand-poured, burns 40 hours', true, 'Jan 12, 2026'), pr(14, 'Brass Bookmark', 'Etched, gift boxed', false, 'Feb 3, 2026'), pr(2, 'Canvas Tote', 'Heavy cotton, long handles', true, ''), pr(3, 'Ceramic Mug', 'Stoneware, 350 ml', true, ''), pr(4, 'Cutting Board', 'Oiled walnut, end grain', true, 'Jan 20, 2026'), pr(5, 'Enamel Pin', 'Small, rust on cream', false, 'Jan 21, 2026'), pr(6, 'Field Notebook', 'Dot grid, 96 pages', true, 'Feb 9, 2026'), pr(10, 'Oolong Tea', 'Roasted, honeyed leaves', true, 'Mar 2, 2026')];
+    const it = (name, sku, up, qty) => ({ name, sku, unitPrice: fmt(up), qty, lineTotal: fmt(up * qty) });
+    const v = (name, sku, price, stock, active) => ({ name, sku, price: fmt(price), stock, stockTone: stock === 0 ? 'danger' : stock <= 5 ? 'warning' : 'text', status: active ? 'Active' : 'Inactive', tone: active ? 'success' : 'neutral', icon: active ? ic.check : ic.pause, toggle: active ? 'Deactivate' : 'Reactivate', rowBg: active ? 'transparent' : 'var(--surface-2)', ink: active ? 'var(--text)' : 'var(--text-2)' });
+    return {
+      theme: this.props.theme ?? 'light',
+      orders, ordersPending: orders.filter(x => x.label === 'Pending'), statusFilters: filt, statusMatrix,
+      items: [it('Oolong Tea · 250 g bag', 'TEA-OOL-250', 45, 2), it('Ceramic Mug · Sand glaze', 'MUG-CER-SND', 18, 1), it('Wool Socks · Size M', 'SCK-WOL-M', 15, 1)],
+      products, productsActive: products.filter(p => p.status === 'Active').slice(0, 5),
+      variants: [v('50 g tin', 'TEA-OOL-050', 12, 24, true), v('250 g bag', 'TEA-OOL-250', 45, 2, true), v('1 kg bulk', 'TEA-OOL-1000', 160, 0, true), v('Sampler 10 g', 'TEA-OOL-010', 3, 40, false)],
+      icCheck: ic.check, icAlert: ic.alert, icInfo: ic.info, icClock: ic.clock, icLock: ic.lock, icChevron: ic.chev,
+    };
+  }
+}
+</script>
+</body>
+</html>

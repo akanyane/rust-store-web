@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+body{margin:0;background:#E9E5E0;font-family:"Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+@keyframes rs-spin{to{transform:rotate(360deg)}}
+@keyframes rs-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</helmet>
+<div style="padding:56px 56px 8px;display:flex;flex-direction:column;gap:8px;max-width:1100px;color:#1F1B17">
+  <div style="font:500 12px var(--font-mono);color:#736960;letter-spacing:.06em;text-transform:uppercase">Rust Store · Customer storefront</div>
+  <h1 style="margin:0;font:600 40px/1.1 var(--font-sans);letter-spacing:-.02em">Storefront screens</h1>
+  <p style="margin:4px 0 0;max-width:760px;font:400 15px/1.55 var(--font-sans);color:#5A5148;text-wrap:pretty">Desktop at 1280, mobile at 390. Every screen uses only the API fields listed in the brief. Use the Theme tweak to flip all frames; frames marked "dark" are fixed to dark. Components and tokens: <a href="./Rust Store Design System.dc.html">Design system</a> · <a href="./Rust Store Admin.dc.html">Admin</a> · <a href="./Rust Store Handoff.dc.html">Fresh handoff</a>.</p>
+</div>
+
+<section data-screen-label="Catalog" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">A · Catalog <span style="font:400 14px var(--font-mono);color:#736960">/</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">A1 · Catalog · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="catalog" cart="{{ four }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:40px 32px 48px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+            <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font:600 34px/1.1 var(--font-sans);letter-spacing:-.02em">Catalog</h1><span style="font:400 15px var(--font-sans);color:var(--text-2)">Small-batch goods, priced in unidades.</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span id="sort-l" style="font:500 13px var(--font-sans);color:var(--text-2)">Sort by</span>
+              <div role="group" aria-labelledby="sort-l" style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"><a href="#" aria-current="true" style="padding:7px 14px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow-1);font:600 13px var(--font-sans);color:var(--text);text-decoration:none">Name</a><a href="#" style="padding:7px 14px;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Newest</a></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px">
+            <sc-for list="{{ products }}" as="p" hint-placeholder-count="12">
+              <a href="#" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden;text-decoration:none;color:var(--text)" style-hover="box-shadow:var(--shadow-2);border-color:var(--border-strong)">
+                <div style="aspect-ratio:4/3;background:var({{ p.bg }});color:var({{ p.fg }});display:flex;align-items:flex-end;padding:16px;font:600 44px/1 var(--font-sans);letter-spacing:-.03em">{{ p.ini }}</div>
+                <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 15px var(--font-sans)">{{ p.name }}</span><span style="font:400 13px/1.4 var(--font-sans);color:var(--text-2)">{{ p.desc }}</span><span style="font:500 13px var(--font-sans);color:var(--text-2);margin-top:6px">{{ p.from }}<b style="font-size:16px;color:var(--text);font-variant-numeric:tabular-nums">{{ p.price }}</b> {{ p.unit }}</span></div>
+              </a>
+            </sc-for>
+          </div>
+          <nav aria-label="Pagination" style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:20px">
+            <span style="font:400 14px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">1–12</b> of <b style="color:var(--text)">57</b></span>
+            <div style="display:flex;gap:6px;font:500 14px var(--font-sans)">
+              <span aria-disabled="true" style="height:38px;padding:0 14px;display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;color:var(--text-3)">← Previous</span>
+              <a href="#" aria-current="page" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--text);color:var(--bg);text-decoration:none;font-weight:600">1</a>
+              <a href="#" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);text-decoration:none">2</a>
+              <a href="#" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);text-decoration:none">3</a>
+              <span style="width:24px;height:38px;display:flex;align-items:center;justify-content:center;color:var(--text-3)">…</span>
+              <a href="#" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);text-decoration:none">5</a>
+              <a href="#" style="height:38px;padding:0 14px;display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:8px;color:var(--text);text-decoration:none">Next →</a>
+            </div>
+          </nav>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">A2 · Catalog · mobile</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ four }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:24px 16px 28px;display:flex;flex-direction:column;gap:18px">
+          <h1 style="margin:0;font:600 28px/1.1 var(--font-sans);letter-spacing:-.02em">Catalog</h1>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:400 13px var(--font-sans);color:var(--text-2)">1–12 of 57</span>
+            <div role="group" aria-label="Sort by" style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"><a href="#" aria-current="true" style="padding:9px 12px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow-1);font:600 13px var(--font-sans);color:var(--text);text-decoration:none">Name</a><a href="#" style="padding:9px 12px;font:500 13px var(--font-sans);color:var(--text-2);text-decoration:none">Newest</a></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+            <sc-for list="{{ productsMobile }}" as="p" hint-placeholder-count="6">
+              <a href="#" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden;text-decoration:none;color:var(--text)">
+                <div style="aspect-ratio:1/1;background:var({{ p.bg }});color:var({{ p.fg }});display:flex;align-items:flex-end;padding:12px;font:600 34px/1 var(--font-sans);letter-spacing:-.03em">{{ p.ini }}</div>
+                <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px"><span style="font:600 14px var(--font-sans)">{{ p.name }}</span><span style="font:400 12px/1.35 var(--font-sans);color:var(--text-2)">{{ p.desc }}</span><span style="font:500 12px var(--font-sans);color:var(--text-2);margin-top:4px">{{ p.from }}<b style="font-size:15px;color:var(--text)">{{ p.price }}</b> {{ p.unit }}</span></div>
+              </a>
+            </sc-for>
+          </div>
+          <nav aria-label="Pagination" style="display:flex;flex-direction:column;gap:10px;align-items:center">
+            <span style="font:400 13px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">1–12</b> of <b style="color:var(--text)">57</b> · Page 1 of 5</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%"><span style="height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:10px;color:var(--text-3);font:500 14px var(--font-sans)">← Previous</span><a href="#" style="height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-strong);border-radius:10px;color:var(--text);font:600 14px var(--font-sans);text-decoration:none">Next →</a></div>
+          </nav>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">A3 · Loading (skeleton)</div>
+      <div data-theme="{{ theme }}" aria-busy="true" style="width:390px;height:720px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ four }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:24px 16px;display:flex;flex-direction:column;gap:18px;flex:1">
+          <h1 style="margin:0;font:600 28px/1.1 var(--font-sans);letter-spacing:-.02em">Catalog</h1>
+          <span style="height:14px;width:120px;border-radius:4px;background:var(--surface-sunken)"></span>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;animation:rs-pulse 1.4s ease-in-out infinite">
+            <sc-for list="{{ skel }}" as="s" hint-placeholder-count="4">
+              <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden"><div style="aspect-ratio:1/1;background:var(--surface-2)"></div><div style="padding:12px;display:flex;flex-direction:column;gap:8px"><span style="height:12px;width:70%;border-radius:4px;background:var(--surface-sunken)"></span><span style="height:10px;width:90%;border-radius:4px;background:var(--surface-2)"></span><span style="height:12px;width:45%;border-radius:4px;background:var(--surface-sunken)"></span></div></div>
+            </sc-for>
+          </div>
+          <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Loading products</span>
+        </main>
+      </div>
+      <div style="width:390px;font:400 12px/1.5 var(--font-sans);color:#5A5148">SSR normally renders data directly; skeleton only appears on slow client navigations (Fresh partials).</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">A4 · Empty · A5 · Error</div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div data-theme="{{ theme }}" style="width:390px;height:350px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+          <dc-import name="Store Header" mobile="{{ true }}" hint-size="100%,56px"></dc-import>
+          <main style="flex:1;padding:32px 24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-content:center">
+            <span style="width:48px;height:48px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--border-strong)"></span>
+            <h2 style="margin:0;font:600 20px var(--font-sans)">Nothing on the shelves yet</h2>
+            <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">There are no active products right now. Check back soon.</p>
+          </main>
+        </div>
+        <div data-theme="{{ theme }}" style="width:390px;height:350px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+          <dc-import name="Store Header" mobile="{{ true }}" hint-size="100%,56px"></dc-import>
+          <main style="flex:1;padding:32px 24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-content:center">
+            <span style="width:48px;height:48px;border-radius:12px;background:var(--danger-soft);color:var(--danger);display:flex;align-items:center;justify-content:center">{{ icAlertL }}</span>
+            <h2 style="margin:0;font:600 20px var(--font-sans)">We couldn't load the catalog</h2>
+            <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">The store didn't respond. Your cart is unaffected.</p>
+            <a href="#" style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);text-decoration:none">Try again</a>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="Product" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">B · Product <span style="font:400 14px var(--font-mono);color:#736960">/products/:id</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">B1 · Product · desktop (one row shows a 409, one a success)</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="catalog" cart="{{ six }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:28px 32px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px">
+          <a href="#" style="font:500 14px var(--font-sans);color:var(--text-2);text-decoration:none;width:max-content">← Catalog</a>
+          <div style="display:grid;grid-template-columns:420px minmax(0,1fr);gap:48px;align-items:start">
+            <div style="aspect-ratio:4/3;border-radius:16px;background:var(--ph-1-bg);color:var(--ph-1-fg);display:flex;align-items:flex-end;padding:24px;font:600 96px/1 var(--font-sans);letter-spacing:-.04em">Oo</div>
+            <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
+              <h1 style="margin:0;font:600 40px/1.1 var(--font-sans);letter-spacing:-.02em">Oolong Tea</h1>
+              <p style="margin:0;font:400 17px/1.6 var(--font-sans);color:var(--text-2);max-width:560px;text-wrap:pretty">Roasted, honeyed leaves from a small farm. Brews a deep amber cup with notes of toasted grain and stone fruit. Good for several infusions.</p>
+              <span style="font:500 14px var(--font-sans);color:var(--text-2)">3 variants · from <b style="color:var(--text);font-size:16px">12</b> unidades</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <h2 style="margin:0;font:600 18px var(--font-sans)">Choose a variant</h2>
+            <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+              <sc-for list="{{ variants }}" as="v" hint-placeholder-count="3">
+                <div style="border-top:1px solid var(--border);padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+                  <div style="display:grid;grid-template-columns:minmax(0,1.6fr) 150px 150px 132px 150px;gap:20px;align-items:center">
+                    <div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 16px var(--font-sans)">{{ v.name }}</span><span style="font:400 12.5px var(--font-mono);color:var(--text-3)">SKU {{ v.sku }}</span></div>
+                    <span style="display:inline-flex;align-items:baseline;gap:5px"><b style="font:600 20px var(--font-sans);font-variant-numeric:tabular-nums">{{ v.price }}</b><span style="font:500 13px var(--font-sans);color:var(--text-2)">{{ v.unit }}</span></span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font:500 13.5px var(--font-sans);color:var({{ v.tone }})">{{ v.icon }}{{ v.stockLabel }}</span>
+                    <sc-if value="{{ v.available }}" hint-placeholder-val="{{ true }}">
+                      <div role="group" aria-label="Quantity for {{ v.name }}" style="display:inline-flex;align-items:center;height:42px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);width:max-content"><button aria-label="Decrease" style="width:42px;height:40px;border:0;background:transparent;color:{{ v.minusColor }};font:500 18px var(--font-sans)">−</button><span style="min-width:34px;text-align:center;font:600 15px var(--font-sans);font-variant-numeric:tabular-nums">{{ v.qty }}</span><button aria-label="Increase" style="width:42px;height:40px;border:0;background:transparent;color:{{ v.plusColor }};font:500 18px var(--font-sans)">+</button></div>
+                      <button style="height:42px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);cursor:pointer" style-hover="background:var(--accent-hover)">Add to cart</button>
+                    </sc-if>
+                    <sc-if value="{{ v.out }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:inline-flex;align-items:center;height:42px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);width:max-content;color:var(--border-strong)"><span style="width:42px;text-align:center;font:500 18px var(--font-sans)">−</span><span style="min-width:34px;text-align:center;font:600 15px var(--font-sans);color:var(--text-3)">0</span><span style="width:42px;text-align:center;font:500 18px var(--font-sans)">+</span></div>
+                      <button disabled="" aria-describedby="oos" style="height:42px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 14px var(--font-sans);cursor:not-allowed">Out of stock</button>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ v.err }}" hint-placeholder-val="{{ false }}">
+                    <div role="alert" style="display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--warning-soft);border:1px solid color-mix(in oklab,var(--warning) 30%,transparent);font:400 14px var(--font-sans)"><span style="color:var(--warning);display:flex">{{ icAlert }}</span><span><b style="color:var(--warning)">Couldn't add to cart:</b> insufficient stock. Someone else just bought some; we've updated the count above.</span></div>
+                  </sc-if>
+                  <sc-if value="{{ v.ok }}" hint-placeholder-val="{{ false }}">
+                    <div role="status" style="display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--success-soft);font:400 14px var(--font-sans)"><span style="color:var(--success);display:flex">{{ icCheck }}</span><span style="flex:1"><b style="color:var(--success)">Added to cart.</b> 2 × 50 g tin</span><a href="#" style="font:600 14px var(--font-sans)">View cart →</a></div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <sc-for list="{{ productMobileThemes }}" as="pt" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">{{ pt.label }}</div>
+      <div data-theme="{{ pt.theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ four }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px">
+          <a href="#" style="font:500 14px var(--font-sans);color:var(--text-2);text-decoration:none;height:32px;display:flex;align-items:center">← Catalog</a>
+          <div style="aspect-ratio:16/9;border-radius:14px;background:var(--ph-1-bg);color:var(--ph-1-fg);display:flex;align-items:flex-end;padding:16px;font:600 60px/1 var(--font-sans);letter-spacing:-.04em">Oo</div>
+          <h1 style="margin:0;font:600 28px/1.15 var(--font-sans);letter-spacing:-.02em">Oolong Tea</h1>
+          <p style="margin:0;font:400 15px/1.55 var(--font-sans);color:var(--text-2)">Roasted, honeyed leaves from a small farm. Brews a deep amber cup with notes of toasted grain and stone fruit.</p>
+          <h2 style="margin:8px 0 0;font:600 16px var(--font-sans)">Choose a variant</h2>
+          <sc-for list="{{ variants }}" as="v" hint-placeholder-count="3">
+            <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 15px var(--font-sans)">{{ v.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">SKU {{ v.sku }}</span></div>
+                <span style="display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap"><b style="font:600 18px var(--font-sans)">{{ v.price }}</b><span style="font:500 12px var(--font-sans);color:var(--text-2)">{{ v.unit }}</span></span>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:6px;font:500 13px var(--font-sans);color:var({{ v.tone }})">{{ v.icon }}{{ v.stockLabel }}</span>
+              <sc-if value="{{ v.available }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px">
+                  <div style="display:inline-flex;align-items:center;height:44px;border:1px solid var(--border-strong);border-radius:10px"><button aria-label="Decrease" style="width:44px;height:42px;border:0;background:transparent;color:{{ v.minusColor }};font:500 18px var(--font-sans)">−</button><span style="min-width:28px;text-align:center;font:600 15px var(--font-sans)">{{ v.qty }}</span><button aria-label="Increase" style="width:44px;height:42px;border:0;background:transparent;color:{{ v.plusColor }};font:500 18px var(--font-sans)">+</button></div>
+                  <button style="height:44px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Add to cart</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ v.out }}" hint-placeholder-val="{{ false }}">
+                <button disabled="" style="height:44px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 15px var(--font-sans)">Out of stock</button>
+              </sc-if>
+              <sc-if value="{{ v.err }}" hint-placeholder-val="{{ false }}">
+                <div role="alert" style="display:flex;gap:8px;padding:10px 12px;border-radius:10px;background:var(--warning-soft);font:400 13px/1.45 var(--font-sans)"><span style="color:var(--warning);display:flex;padding-top:2px">{{ icAlert }}</span><span><b style="color:var(--warning)">Couldn't add:</b> insufficient stock.</span></div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+    </sc-for>
+  </div>
+</section>
+
+<section data-screen-label="Cart" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">C · Cart <span style="font:400 14px var(--font-mono);color:#736960">/cart</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">C1 · Cart with flagged lines (can_checkout = false) · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="cart" cart="{{ four }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:40px 32px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:12px"><h1 style="margin:0;font:600 34px/1.1 var(--font-sans);letter-spacing:-.02em">Your cart</h1><span style="font:400 15px var(--font-sans);color:var(--text-2)">4 lines · 8 items</span></div>
+          <div role="status" style="display:flex;gap:12px;padding:14px 16px;border-radius:12px;background:var(--warning-soft);border:1px solid color-mix(in oklab,var(--warning) 30%,transparent)"><span style="color:var(--warning);display:flex;padding-top:2px">{{ icAlert }}</span><div style="display:flex;flex-direction:column;gap:3px;font:400 14px/1.5 var(--font-sans)"><b style="color:var(--warning);font-size:15px">2 lines need attention before you can place an order</b><span>We never remove items for you. Lower the quantity or remove the flagged lines.</span></div></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start">
+            <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 120px 110px 40px;gap:16px;padding:12px 20px;background:var(--surface-2);font:600 12px var(--font-sans);color:var(--text-2);letter-spacing:.02em"><span>Item</span><span>Unit price</span><span>Quantity</span><span style="text-align:right">Line total</span><span></span></div>
+              <sc-for list="{{ cart }}" as="c" hint-placeholder-count="4">
+                <div style="border-top:1px solid var(--border);padding:16px 20px;display:grid;grid-template-columns:minmax(0,1fr) 96px 120px 110px 40px;gap:16px;align-items:center;background:{{ c.rowBg }}">
+                  <div style="display:flex;gap:14px;align-items:center;min-width:0">
+                    <span style="width:52px;height:52px;flex:none;border-radius:10px;background:var({{ c.bg }});color:var({{ c.fg }});display:flex;align-items:flex-end;padding:6px 8px;box-sizing:border-box;font:600 18px/1 var(--font-sans)">{{ c.ini }}</span>
+                    <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                      <a href="#" style="font:600 15px var(--font-sans);color:var(--text);text-decoration:none">{{ c.name }}</a>
+                      <span style="font:400 12px var(--font-mono);color:var(--text-3)">SKU {{ c.sku }}</span>
+                      <sc-if value="{{ c.flagged }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:2px"><span style="display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;white-space:nowrap;border-radius:999px;background:var({{ c.flagBg }});color:var({{ c.flagFg }});font:600 12px var(--font-sans)">{{ c.flagIcon }}{{ c.flagLabel }}</span><span style="font:400 12.5px var(--font-sans);color:var(--text-2)">{{ c.flagHelp }}</span></span>
+                      </sc-if>
+                    </div>
+                  </div>
+                  <span style="font:500 14px var(--font-sans);font-variant-numeric:tabular-nums">{{ c.unitPrice }} <span style="color:var(--text-2);font-size:12.5px">{{ c.unitU }}</span></span>
+                  <div style="display:inline-flex;align-items:center;height:38px;border:1px solid {{ c.stepBorder }};border-radius:10px;width:max-content;background:{{ c.stepBg }}"><button aria-label="Decrease" style="width:38px;height:36px;border:0;background:transparent;color:{{ c.minusColor }};font:500 17px var(--font-sans)">−</button><span style="min-width:30px;text-align:center;font:600 14px var(--font-sans)">{{ c.qty }}</span><button aria-label="Increase" style="width:38px;height:36px;border:0;background:transparent;color:{{ c.plusColor }};font:500 17px var(--font-sans)">+</button></div>
+                  <span style="text-align:right;font:600 15px var(--font-sans);font-variant-numeric:tabular-nums">{{ c.lineTotal }} <span style="color:var(--text-2);font:500 12.5px var(--font-sans)">unidades</span></span>
+                  <button aria-label="Remove {{ c.name }}" style="width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-2);color:var(--danger)">{{ icTrash }}</button>
+                </div>
+              </sc-for>
+            </div>
+            <aside style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:14px">
+              <h2 style="margin:0;font:600 17px var(--font-sans)">Summary</h2>
+              <div style="display:flex;flex-direction:column;gap:8px;font:400 14px var(--font-sans);color:var(--text-2)">
+                <div style="display:flex;justify-content:space-between"><span>Available lines (2)</span><span style="font-variant-numeric:tabular-nums;color:var(--text)">108</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center">Flagged lines (2) <span style="color:var(--warning);display:flex">{{ icAlert }}</span></span><span style="font-variant-numeric:tabular-nums;color:var(--text)">55</span></div>
+              </div>
+              <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 15px var(--font-sans)">Total, all lines</span><span><b style="font:600 26px var(--font-sans);font-variant-numeric:tabular-nums">163</b> <span style="font:500 14px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+              <p style="margin:0;font:400 12.5px/1.5 var(--font-sans);color:var(--text-2)">The total includes flagged lines, so it may drop once you fix them.</p>
+              <button disabled="" aria-describedby="why-disabled" style="height:48px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 15px var(--font-sans);cursor:not-allowed">Place order</button>
+              <p id="why-disabled" style="margin:0;display:flex;gap:8px;font:500 13px/1.45 var(--font-sans);color:var(--text)"><span style="color:var(--warning);display:flex;padding-top:2px">{{ icAlert }}</span>You can place your order once no lines are flagged.</p>
+            </aside>
+          </div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">C2 · Cart flagged · mobile (dark)</div>
+      <div data-theme="dark" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ four }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:20px 16px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:baseline;gap:10px"><h1 style="margin:0;font:600 28px/1.1 var(--font-sans);letter-spacing:-.02em">Your cart</h1><span style="font:400 14px var(--font-sans);color:var(--text-2)">4 lines</span></div>
+          <div role="status" style="display:flex;gap:10px;padding:12px;border-radius:12px;background:var(--warning-soft);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--warning);display:flex;padding-top:2px">{{ icAlert }}</span><span><b style="color:var(--warning)">2 lines need attention.</b> Lower the quantity or remove them to place your order.</span></div>
+          <sc-for list="{{ cart }}" as="c" hint-placeholder-count="4">
+            <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;gap:12px">
+                <span style="width:48px;height:48px;flex:none;border-radius:10px;background:var({{ c.bg }});color:var({{ c.fg }});display:flex;align-items:flex-end;padding:6px;box-sizing:border-box;font:600 16px/1 var(--font-sans)">{{ c.ini }}</span>
+                <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0"><span style="font:600 15px var(--font-sans)">{{ c.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">SKU {{ c.sku }} · {{ c.unitPrice }} {{ c.unitU }} each</span></div>
+                <button aria-label="Remove {{ c.name }}" style="width:44px;height:44px;margin:-8px -8px 0 0;border:0;background:transparent;color:var(--text-2);display:flex;align-items:center;justify-content:center">{{ icTrash }}</button>
+              </div>
+              <sc-if value="{{ c.flagged }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:4px"><span style="display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;white-space:nowrap;border-radius:999px;background:var({{ c.flagBg }});color:var({{ c.flagFg }});font:600 12px var(--font-sans);width:max-content">{{ c.flagIcon }}{{ c.flagLabel }}</span><span style="font:400 12.5px var(--font-sans);color:var(--text-2)">{{ c.flagHelp }}</span></div>
+              </sc-if>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="display:inline-flex;align-items:center;height:44px;border:1px solid {{ c.stepBorder }};border-radius:10px;background:{{ c.stepBg }}"><button aria-label="Decrease" style="width:44px;height:42px;border:0;background:transparent;color:{{ c.minusColor }};font:500 18px var(--font-sans)">−</button><span style="min-width:28px;text-align:center;font:600 15px var(--font-sans);color:var(--text)">{{ c.qty }}</span><button aria-label="Increase" style="width:44px;height:42px;border:0;background:transparent;color:{{ c.plusColor }};font:500 18px var(--font-sans)">+</button></div>
+                <span style="font:600 16px var(--font-sans)">{{ c.lineTotal }} <span style="color:var(--text-2);font:500 12.5px var(--font-sans)">unidades</span></span>
+              </div>
+            </div>
+          </sc-for>
+        </main>
+        <div style="position:sticky;bottom:0;border-top:1px solid var(--border);background:var(--surface);padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 -6px 16px rgba(0,0,0,.18)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:500 14px var(--font-sans);color:var(--text-2)">Total, all 4 lines</span><span><b style="font:600 22px var(--font-sans)">163</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+          <span style="font:400 12px var(--font-sans);color:var(--text-2)">Includes 55 unidades from flagged lines.</span>
+          <button disabled="" aria-describedby="why-m" style="height:48px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 15px var(--font-sans)">Place order</button>
+          <span id="why-m" style="font:500 12.5px var(--font-sans);color:var(--text);text-align:center">Fix the 2 flagged lines to continue.</span>
+        </div>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">C3 · Ready · placing order (loading)</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ three }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:20px 16px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:baseline;gap:10px"><h1 style="margin:0;font:600 28px/1.1 var(--font-sans);letter-spacing:-.02em">Your cart</h1><span style="font:400 14px var(--font-sans);color:var(--text-2)">2 lines</span></div>
+          <sc-for list="{{ cartOk }}" as="c" hint-placeholder-count="2">
+            <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:12px;opacity:.6">
+              <div style="display:flex;gap:12px"><span style="width:48px;height:48px;flex:none;border-radius:10px;background:var({{ c.bg }});color:var({{ c.fg }});display:flex;align-items:flex-end;padding:6px;box-sizing:border-box;font:600 16px/1 var(--font-sans)">{{ c.ini }}</span><div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 15px var(--font-sans)">{{ c.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">SKU {{ c.sku }} · {{ c.unitPrice }} {{ c.unitU }} each</span></div></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:500 14px var(--font-sans);color:var(--text-2)">Qty {{ c.qty }}</span><span style="font:600 16px var(--font-sans)">{{ c.lineTotal }} <span style="color:var(--text-2);font:500 12.5px var(--font-sans)">unidades</span></span></div>
+            </div>
+          </sc-for>
+        </main>
+        <div style="border-top:1px solid var(--border);background:var(--surface);padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:500 14px var(--font-sans);color:var(--text-2)">Total</span><span><b style="font:600 22px var(--font-sans)">108</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+          <button aria-busy="true" style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans);display:flex;align-items:center;justify-content:center;gap:10px;opacity:.85">{{ spinOnAccent }}Placing order…</button>
+          <span style="font:400 12px/1.45 var(--font-sans);color:var(--text-2);text-align:center">Creates a pending order and reserves stock. You'll pay (simulated) on the next screen.</span>
+        </div>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">C4 · Empty · C5 · Place order refused (409)</div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div data-theme="{{ theme }}" style="width:390px;height:360px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+          <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+          <main style="flex:1;padding:32px 24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-content:center">
+            <span style="width:48px;height:48px;border-radius:12px;background:var(--surface-2);color:var(--text-2);display:flex;align-items:center;justify-content:center">{{ icCartL }}</span>
+            <h1 style="margin:0;font:600 22px var(--font-sans)">Your cart is empty</h1>
+            <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">Add a variant from any product page and it will show up here.</p>
+            <a href="#" style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:10px;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);text-decoration:none">Browse the catalog</a>
+          </main>
+        </div>
+        <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+          <div style="padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--surface);border-bottom:1px solid var(--border)">
+            <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--danger-soft);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--danger);display:flex;padding-top:2px">{{ icAlert }}</span><span><b style="color:var(--danger)">Order not placed:</b> insufficient stock. Your cart has been refreshed; check the flagged lines.</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:500 14px var(--font-sans);color:var(--text-2)">Total, all lines</span><span><b style="font:600 22px var(--font-sans)">108</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+            <button disabled="" style="height:48px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 15px var(--font-sans)">Place order</button>
+          </div>
+          <div style="padding:10px 16px 14px;font:400 12px/1.5 var(--font-sans);color:var(--text-2)">409 messages are shown verbatim from <span style="font-family:var(--font-mono)">{"error"}</span> next to the action that caused them. "empty cart" uses the same slot.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="Orders" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">D · Orders <span style="font:400 14px var(--font-mono);color:#736960">/orders · /orders/:id</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D1 · Orders · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="orders" cart="{{ zero }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:40px 32px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+          <h1 style="margin:0;font:600 34px/1.1 var(--font-sans);letter-spacing:-.02em">Your orders</h1>
+          <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+            <div style="display:grid;grid-template-columns:140px 200px 160px minmax(0,1fr) 150px 24px;gap:16px;padding:12px 20px;background:var(--surface-2);font:600 12px var(--font-sans);color:var(--text-2)"><span>Order</span><span>Created</span><span>Status</span><span>Items</span><span style="text-align:right">Total</span><span></span></div>
+            <sc-for list="{{ orders }}" as="o" hint-placeholder-count="5">
+              <a href="#" style="border-top:1px solid var(--border);padding:16px 20px;display:grid;grid-template-columns:140px 200px 160px minmax(0,1fr) 150px 24px;gap:16px;align-items:center;text-decoration:none;color:var(--text)" style-hover="background:var(--surface-2)">
+                <span style="font:600 14px var(--font-mono)">#{{ o.id }}</span>
+                <span style="font:400 14px var(--font-sans);color:var(--text-2)">{{ o.created }}</span>
+                <span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--{{ o.tone }}-soft);color:var(--{{ o.tone }});font:600 12.5px var(--font-sans);width:max-content">{{ o.icon }}{{ o.label }}</span>
+                <span style="font:400 14px var(--font-sans);color:var(--text-2)">{{ o.items }}</span>
+                <span style="text-align:right;font:600 15px var(--font-sans)">{{ o.total }} <span style="font:500 12.5px var(--font-sans);color:var(--text-2)">unidades</span></span>
+                <span style="color:var(--text-3)">›</span>
+              </a>
+            </sc-for>
+          </div>
+          <div style="font:400 14px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">1–5</b> of <b style="color:var(--text)">5</b></div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D2 · Orders · mobile</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:20px 16px 28px;display:flex;flex-direction:column;gap:12px">
+          <h1 style="margin:0 0 4px;font:600 28px/1.1 var(--font-sans);letter-spacing:-.02em">Your orders</h1>
+          <sc-for list="{{ orders }}" as="o" hint-placeholder-count="5">
+            <a href="#" style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--text)">
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:600 15px var(--font-mono)">#{{ o.id }}</span><span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--{{ o.tone }}-soft);color:var(--{{ o.tone }});font:600 12.5px var(--font-sans)">{{ o.icon }}{{ o.label }}</span></div>
+              <div style="display:flex;justify-content:space-between;font:400 13.5px var(--font-sans);color:var(--text-2)"><span>{{ o.createdShort }} · {{ o.items }}</span><span style="color:var(--text);font-weight:600">{{ o.total }} unidades</span></div>
+            </a>
+          </sc-for>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D3 · No orders yet</div>
+      <div data-theme="{{ theme }}" style="width:390px;height:360px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="flex:1;padding:32px 24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-content:center">
+          <h1 style="margin:0;font:600 22px var(--font-sans)">No orders yet</h1>
+          <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">When you place an order from your cart, it appears here with its status.</p>
+          <a href="#" style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:10px;border:1px solid var(--border-strong);color:var(--text);font:600 14px var(--font-sans);text-decoration:none">Browse the catalog</a>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D4 · Order detail · pending · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="orders" cart="{{ zero }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:28px 32px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+          <a href="#" style="font:500 14px var(--font-sans);color:var(--text-2);text-decoration:none;width:max-content">← Your orders</a>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><h1 style="margin:0;font:600 34px/1.1 var(--font-sans);letter-spacing:-.02em">Order <span style="font-family:var(--font-mono);font-weight:500">#1048</span></h1><span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 10px;border-radius:999px;background:var(--warning-soft);color:var(--warning);font:600 13px var(--font-sans)">{{ icClock }}Pending</span></div>
+          <div style="display:flex;gap:28px;font:400 14px var(--font-sans);color:var(--text-2)"><span>Created <b style="color:var(--text);font-weight:500">Oct 9, 2026, 15:42</b></span><span>Paid <b style="color:var(--text);font-weight:500">Not yet</b></span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:24px">
+              <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:20px 24px">
+                <ol aria-label="Order progress" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)">
+                  <sc-for list="{{ tlPending }}" as="s" hint-placeholder-count="4">
+                    <li aria-current="{{ s.current }}" style="display:flex;flex-direction:column;gap:8px">
+                      <div style="display:flex;align-items:center"><span style="width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:{{ s.dotBg }};border:2px solid {{ s.dotBorder }};color:var(--on-accent);box-sizing:border-box">{{ s.mark }}</span><span style="flex:1;height:2px;background:{{ s.line }}"></span></div>
+                      <span style="font:600 14px var(--font-sans);color:{{ s.labelColor }}">{{ s.label }}</span>
+                      <span style="font:400 12.5px var(--font-sans);color:var(--text-3)">{{ s.meta }}</span>
+                    </li>
+                  </sc-for>
+                </ol>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 120px 80px 130px;gap:16px;padding:12px 20px;background:var(--surface-2);font:600 12px var(--font-sans);color:var(--text-2)"><span>Item</span><span>Unit price</span><span>Qty</span><span style="text-align:right">Line total</span></div>
+                <sc-for list="{{ orderItems }}" as="it" hint-placeholder-count="3">
+                  <div style="border-top:1px solid var(--border);padding:14px 20px;display:grid;grid-template-columns:minmax(0,1fr) 120px 80px 130px;gap:16px;align-items:center;font:400 14px var(--font-sans)">
+                    <div style="display:flex;flex-direction:column;gap:3px"><span style="font-weight:600">{{ it.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">SKU {{ it.sku }}</span></div>
+                    <span>{{ it.unitPrice }} <span style="color:var(--text-2);font-size:12.5px">{{ it.unitU }}</span></span><span>× {{ it.qty }}</span><span style="text-align:right;font-weight:600">{{ it.lineTotal }} <span style="color:var(--text-2);font:500 12.5px var(--font-sans)">unidades</span></span>
+                  </div>
+                </sc-for>
+                <div style="border-top:1px solid var(--border);padding:16px 20px;display:flex;justify-content:space-between;align-items:baseline;background:var(--surface-2)"><span style="font:600 15px var(--font-sans)">Total</span><span><b style="font:600 22px var(--font-sans)">123</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+              </div>
+              <span style="font:400 12.5px var(--font-sans);color:var(--text-3)">Prices are a snapshot from when the order was placed.</span>
+            </div>
+            <aside style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:12px">
+              <h2 style="margin:0;font:600 17px var(--font-sans)">Waiting for payment</h2>
+              <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">Stock is reserved for this order. Paying is simulated; no money moves.</p>
+              <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans);cursor:pointer" style-hover="background:var(--accent-hover)">Pay 123 unidades (simulated)</button>
+              <button style="height:44px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);cursor:pointer" style-hover="background:var(--surface-2)">Cancel order</button>
+              <p style="margin:0;display:flex;gap:8px;font:400 12.5px/1.5 var(--font-sans);color:var(--text-2)"><span style="color:var(--info);display:flex;padding-top:2px">{{ icInfo }}</span>Cancelling returns the items to stock. Once paid, an order can't be cancelled.</p>
+            </aside>
+          </div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D5 · Detail · paid (no actions) · mobile</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px">
+          <a href="#" style="font:500 14px var(--font-sans);color:var(--text-2);text-decoration:none;height:32px;display:flex;align-items:center">← Your orders</a>
+          <div style="display:flex;justify-content:space-between;align-items:center"><h1 style="margin:0;font:600 26px var(--font-sans)">Order <span style="font-family:var(--font-mono);font-weight:500">#1042</span></h1><span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--info-soft);color:var(--info);font:600 12.5px var(--font-sans)">{{ icCoin }}Paid</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font:400 13px var(--font-sans);color:var(--text-2)"><span>Created<br><b style="color:var(--text);font-weight:500">Oct 3, 2026, 14:02</b></span><span>Paid<br><b style="color:var(--text);font-weight:500">Oct 3, 2026, 14:05</b></span></div>
+          <ol aria-label="Order progress" style="list-style:none;margin:0;padding:16px;display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:14px;background:var(--surface)">
+            <sc-for list="{{ tlPaid }}" as="s" hint-placeholder-count="4">
+              <li style="display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px">
+                <div style="display:flex;flex-direction:column;align-items:center"><span style="width:24px;height:24px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:{{ s.dotBg }};border:2px solid {{ s.dotBorder }};color:var(--on-accent);box-sizing:border-box">{{ s.mark }}</span><span style="width:2px;flex:1;min-height:14px;background:{{ s.line }}"></span></div>
+                <div style="display:flex;justify-content:space-between;padding:2px 0 14px"><span style="font:600 14px var(--font-sans);color:{{ s.labelColor }}">{{ s.label }}</span><span style="font:400 12.5px var(--font-sans);color:var(--text-3)">{{ s.meta }}</span></div>
+              </li>
+            </sc-for>
+          </ol>
+          <div role="note" style="display:flex;gap:10px;padding:12px;border-radius:12px;background:var(--info-soft);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--info);display:flex;padding-top:2px">{{ icInfo }}</span><span><b style="color:var(--info)">This order can't be cancelled.</b> It has been paid, and this store has no refunds. Nothing else to do; we'll update the status as it ships.</span></div>
+          <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface)">
+            <sc-for list="{{ orderItems2 }}" as="it" hint-placeholder-count="2">
+              <div style="padding:14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px">
+                <div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 14px var(--font-sans)">{{ it.name }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">{{ it.sku }} · {{ it.unitPrice }} × {{ it.qty }}</span></div>
+                <span style="font:600 14px var(--font-sans);white-space:nowrap">{{ it.lineTotal }} unidades</span>
+              </div>
+            </sc-for>
+            <div style="padding:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 14px var(--font-sans)">Total</span><span><b style="font:600 20px var(--font-sans)">63</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+          </div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D6 · Detail · cancelled · mobile</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px">
+          <a href="#" style="font:500 14px var(--font-sans);color:var(--text-2);text-decoration:none;height:32px;display:flex;align-items:center">← Your orders</a>
+          <div style="display:flex;justify-content:space-between;align-items:center"><h1 style="margin:0;font:600 26px var(--font-sans)">Order <span style="font-family:var(--font-mono);font-weight:500">#1025</span></h1><span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--neutral-soft);color:var(--neutral);font:600 12.5px var(--font-sans)">{{ icX }}Cancelled</span></div>
+          <div style="font:400 13px var(--font-sans);color:var(--text-2)">Created <b style="color:var(--text);font-weight:500">Sep 14, 2026, 09:18</b> · Never paid</div>
+          <div style="display:flex;gap:12px;padding:16px;border-radius:14px;border:1px dashed var(--border-strong);background:var(--surface-2)"><span style="width:32px;height:32px;flex:none;border-radius:50%;background:var(--neutral-soft);color:var(--neutral);display:flex;align-items:center;justify-content:center">{{ icX }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 15px var(--font-sans)">This order was cancelled</b><span style="font:400 13.5px/1.45 var(--font-sans);color:var(--text-2)">The items went back into stock. Cancelled orders are final and kept for your records.</span></div></div>
+          <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface)">
+            <div style="padding:14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;color:var(--text-2)"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 14px var(--font-sans);color:var(--text)">Olive Oil · 500 ml</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">OIL-OLV-500 · 26 × 1</span></div><span style="font:600 14px var(--font-sans);color:var(--text)">26 unidades</span></div>
+            <div style="padding:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 14px var(--font-sans)">Total</span><span><b style="font:600 20px var(--font-sans)">26</b> <span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span></div>
+          </div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">D7 · Cancel confirmation (pending)</div>
+      <div data-theme="{{ theme }}" style="width:390px;height:620px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column;position:relative">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:16px;display:flex;flex-direction:column;gap:14px;opacity:.9">
+          <h1 style="margin:40px 0 0;font:600 26px var(--font-sans)">Order <span style="font-family:var(--font-mono);font-weight:500">#1048</span></h1>
+          <div style="height:120px;border-radius:14px;background:var(--surface);border:1px solid var(--border)"></div>
+          <div style="height:140px;border-radius:14px;background:var(--surface);border:1px solid var(--border)"></div>
+        </main>
+        <div style="position:absolute;inset:0;background:var(--overlay)"></div>
+        <div role="dialog" aria-modal="true" aria-labelledby="cx-t" style="position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:20px 20px 0 0;padding:12px 20px 24px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow-3)">
+          <span style="width:36px;height:4px;border-radius:2px;background:var(--border-strong);align-self:center"></span>
+          <h2 id="cx-t" style="margin:4px 0 0;font:600 19px var(--font-sans)">Cancel order #1048?</h2>
+          <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">The 4 items return to stock and the order is closed for good. You'd need to place a new order to buy them again.</p>
+          <button style="height:48px;border-radius:10px;border:0;background:var(--danger);color:var(--surface);font:600 15px var(--font-sans)">Cancel order</button>
+          <button autofocus="" style="height:48px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 15px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">Keep order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="Account" style="padding:40px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">E · Account <span style="font:400 14px var(--font-mono);color:#736960">/signin · /signup · /account</span></h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E1 · Sign in · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;height:720px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="none" signed-in="{{ false }}" cart="{{ zero }}" hint-size="100%,64px"></dc-import>
+        <main style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px">
+          <form style="width:400px;border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:32px;display:flex;flex-direction:column;gap:18px;box-shadow:var(--shadow-1)">
+            <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font:600 26px var(--font-sans);letter-spacing:-.01em">Sign in</h1><span style="font:400 14px var(--font-sans);color:var(--text-2)">Use your Rust Store username.</span></div>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Username<input autocomplete="username" value="mara.costa" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Password<input type="password" autocomplete="current-password" value="••••••••••" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--focus);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface);color:var(--text);font:400 15px var(--font-sans);outline:none"></label>
+            <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Sign in</button>
+            <p style="margin:0;font:400 12.5px/1.5 var(--font-sans);color:var(--text-2)">There's no email or password reset in this store, so keep your password somewhere safe.</p>
+            <div style="border-top:1px solid var(--border);padding-top:16px;font:400 14px var(--font-sans);color:var(--text-2)">New here? <a href="#" style="font-weight:600">Create an account</a></div>
+          </form>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E2 · Sign in · wrong credentials (401)</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:28px 20px;display:flex;flex-direction:column;gap:18px">
+          <h1 style="margin:0;font:600 28px var(--font-sans)">Sign in</h1>
+          <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--danger-soft);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--danger);display:flex;padding-top:2px">{{ icAlert }}</span><span><b style="color:var(--danger)">That didn't work.</b> Username or password is incorrect. Usernames aren't case-sensitive.</span></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Username<input value="Mara.Costa" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Password<input type="password" value="" placeholder="" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"></label>
+          <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Sign in</button>
+          <div style="font:400 14px var(--font-sans);color:var(--text-2)">New here? <a href="#" style="font-weight:600">Create an account</a></div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E3 · Sign up · validation (422)</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:28px 20px;display:flex;flex-direction:column;gap:16px">
+          <h1 style="margin:0;font:600 28px var(--font-sans)">Create an account</h1>
+          <div role="alert" tabindex="-1" style="display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--danger-soft);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent);font:400 13.5px/1.45 var(--font-sans)"><span style="color:var(--danger);display:flex;padding-top:2px">{{ icAlert }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="color:var(--danger)">Please fix 3 fields</b><a href="#" style="color:var(--text)">Username: may only contain letters, numbers, ".", "-" and "_"</a><a href="#" style="color:var(--text)">Password: must be 8–128 characters</a><a href="#" style="color:var(--text)">Birthday: required</a></div></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Username<input aria-invalid="true" value="mara costa" style="height:46px;padding:0 12px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"><span style="display:flex;gap:6px;font:500 12.5px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}May only contain letters, numbers, ".", "-" and "_"</span><span style="font:400 12px var(--font-sans);color:var(--text-3)">3–32 characters. Not case-sensitive. Can't be changed later.</span></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Password<input aria-invalid="true" type="password" value="•••••" style="height:46px;padding:0 12px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"><span style="display:flex;gap:6px;font:500 12.5px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}Must be 8–128 characters (5 now)</span></label>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);min-width:0">First name<input value="Mara" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans);min-width:0"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);min-width:0">Last name<input value="Costa" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans);min-width:0"></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Birthday<input aria-invalid="true" type="text" placeholder="YYYY-MM-DD" style="height:46px;padding:0 12px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"><span style="display:flex;gap:6px;font:500 12.5px/1.4 var(--font-sans);color:var(--danger)">{{ icAlert }}Required</span></label>
+          <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Create account</button>
+          <div style="font:400 14px var(--font-sans);color:var(--text-2)">Have an account? <a href="#" style="font-weight:600">Sign in</a></div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E4 · My account · desktop (saved)</div>
+      <div data-theme="{{ theme }}" style="width:1280px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" active="account" cart="{{ zero }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:720px;width:100%;margin:0 auto;padding:40px 32px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+          <h1 style="margin:0;font:600 34px/1.1 var(--font-sans);letter-spacing:-.02em">My account</h1>
+          <form style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:24px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font:600 17px var(--font-sans)">Profile</h2><span role="status" style="display:inline-flex;align-items:center;gap:6px;font:500 13px var(--font-sans);color:var(--success)">{{ icCheck }}Changes saved</span></div>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);color:var(--text-2)">Username<span style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font:400 15px var(--font-mono);display:flex;align-items:center;justify-content:space-between">mara.costa<span style="display:inline-flex;align-items:center;gap:6px;font:500 12px var(--font-sans);color:var(--text-2)">{{ icLock }}Can't be changed</span></span></label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px">
+              <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);min-width:0">First name<input value="Mara" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);min-width:0">Last name<input value="Costa" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);max-width:50%">Birthday<input type="date" value="1994-05-21" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans)"></label>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:16px"><span style="display:inline-flex;align-items:center;gap:6px;font:400 13px var(--font-sans);color:var(--text-2)">{{ icLock }}Password can't be changed here.</span><button style="height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans)">Save changes</button></div>
+          </form>
+          <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:24px;display:flex;justify-content:space-between;gap:24px;align-items:center">
+            <div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font:600 17px var(--font-sans)">Delete account</h2><span style="font:400 14px/1.5 var(--font-sans);color:var(--text-2)">Only possible for accounts with no orders. This can't be undone.</span></div>
+            <button style="height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--danger);background:transparent;color:var(--danger);font:600 14px var(--font-sans);flex:none">Delete account…</button>
+          </div>
+          <a href="#" style="font:600 14px var(--font-sans);color:var(--text-2);width:max-content">Sign out</a>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,52px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E5 · Delete refused (has orders)</div>
+      <div data-theme="{{ theme }}" style="width:390px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <main style="padding:24px 16px 28px;display:flex;flex-direction:column;gap:16px">
+          <h1 style="margin:0;font:600 28px var(--font-sans)">My account</h1>
+          <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:14px">
+            <h2 style="margin:0;font:600 17px var(--font-sans)">Delete account</h2>
+            <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--neutral-soft);font:400 13.5px/1.5 var(--font-sans)"><span style="color:var(--text);display:flex;padding-top:2px">{{ icLock }}</span><div style="display:flex;flex-direction:column;gap:4px"><b>This account can't be deleted</b><span style="color:var(--text-2)">Accounts with orders are kept so order history stays complete. You have 5 orders, including cancelled ones.</span></div></div>
+            <button disabled="" style="height:46px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 14px var(--font-sans)">Delete account</button>
+            <a href="#" style="font:600 14px var(--font-sans);width:max-content">View your orders →</a>
+          </div>
+          <div style="font:400 12px/1.5 var(--font-sans);color:#736960;color:var(--text-3)">Server knows the order count, so the refusal renders up front. If a 409 comes back anyway, its message replaces the body text.</div>
+        </main>
+        <dc-import name="Store Footer" hint-size="100%,72px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">E6 · Delete confirm (no orders)</div>
+      <div data-theme="{{ theme }}" style="width:390px;height:560px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);position:relative;display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+        <div style="position:absolute;inset:0;background:var(--overlay)"></div>
+        <div role="alertdialog" aria-modal="true" style="position:absolute;left:16px;right:16px;top:120px;background:var(--surface);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-3)">
+          <h2 style="margin:0;font:600 19px var(--font-sans)">Delete your account?</h2>
+          <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">Your profile and cart are removed permanently. The username <span style="font-family:var(--font-mono);color:var(--text)">mara.costa</span> may be taken by someone else.</p>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 13.5px var(--font-sans)">Type your username to confirm<input value="mara.costa" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-mono)"></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button style="height:46px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans)">Keep account</button><button style="height:46px;border-radius:10px;border:0;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans)">Delete</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="System states" style="padding:40px 56px 80px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 22px var(--font-sans);color:#1F1B17">F · Session and system states</h2>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">F1 · Session expired (silent renewal failed) · desktop</div>
+      <div data-theme="{{ theme }}" style="width:1280px;height:720px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column;position:relative">
+        <dc-import name="Store Header" active="cart" cart="{{ four }}" hint-size="100%,64px"></dc-import>
+        <main style="max-width:1120px;width:100%;margin:0 auto;padding:40px 32px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+          <h1 style="margin:0;font:600 34px var(--font-sans)">Your cart</h1>
+          <div style="height:300px;border-radius:14px;background:var(--surface);border:1px solid var(--border)"></div>
+        </main>
+        <div style="position:absolute;inset:0;background:var(--overlay)"></div>
+        <div role="dialog" aria-modal="true" aria-labelledby="se-t" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;background:var(--surface);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-3)">
+          <span style="width:44px;height:44px;border-radius:12px;background:var(--info-soft);color:var(--info);display:flex;align-items:center;justify-content:center">{{ icClockL }}</span>
+          <div style="display:flex;flex-direction:column;gap:6px"><h2 id="se-t" style="margin:0;font:600 21px var(--font-sans)">Your session expired, sign in again</h2><p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">You were signed in for a while and we couldn't renew it. Sign in to pick up right where you were.</p></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans);color:var(--text-2)">Username<span style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font:400 15px var(--font-mono);display:flex;align-items:center">mara.costa</span></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Password<input type="password" style="height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--focus);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface);color:var(--text);font:400 15px var(--font-sans);outline:none"></label>
+          <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Sign in again</button>
+          <a href="#" style="font:500 13.5px var(--font-sans);color:var(--text-2);text-align:center">Not you? Sign in with another account</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">F2 · Session expired · mobile (full page)</div>
+      <div data-theme="{{ theme }}" style="width:390px;height:720px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+        <dc-import name="Store Header" mobile="{{ true }}" cart="{{ four }}" hint-size="100%,56px"></dc-import>
+        <main style="flex:1;padding:40px 20px;display:flex;flex-direction:column;gap:16px">
+          <span style="width:44px;height:44px;border-radius:12px;background:var(--info-soft);color:var(--info);display:flex;align-items:center;justify-content:center">{{ icClockL }}</span>
+          <h1 style="margin:0;font:600 26px/1.2 var(--font-sans)">Your session expired, sign in again</h1>
+          <p style="margin:0;font:400 15px/1.5 var(--font-sans);color:var(--text-2)">Sign in and we'll take you back to your cart.</p>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Username<input value="mara.costa" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:500 14px var(--font-sans)">Password<input type="password" style="height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 16px var(--font-sans)"></label>
+          <button style="height:48px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 15px var(--font-sans)">Sign in again</button>
+        </main>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-mono);color:#5A5148">F3 · Not found (404) · F4 · Not allowed (403)</div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <sc-for list="{{ sysPages }}" as="sp" hint-placeholder-count="2">
+          <div data-theme="{{ theme }}" style="width:390px;height:350px;border-radius:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;flex-direction:column">
+            <dc-import name="Store Header" mobile="{{ true }}" cart="{{ zero }}" hint-size="100%,56px"></dc-import>
+            <main style="flex:1;padding:28px 24px;display:flex;flex-direction:column;gap:12px;justify-content:center">
+              <span style="font:500 13px var(--font-mono);color:var(--text-3)">{{ sp.code }}</span>
+              <h1 style="margin:0;font:600 22px var(--font-sans)">{{ sp.title }}</h1>
+              <p style="margin:0;font:400 14px/1.5 var(--font-sans);color:var(--text-2)">{{ sp.body }}</p>
+              <a href="#" style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:10px;border:1px solid var(--border-strong);color:var(--text);font:600 14px var(--font-sans);text-decoration:none;width:max-content">{{ sp.cta }}</a>
+            </main>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const h = React.createElement;
+    const svg = (d, s = 14) => h('svg', { width: s, height: s, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }, d.map((p, i) => h('path', { key: i, d: p })));
+    const spin = (c) => h('span', { 'aria-hidden': true, style: { width: 16, height: 16, borderRadius: '50%', border: '2px solid ' + c, borderRightColor: 'transparent', display: 'inline-block', animation: 'rs-spin .8s linear infinite', boxSizing: 'border-box' } });
+    const P = { check: ['M3.5 8.5l3 3 6-7'], x: ['M4.5 4.5l7 7M11.5 4.5l-7 7'], alert: ['M8 2.5l6 11H2z', 'M8 7v3', 'M8 12.2v.1'], info: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 7.5V11', 'M8 5v.1'], clock: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 5v3l2 1.5'], box: ['M2.5 5L8 2.5 13.5 5v6L8 13.5 2.5 11z', 'M2.5 5L8 7.5 13.5 5', 'M8 7.5v6'], coin: ['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M5.5 8h5'], trash: ['M3 4.5h10', 'M6.5 4.5V3h3v1.5', 'M4.5 4.5l.6 8.5h5.8l.6-8.5'], lock: ['M4.5 7.5h7v6h-7z', 'M6 7.5V5.5a2 2 0 014 0v2'], cart: ['M2 3h1.8l1.5 7.5h7.2L14 5H5'] };
+    const ic = {}; Object.keys(P).forEach(k => ic[k] = svg(P[k]));
+    const fmt = (n) => n.toLocaleString('en-US');
+    const unit = (n) => n === 1 ? 'unidade' : 'unidades';
+    const ph = (i) => ({ bg: `--ph-${i % 5 + 1}-bg`, fg: `--ph-${i % 5 + 1}-fg` });
+    const raw = [['Beeswax Candle', 'Hand-poured, burns 40 hours', 22, 0], ['Canvas Tote', 'Heavy cotton, long handles', 20, 0], ['Ceramic Mug', 'Stoneware, 350 ml', 18, 1], ['Cutting Board', 'Oiled walnut, end grain', 48, 0], ['Enamel Pin', 'Small, rust on cream', 1, 0], ['Field Notebook', 'Dot grid, 96 pages', 9, 1], ['Honey Jar', 'Wildflower, 350 g', 14, 1], ['Linen Napkins', 'Set of four, natural', 30, 0], ['Olive Oil', 'Cold-pressed, 500 ml', 26, 1], ['Oolong Tea', 'Roasted, honeyed leaves', 12, 1], ['Pour-over Kit', 'Dripper, carafe, filters', 55, 0], ['Wool Socks', 'Merino blend, three sizes', 15, 1]];
+    const products = raw.map(([name, desc, price, from], i) => ({ name, desc, price: fmt(price), unit: unit(price), from: from ? 'from ' : '', ini: name.split(' ').map(w => w[0]).join('').slice(0, 2), ...ph(i) }));
+    const vRow = (name, sku, price, stock, qty, extra = {}) => {
+      const out = stock === 0;
+      const t = out ? ['--text-2', ic.x, 'Out of stock'] : stock <= 5 ? ['--warning', ic.alert, `Only ${stock} left`] : ['--success', ic.check, 'In stock'];
+      return { name, sku, price: fmt(price), unit: unit(price), tone: t[0], icon: t[1], stockLabel: t[2], available: !out, out, qty, minusColor: qty <= 1 ? 'var(--border-strong)' : 'var(--text)', plusColor: qty >= stock ? 'var(--border-strong)' : 'var(--text)', err: false, ok: false, ...extra };
+    };
+    const variants = [vRow('50 g tin', 'TEA-OOL-050', 12, 24, 2, { ok: true }), vRow('250 g bag', 'TEA-OOL-250', 45, 2, 2, { err: true }), vRow('1 kg bulk', 'TEA-OOL-1000', 160, 0, 0)];
+    const line = (name, sku, up, qty, i, reason) => {
+      const flagged = !!reason, inactive = reason === 'inactive';
+      return { name, sku, unitPrice: fmt(up), unitU: unit(up), qty, lineTotal: fmt(up * qty), ini: name.split(' ').map(w => w[0]).join('').slice(0, 2), ...ph(i), flagged,
+        flagLabel: inactive ? 'No longer sold' : 'Not enough stock', flagIcon: inactive ? ic.x : ic.alert,
+        flagBg: inactive ? '--neutral-soft' : '--warning-soft', flagFg: inactive ? '--neutral' : '--warning',
+        flagHelp: inactive ? 'Remove it to place your order.' : 'Lower the quantity or remove it.',
+        rowBg: flagged ? 'color-mix(in oklab, var(--warning-soft) 45%, var(--surface))' : 'transparent',
+        stepBorder: inactive ? 'var(--border)' : 'var(--border-strong)', stepBg: inactive ? 'var(--surface-2)' : 'var(--surface)',
+        minusColor: inactive || qty <= 1 ? 'var(--border-strong)' : 'var(--text)', plusColor: flagged ? 'var(--border-strong)' : 'var(--text)' };
+    };
+    const cart = [line('Oolong Tea · 250 g bag', 'TEA-OOL-250', 45, 2, 9), line('Ceramic Mug · Sand glaze', 'MUG-CER-SND', 18, 1, 2), line('Wool Socks · Size M', 'SCK-WOL-M', 15, 3, 11, 'insufficient_stock'), line('Enamel Pin · Default', 'PIN-ENA-DEF', 5, 2, 4, 'inactive')];
+    const ST = { pending: ['Pending', 'warning', ic.clock], paid: ['Paid', 'info', ic.coin], shipped: ['Shipped', 'accent', ic.box], delivered: ['Delivered', 'success', ic.check], cancelled: ['Cancelled', 'neutral', ic.x] };
+    const ord = (id, s, created, short, items, total) => ({ id, label: ST[s][0], tone: ST[s][1], icon: ST[s][2], created, createdShort: short, items, total: fmt(total) });
+    const orders = [ord(1048, 'pending', 'Oct 9, 2026, 15:42', 'Oct 9', '3 items', 123), ord(1042, 'paid', 'Oct 3, 2026, 14:02', 'Oct 3', '2 items', 63), ord(1037, 'shipped', 'Sep 28, 2026, 11:30', 'Sep 28', '1 item', 48), ord(1031, 'delivered', 'Sep 20, 2026, 18:05', 'Sep 20', '4 items', 112), ord(1025, 'cancelled', 'Sep 14, 2026, 09:18', 'Sep 14', '1 item', 26)];
+    const it = (name, sku, up, qty) => ({ name, sku, unitPrice: fmt(up), unitU: unit(up), qty, lineTotal: fmt(up * qty) });
+    const done = { mark: svg(P.check, 12), dotBg: 'var(--accent)', dotBorder: 'var(--accent)', labelColor: 'var(--text)' };
+    const cur = { mark: h('span', { style: { width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)' } }), dotBg: 'var(--surface)', dotBorder: 'var(--accent)', labelColor: 'var(--text)', current: 'step' };
+    const todo = { mark: '', dotBg: 'var(--surface)', dotBorder: 'var(--border-strong)', labelColor: 'var(--text-2)' };
+    const tl = (steps) => steps.map((s, i) => ({ ...s, line: i === steps.length - 1 ? 'transparent' : (steps[i + 1].dotBorder === 'var(--accent)' && s === done ? 'var(--accent)' : (s === done ? 'var(--accent)' : 'var(--border-strong)')) }));
+    const tlPending = tl([done, cur, todo, todo]).map((s, i) => ({ ...s, label: ['Placed', 'Paid', 'Shipped', 'Delivered'][i], meta: ['Oct 9, 15:42', 'Waiting for payment', '', ''][i] }));
+    const tlPaid = tl([done, done, cur, todo]).map((s, i) => ({ ...s, label: ['Placed', 'Paid', 'Shipped', 'Delivered'][i], meta: ['Oct 3, 14:02', 'Oct 3, 14:05', 'Up next', ''][i] }));
+    return {
+      theme: this.props.theme ?? 'light',
+      zero: 0, three: 3, four: 8, six: 10,
+      products, productsMobile: products.slice(0, 6), skel: [1, 2, 3, 4],
+      variants,
+      productMobileThemes: [{ label: 'B2 · Product · mobile', theme: this.props.theme ?? 'light' }, { label: 'B3 · Product · mobile (dark)', theme: 'dark' }],
+      cart, cartOk: cart.slice(0, 2),
+      orders, orderItems: [it('Oolong Tea · 250 g bag', 'TEA-OOL-250', 45, 2), it('Ceramic Mug · Sand glaze', 'MUG-CER-SND', 18, 1), it('Wool Socks · Size M', 'SCK-WOL-M', 15, 1)],
+      orderItems2: [it('Field Notebook · Dot grid', 'NB-FLD-DOT', 9, 5), it('Honey Jar · 350 g', 'HNY-WLD-350', 18, 1)],
+      tlPending, tlPaid,
+      sysPages: [
+        { code: '404 · Not found', title: "We can't find that page", body: 'The product or order may not exist, or the link is wrong.', cta: 'Back to the catalog' },
+        { code: '403 · Not allowed', title: "You don't have access to this", body: 'This page belongs to another account or to store staff.', cta: 'Go to your orders' },
+      ],
+      icCheck: ic.check, icX: ic.x, icAlert: ic.alert, icInfo: ic.info, icClock: ic.clock, icCoin: ic.coin, icTrash: svg(P.trash, 18), icLock: ic.lock,
+      icAlertL: svg(P.alert, 22), icCartL: svg(P.cart, 22), icClockL: svg(P.clock, 22),
+      spinOnAccent: spin('var(--on-accent)'),
+    };
+  }
+}
+</script>
+</body>
+</html>

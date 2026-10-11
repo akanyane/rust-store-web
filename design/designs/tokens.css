@@ -1,0 +1,80 @@
+/* Rust Store design tokens. Ship as /static/tokens.css in Fresh. */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --bg: #FAF8F5;
+  --surface: #FFFFFF;
+  --surface-2: #F3EFEA;
+  --surface-sunken: #EEE9E2;
+  --border: #E4DDD4;
+  --border-strong: #C9BFB2;
+  --text: #1F1B17;
+  --text-2: #5A5148;
+  --text-3: #736960;
+  --accent: #A4441C;
+  --accent-hover: #8A3815;
+  --accent-soft: #F7E6DC;
+  --accent-soft-text: #7A3112;
+  --on-accent: #FFFFFF;
+  --focus: #A4441C;
+  --success: #2C6A39; --success-soft: #E2EFE1;
+  --warning: #855600; --warning-soft: #FAEDCF;
+  --danger:  #B42318; --danger-soft:  #FCE7E4;
+  --info:    #2B5887; --info-soft:    #E2EBF5;
+  --neutral: #5A5148; --neutral-soft: #ECE6DF;
+  --ph-1-bg: #EBD5C6; --ph-1-fg: #7A3112;
+  --ph-2-bg: #D7E2D2; --ph-2-fg: #2F4F2C;
+  --ph-3-bg: #D5DDE8; --ph-3-fg: #2D4566;
+  --ph-4-bg: #EBE1C8; --ph-4-fg: #5E4A12;
+  --ph-5-bg: #E3D6E0; --ph-5-fg: #573553;
+  --overlay: rgba(31, 27, 23, 0.45);
+  --shadow-1: 0 1px 2px rgba(31, 27, 23, 0.06), 0 1px 1px rgba(31, 27, 23, 0.04);
+  --shadow-2: 0 4px 12px rgba(31, 27, 23, 0.08), 0 1px 3px rgba(31, 27, 23, 0.06);
+  --shadow-3: 0 16px 40px rgba(31, 27, 23, 0.16), 0 4px 10px rgba(31, 27, 23, 0.08);
+  --admin-bar: #1F1B17; --admin-bar-text: #F2EDE7; --admin-bar-muted: #B5AA9E;
+
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px;
+  --fs-xl: 22px; --fs-2xl: 28px; --fs-3xl: 36px; --fs-4xl: 48px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #151311;
+  --surface: #1D1A17;
+  --surface-2: #26221E;
+  --surface-sunken: #110F0D;
+  --border: #36302A;
+  --border-strong: #52483F;
+  --text: #F2EDE7;
+  --text-2: #BFB5AA;
+  --text-3: #A0958A;
+  --accent: #E58358;
+  --accent-hover: #EE9A74;
+  --accent-soft: #3A231A;
+  --accent-soft-text: #F2B496;
+  --on-accent: #1A0E08;
+  --focus: #F09C76;
+  --success: #86C994; --success-soft: #1D2E21;
+  --warning: #E8BC62; --warning-soft: #33290F;
+  --danger:  #F4928A; --danger-soft:  #3B1D1A;
+  --info:    #95BCE6; --info-soft:    #1B2837;
+  --neutral: #BFB5AA; --neutral-soft: #2C2723;
+  --ph-1-bg: #3D2519; --ph-1-fg: #F2B496;
+  --ph-2-bg: #22311F; --ph-2-fg: #B5D3AC;
+  --ph-3-bg: #1E2A3A; --ph-3-fg: #AFC6E6;
+  --ph-4-bg: #352C14; --ph-4-fg: #E4CF92;
+  --ph-5-bg: #33222F; --ph-5-fg: #DDB8D6;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --admin-bar: #0B0A09; --admin-bar-text: #F2EDE7; --admin-bar-muted: #A0958A;
+}
+
+[data-theme] { background: var(--bg); color: var(--text); font-family: var(--font-sans); }

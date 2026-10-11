@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="./tokens.css">
+<style>
+body{margin:0;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+</style>
+</helmet>
+<div data-theme="light" style="min-height:100vh">
+<main style="max-width:1040px;margin:0 auto;padding:56px 24px 80px;display:flex;flex-direction:column;gap:40px">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span style="font:500 12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)">Rust Store · Handoff for Deno + Fresh</span>
+    <h1 style="margin:0;font:600 38px/1.1 var(--font-sans);letter-spacing:-.02em">Routes, rendering and islands</h1>
+    <p style="margin:0;max-width:720px;font:400 16px/1.6 var(--font-sans);color:var(--text-2);text-wrap:pretty">Everything is server-rendered by default. Sorting, filtering and pagination are plain links with query params, and every mutation is a <span style="font-family:var(--font-mono);font-size:14px">&lt;form method="post"&gt;</span> handled in the route, so pages work without JS. Islands only improve three things: the quantity stepper, filter/sort controls that submit on change, and status actions that report a 409 inline without a full reload.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;font:500 14px var(--font-sans)"><a href="./Rust Store Design System.dc.html">Design system</a><a href="./Rust Store Storefront.dc.html">Storefront screens</a><a href="./Rust Store Admin.dc.html">Admin screens</a><a href="./tokens.css">tokens.css → static/tokens.css</a></div>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2 style="margin:0;font:600 20px var(--font-sans)">Route map</h2>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font:500 12.5px var(--font-sans);color:var(--text-2)">
+      <span style="display:inline-flex;align-items:center;gap:6px"><span style="padding:2px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);font:600 11px var(--font-mono);color:var(--text)">SSR</span>server-rendered, zero JS</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span style="padding:2px 7px;border-radius:5px;background:var(--accent-soft);font:600 11px var(--font-mono);color:var(--accent-soft-text)">ISLAND</span>hydrated component in <span style="font-family:var(--font-mono)">islands/</span></span>
+    </div>
+    <div style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+      <sc-for list="{{ routes }}" as="r" hint-placeholder-count="12">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 24px;padding:16px 20px;border-top:1px solid var(--border)">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font:600 15px var(--font-mono)">{{ r.path }}</span>
+            <span style="font:400 12px var(--font-mono);color:var(--text-3)">{{ r.file }}</span>
+            <span style="font:500 13px var(--font-sans);color:var(--text-2)">{{ r.screens }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="padding:2px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);font:600 11px var(--font-mono);width:max-content">SSR</span>
+            <span style="font:400 13.5px/1.5 var(--font-sans)">{{ r.ssr }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="padding:2px 7px;border-radius:5px;background:{{ r.islandBg }};font:600 11px var(--font-mono);color:{{ r.islandFg }};width:max-content">{{ r.islandTag }}</span>
+            <span style="font:400 13.5px/1.5 var(--font-sans);color:var(--text-2)">{{ r.island }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2 style="margin:0;font:600 20px var(--font-sans)">Islands</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+      <sc-for list="{{ islands }}" as="i" hint-placeholder-count="4">
+        <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:8px">
+          <span style="font:600 14px var(--font-mono)">{{ i.name }}</span>
+          <span style="font:400 13.5px/1.55 var(--font-sans);color:var(--text-2)">{{ i.body }}</span>
+          <span style="font:400 12.5px/1.5 var(--font-sans);color:var(--text-3)">No-JS fallback: {{ i.fallback }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2 style="margin:0;font:600 20px var(--font-sans)">Error handling</h2>
+    <div style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden">
+      <sc-for list="{{ errors }}" as="e" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;padding:14px 20px;border-top:1px solid var(--border)">
+          <span style="font:600 14px var(--font-mono)">{{ e.code }}</span>
+          <span style="font:400 14px/1.55 var(--font-sans);color:var(--text-2)">{{ e.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="margin:0;font:600 20px var(--font-sans)">Rules that apply everywhere</h2>
+    <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font:400 14.5px/1.55 var(--font-sans);color:var(--text-2)">
+      <sc-for list="{{ rules }}" as="x" hint-placeholder-count="6"><li>{{ x }}</li></sc-for>
+    </ul>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const isl = (island) => island ? { island, islandTag: 'ISLAND', islandBg: 'var(--accent-soft)', islandFg: 'var(--accent-soft-text)' } : { island: 'None. Fully static.', islandTag: 'NONE', islandBg: 'var(--surface-2)', islandFg: 'var(--text-2)' };
+    const r = (path, file, screens, ssr, island) => ({ path, file, screens, ssr, ...isl(island) });
+    return {
+      routes: [
+        r('/', 'routes/index.tsx', 'A1–A5', 'Product grid, "Showing X–Y of N" from total count, sort links (?sort=name|newest), page links (?page=). Empty and error states.', ''),
+        r('/products/:id', 'routes/products/[id].tsx', 'B1–B3, F3', 'Name, description, variant rows with price and stock label. Each row is a POST form to /cart (variant_id, quantity). 404 page if missing.', 'QuantityStepper per variant (clamps 1…stock, disabled at 0). AddToCart shows 409 inline and the "Added" confirmation without reload.'),
+        r('/cart', 'routes/cart.tsx', 'C1–C5', 'Lines with flags and reasons, total of ALL lines, can_checkout banner and reason text. Remove and Place order are POST forms.', 'CartLineQuantity: stepper that PATCHes the line and re-renders totals/flags from the response. Place order button shows loading and 409 in place.'),
+        r('/orders', 'routes/orders/index.tsx', 'D1–D3', 'Order list with status badge, created date, total; pagination links.', ''),
+        r('/orders/:id', 'routes/orders/[id].tsx', 'D4–D7', 'Timeline or cancelled panel, dates, item snapshot, total. Paid+ shows the "no refunds" note and no buttons.', 'OrderActions (pending only): Pay (simulated) and Cancel with confirmation sheet; inline 409.'),
+        r('/signin · /signup', 'routes/signin.tsx · routes/signup.tsx', 'E1–E3', 'Forms POST to the route handler; 422 is parsed into field errors plus a summary; 401 shows the form-level message.', ''),
+        r('/account', 'routes/account.tsx', 'E4–E6', 'Profile form (first, last, birthday), read-only username. Delete section renders the refusal when the customer has orders.', 'Optional: DeleteConfirm dialog (type username). Fallback is a /account/delete confirmation page.'),
+        r('/admin/orders', 'routes/admin/orders/index.tsx', 'G1–G3', 'Table newest first, ?status= filter links, pagination with total. Mobile uses a select inside a GET form.', 'StatusFilter select that submits on change (mobile only).'),
+        r('/admin/orders/:id', 'routes/admin/orders/[id].tsx', 'G4–G5', 'Meta (customer id, created, paid), items, total. Change status lists only allowed next steps.', 'ChangeStatus: submits transition and shows the 409 message in the panel.'),
+        r('/admin/products', 'routes/admin/products/index.tsx', 'H1, H4', 'All products with ?active=true|false|all and ?sort=. Deactivate/Reactivate via POST.', 'ConfirmDialog for deactivate/reactivate. Fallback: confirmation page.'),
+        r('/admin/products/new', 'routes/admin/products/new.tsx', 'H2', 'Create form (name, description, initial price, initial stock) with 422 handling.', ''),
+        r('/admin/products/:id', 'routes/admin/products/[id].tsx', 'H3', 'Edit product, active toggle, every variant incl. inactive. Create / edit variant forms; SKU conflict shown on the field.', 'VariantRowEditor (inline edit). Fallback: ?edit=:variantId renders the edit row server-side.'),
+      ],
+      islands: [
+        { name: 'QuantityStepper.tsx', body: 'Props: value, min, max, disabled, name. Buttons are 44px on mobile, aria-labels "Decrease/Increase", value announced via aria-live.', fallback: 'a number input with min/max.' },
+        { name: 'FilterSubmit.tsx', body: 'Wraps a select or segmented control and submits its GET form on change. Used for admin status filter and catalog sort on mobile.', fallback: 'segmented links or a visible "Apply" button.' },
+        { name: 'OrderActions.tsx / ChangeStatus.tsx', body: 'POST transition, render spinner on the pressed button, show {"error"} from 409 in the panel. Focus moves to the message.', fallback: 'regular form POST, page re-renders with the message.' },
+        { name: 'SessionGuard.tsx', body: 'Mounted in _app. On 401 after silent renewal fails, opens the "Your session expired" dialog with username prefilled; keeps the current URL as ?next=.', fallback: 'server redirects to /signin?expired=1&next=… (F2).' },
+      ],
+      errors: [
+        { code: '422', body: 'Split "field: message; other: message" on "; " then on the first ": ". Map to inputs (aria-invalid, aria-describedby) and list them in a role="alert" summary whose links focus the field.' },
+        { code: '401', body: 'Sign in again. Silent renewal first; if it fails show F1 (dialog) or F2 (full page). On sign-in forms, show the message above the form.' },
+        { code: '403', body: '"Not allowed" page (F4). Admin routes for non-staff render this, never a redirect loop.' },
+        { code: '404', body: '"Not found" page (F3), with a link back to the catalog or orders.' },
+        { code: '409', body: 'Business conflict. Show the message next to the action that caused it: Add to cart row, Place order panel, order actions, Change status, SKU field, Delete account.' },
+        { code: '5xx', body: 'Catalog-style error state with "Try again" (A5). Never lose form input; re-render with values.' },
+      ],
+      rules: [
+        'Prices are whole numbers: format with thousands separators and "1 unidade" / "N unidades". No currency symbols anywhere.',
+        'The demo notice lives in the footer of every storefront page: "Demo store: payments are simulated".',
+        'Cart total always sums all lines, flagged ones included; flagged lines are never removed automatically.',
+        'Status always pairs an icon and a word; color is never the only signal.',
+        'Theme: set data-theme="light|dark" on <html> from prefers-color-scheme, overridable by a cookie so SSR renders the right theme with no flash.',
+        'Focus ring: 2px surface gap + 2px --focus ring on every interactive element; never remove outlines without replacing them.',
+        'Customers appear in admin only as customer_id. Created dates may be null for old products; render "—".',
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

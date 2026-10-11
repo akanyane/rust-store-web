@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+body{margin:0;background:#E9E5E0;font-family:"Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+@keyframes rs-spin{to{transform:rotate(360deg)}}
+@keyframes rs-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+</style>
+</helmet>
+<div data-theme="light" style="padding:56px 56px 24px;background:#E9E5E0;color:#1F1B17;display:flex;flex-direction:column;gap:8px;max-width:1200px">
+  <div style="font:500 12px var(--font-mono);color:#736960;letter-spacing:.06em;text-transform:uppercase">Rust Store · Design system v1</div>
+  <h1 style="margin:0;font:600 40px/1.1 var(--font-sans);letter-spacing:-.02em">Foundations and components</h1>
+  <p style="margin:4px 0 0;max-width:720px;font:400 16px/1.55 var(--font-sans);color:#5A5148;text-wrap:pretty">Warm paper neutrals with a single rust accent. Status is always carried by an icon and a word, never by color alone. All values below live in <code style="font-family:var(--font-mono);font-size:14px">tokens.css</code> as CSS variables; dark theme swaps the same names under <code style="font-family:var(--font-mono);font-size:14px">[data-theme="dark"]</code>.</p>
+  <div style="display:flex;gap:12px;margin-top:8px;font:500 14px var(--font-sans)">
+    <a href="./Rust Store Storefront.dc.html">Storefront screens →</a>
+    <a href="./Rust Store Admin.dc.html">Admin screens →</a>
+    <a href="./Rust Store Handoff.dc.html">Fresh handoff →</a>
+  </div>
+</div>
+
+<section style="padding:32px 56px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 13px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#5A5148">01 · Color tokens</h2>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+    <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+      <div data-theme="{{ th.id }}" style="width:560px;border-radius:14px;padding:24px;box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 16px var(--font-sans)">{{ th.label }}</span><span style="font:400 12px var(--font-mono);color:var(--text-3)">{{ th.selector }}</span></div>
+        <sc-for list="{{ colorGroups }}" as="g" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:500 12px var(--font-sans);color:var(--text-2)">{{ g.name }}</div>
+            <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+              <sc-for list="{{ g.tokens }}" as="t" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="height:44px;border-radius:8px;border:1px solid var(--border);background:var({{ t }})"></div>
+                  <div style="font:400 11px var(--font-mono);color:var(--text-2);overflow-wrap:anywhere">{{ t }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+  <p style="margin:0;max-width:820px;font:400 14px/1.55 var(--font-sans);color:#5A5148">Contrast (AA): <b>--text</b> on <b>--bg</b> 15.9:1 · <b>--text-2</b> 7.4:1 · <b>--text-3</b> 4.9:1 · <b>--accent</b> on <b>--surface</b> 6.1:1 (light), 6.4:1 (dark) · <b>--on-accent</b> on <b>--accent</b> 6.1:1. Status "-soft" fills are backgrounds only; text on them uses the matching strong token (≥ 5:1).</p>
+</section>
+
+<section style="padding:32px 56px;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+  <div data-theme="light" style="width:560px;border-radius:14px;padding:24px;box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:14px">
+    <h2 style="margin:0 0 4px;font:600 13px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)">02 · Type scale</h2>
+    <sc-for list="{{ typeScale }}" as="ty" hint-placeholder-count="8">
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:baseline;border-top:1px solid var(--border);padding-top:12px">
+        <div style="font:400 11px/1.4 var(--font-mono);color:var(--text-3)">{{ ty.token }}<br>{{ ty.spec }}</div>
+        <div style="font-size:var({{ ty.token }});font-weight:{{ ty.weight }};line-height:1.25;letter-spacing:{{ ty.ls }}">{{ ty.sample }}</div>
+      </div>
+    </sc-for>
+    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:baseline;border-top:1px solid var(--border);padding-top:12px">
+      <div style="font:400 11px/1.4 var(--font-mono);color:var(--text-3)">--font-mono<br>SKUs, ids</div>
+      <div style="font:400 14px var(--font-mono)">SKU TEA-OOL-250 · Order #1042</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:28px;width:560px">
+    <div data-theme="light" style="border-radius:14px;padding:24px;box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:12px">
+      <h2 style="margin:0 0 4px;font:600 13px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)">03 · Spacing (4px base)</h2>
+      <sc-for list="{{ spacing }}" as="s" hint-placeholder-count="8">
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="width:64px;font:400 11px var(--font-mono);color:var(--text-3)">{{ s.token }}</span>
+          <span style="height:12px;border-radius:3px;background:var(--accent);width:var({{ s.token }})"></span>
+          <span style="font:400 12px var(--font-mono);color:var(--text-2)">{{ s.px }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div data-theme="light" style="border-radius:14px;padding:24px;box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:16px">
+      <h2 style="margin:0;font:600 13px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)">04 · Radii and elevation</h2>
+      <div style="display:flex;gap:16px">
+        <sc-for list="{{ radii }}" as="r" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+            <div style="width:72px;height:56px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var({{ r.token }})"></div>
+            <span style="font:400 11px var(--font-mono);color:var(--text-3)">{{ r.token }} · {{ r.px }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:16px;padding:16px;background:var(--bg);border-radius:10px">
+        <sc-for list="{{ shadows }}" as="sh" hint-placeholder-count="3">
+          <div style="flex:1;height:72px;background:var(--surface);border-radius:10px;box-shadow:var({{ sh.token }});display:flex;flex-direction:column;justify-content:center;padding:0 12px">
+            <span style="font:400 11px var(--font-mono);color:var(--text-3)">{{ sh.token }}</span>
+            <span style="font:500 12px var(--font-sans);color:var(--text-2)">{{ sh.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:32px 56px 72px;display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:600 13px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#5A5148">05 · Components and states</h2>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+  <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+  <div data-theme="{{ th.id }}" style="width:760px;border-radius:14px;padding:28px;box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:28px">
+    <div style="font:600 16px var(--font-sans)">{{ th.label }}</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-sans);color:var(--text-2)">Button</div>
+      <div style="display:grid;grid-template-columns:80px repeat(5,minmax(0,1fr));gap:10px;align-items:center;font:400 11px var(--font-mono);color:var(--text-3)">
+        <span></span><span>default</span><span>hover</span><span>focus</span><span>disabled</span><span>loading</span>
+        <span>primary</span>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);cursor:pointer" style-hover="background:var(--accent-hover)">Add to cart</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--accent-hover);color:var(--on-accent);font:600 14px var(--font-sans)">Add to cart</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">Add to cart</button>
+        <button disabled="" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 14px var(--font-sans);cursor:not-allowed">Add to cart</button>
+        <button aria-busy="true" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--accent);color:var(--on-accent);font:600 14px var(--font-sans);display:inline-flex;align-items:center;justify-content:center;gap:8px;opacity:.85">{{ spinner }}Adding…</button>
+        <span>secondary</span>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);cursor:pointer" style-hover="background:var(--surface-2)">Cancel order</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface-2);color:var(--text);font:600 14px var(--font-sans)">Cancel order</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">Cancel order</button>
+        <button disabled="" style="height:40px;padding:0 14px;border-radius:10px;border:1px dashed var(--border);background:transparent;color:var(--text-3);font:600 14px var(--font-sans);cursor:not-allowed">Cancel order</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 14px var(--font-sans);display:inline-flex;align-items:center;justify-content:center;gap:8px">{{ spinnerInk }}Cancelling…</button>
+        <span>danger</span>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans);cursor:pointer">Deactivate</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans);filter:brightness(.9)">Deactivate</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--danger)">Deactivate</button>
+        <button disabled="" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:600 14px var(--font-sans)">Deactivate</button>
+        <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:var(--danger);color:var(--surface);font:600 14px var(--font-sans);display:inline-flex;align-items:center;justify-content:center;gap:8px;opacity:.85">{{ spinnerOnDanger }}Saving…</button>
+        <span>ghost</span>
+        <button style="height:40px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--accent);font:600 14px var(--font-sans);cursor:pointer" style-hover="background:var(--accent-soft)">Remove</button>
+        <button style="height:40px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:var(--accent-soft);color:var(--accent-soft-text);font:600 14px var(--font-sans)">Remove</button>
+        <button style="height:40px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--accent);font:600 14px var(--font-sans);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">Remove</button>
+        <button disabled="" style="height:40px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text-3);font:600 14px var(--font-sans)">Remove</button>
+        <button style="height:40px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--accent);font:600 14px var(--font-sans);display:inline-flex;align-items:center;justify-content:center;gap:8px">{{ spinnerAccent }}Removing</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-sans);color:var(--text-2)">Text field</div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">
+        <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans)">Username
+          <input value="mara.costa" style="height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:400 15px var(--font-sans);outline:none" style-focus="border-color:var(--focus);box-shadow:0 0 0 3px var(--accent-soft)">
+          <span style="font:400 12px var(--font-sans);color:var(--text-3)">3–32 characters</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans)">Focus
+          <input value="mara.co" style="height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--focus);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface);color:var(--text);font:400 15px var(--font-sans);outline:none">
+          <span style="font:400 12px var(--font-sans);color:var(--text-3)">3–32 characters</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans)">Error
+          <input value="ma" aria-invalid="true" style="height:42px;padding:0 12px;border-radius:10px;border:1.5px solid var(--danger);background:var(--surface);color:var(--text);font:400 15px var(--font-sans);outline:none">
+          <span style="display:flex;gap:6px;align-items:flex-start;font:500 12px/1.35 var(--font-sans);color:var(--danger)">{{ icAlert }}must be 3–32 characters</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font:500 13px var(--font-sans);color:var(--text-2)">Disabled
+          <input disabled="" value="mara.costa" style="height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-3);font:400 15px var(--font-sans)">
+          <span style="font:400 12px var(--font-sans);color:var(--text-3)">Username can't be changed</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Quantity stepper <span style="font:400 11px var(--font-mono);color:var(--text-3)">island</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;font:400 11px var(--font-mono);color:var(--text-3)">
+          <div style="display:flex;align-items:center;gap:12px"><div role="group" aria-label="Quantity" style="display:inline-flex;align-items:center;height:40px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface)"><button aria-label="Decrease" style="width:40px;height:38px;border:0;background:transparent;color:var(--text);font:500 18px var(--font-sans);cursor:pointer;border-radius:9px 0 0 9px" style-hover="background:var(--surface-2)">−</button><span style="min-width:36px;text-align:center;font:600 15px var(--font-sans);color:var(--text);font-variant-numeric:tabular-nums">2</span><button aria-label="Increase" style="width:40px;height:38px;border:0;background:transparent;color:var(--text);font:500 18px var(--font-sans);cursor:pointer;border-radius:0 9px 9px 0" style-hover="background:var(--surface-2)">+</button></div>default</div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="display:inline-flex;align-items:center;height:40px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface)"><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--border-strong);font:500 18px var(--font-sans)">−</button><span style="min-width:36px;text-align:center;font:600 15px var(--font-sans);color:var(--text)">1</span><button style="width:40px;height:38px;border:0;background:transparent;color:var(--text);font:500 18px var(--font-sans);box-shadow:inset 0 0 0 2px var(--focus);border-radius:0 9px 9px 0">+</button></div>min reached · + focused</div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="display:inline-flex;align-items:center;height:40px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface)"><button style="width:40px;height:38px;border:0;background:transparent;color:var(--text);font:500 18px var(--font-sans)">−</button><span style="min-width:36px;text-align:center;font:600 15px var(--font-sans);color:var(--text)">3</span><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--border-strong);font:500 18px var(--font-sans)">+</button></div>max = stock (3)</div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="display:inline-flex;align-items:center;height:40px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)"><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--border-strong);font:500 18px var(--font-sans)">−</button><span style="min-width:36px;text-align:center;font:600 15px var(--font-sans);color:var(--text-3)">0</span><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--border-strong);font:500 18px var(--font-sans)">+</button></div>disabled (out of stock)</div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="display:inline-flex;align-items:center;height:40px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);opacity:.7"><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--text-3);font:500 18px var(--font-sans)">−</button><span style="min-width:36px;display:flex;justify-content:center">{{ spinnerInk }}</span><button disabled="" style="width:40px;height:38px;border:0;background:transparent;color:var(--text-3);font:500 18px var(--font-sans)">+</button></div>updating cart line</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Order status badge</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ statuses }}" as="st" hint-placeholder-count="5">
+            <span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--{{ st.tone }}-soft);color:var(--{{ st.tone }});font:600 12.5px var(--font-sans)"><span style="display:flex">{{ st.icon }}</span>{{ st.label }}</span>
+          </sc-for>
+        </div>
+        <div style="font:600 12px var(--font-sans);color:var(--text-2);margin-top:8px">Stock</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;font:500 13px var(--font-sans)">
+          <span style="display:inline-flex;align-items:center;gap:6px;color:var(--success)">{{ icCheck }}In stock</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;color:var(--warning)">{{ icAlert }}Only 3 left</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;color:var(--text-2)">{{ icX }}Out of stock</span>
+        </div>
+        <div style="font:600 12px var(--font-sans);color:var(--text-2);margin-top:8px">Price</div>
+        <div style="display:flex;gap:20px;align-items:baseline;color:var(--text)">
+          <span style="display:inline-flex;align-items:baseline;gap:5px"><span style="font:600 22px var(--font-sans);font-variant-numeric:tabular-nums">1</span><span style="font:500 13px var(--font-sans);color:var(--text-2)">unidade</span></span>
+          <span style="display:inline-flex;align-items:baseline;gap:5px"><span style="font:600 22px var(--font-sans);font-variant-numeric:tabular-nums">25</span><span style="font:500 13px var(--font-sans);color:var(--text-2)">unidades</span></span>
+          <span style="display:inline-flex;align-items:baseline;gap:4px"><span style="font:600 15px var(--font-sans);font-variant-numeric:tabular-nums">1,240</span><span style="font:500 12px var(--font-sans);color:var(--text-2)">unidades</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-sans);color:var(--text-2)">Product card — default · hover · focus · loading</div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">
+        <a href="#" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden;text-decoration:none;color:var(--text)" style-hover="box-shadow:var(--shadow-2);border-color:var(--border-strong)">
+          <div style="aspect-ratio:4/3;background:var(--ph-1-bg);color:var(--ph-1-fg);display:flex;align-items:flex-end;padding:12px;font:600 34px/1 var(--font-sans);letter-spacing:-.03em">Oo</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:4px"><span style="font:600 14px var(--font-sans)">Oolong Tea</span><span style="font:400 12px/1.4 var(--font-sans);color:var(--text-2)">Roasted, honeyed leaves</span><span style="font:500 12px var(--font-sans);color:var(--text-2);margin-top:4px">from <b style="font-size:15px;color:var(--text)">12</b> unidades</span></div>
+        </a>
+        <div style="display:flex;flex-direction:column;border:1px solid var(--border-strong);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow-2)">
+          <div style="aspect-ratio:4/3;background:var(--ph-2-bg);color:var(--ph-2-fg);display:flex;align-items:flex-end;padding:12px;font:600 34px/1 var(--font-sans);letter-spacing:-.03em">Ce</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:4px"><span style="font:600 14px var(--font-sans);text-decoration:underline;text-underline-offset:3px">Ceramic Mug</span><span style="font:400 12px/1.4 var(--font-sans);color:var(--text-2)">Stoneware, 350 ml</span><span style="font:500 12px var(--font-sans);color:var(--text-2);margin-top:4px"><b style="font-size:15px;color:var(--text)">18</b> unidades</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)">
+          <div style="aspect-ratio:4/3;background:var(--ph-3-bg);color:var(--ph-3-fg);display:flex;align-items:flex-end;padding:12px;font:600 34px/1 var(--font-sans);letter-spacing:-.03em">Li</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:4px"><span style="font:600 14px var(--font-sans)">Linen Napkins</span><span style="font:400 12px/1.4 var(--font-sans);color:var(--text-2)">Set of four</span><span style="font:500 12px var(--font-sans);color:var(--text-2);margin-top:4px">from <b style="font-size:15px;color:var(--text)">30</b> unidades</span></div>
+        </div>
+        <div aria-busy="true" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden;animation:rs-pulse 1.4s ease-in-out infinite">
+          <div style="aspect-ratio:4/3;background:var(--surface-2)"></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:8px"><span style="height:12px;width:70%;border-radius:4px;background:var(--surface-sunken)"></span><span style="height:10px;width:90%;border-radius:4px;background:var(--surface-2)"></span><span style="height:12px;width:40%;border-radius:4px;background:var(--surface-sunken);margin-top:4px"></span></div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.5 var(--font-sans);color:var(--text-3)">Placeholder: product initials on one of five muted blocks, chosen by <span style="font-family:var(--font-mono)">product.id % 5</span>. Price slot shows the lowest active variant ("from") when variants differ.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px var(--font-sans);color:var(--text-2)">Inline message (conflicts, validation summary, info)</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        <div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--danger-soft);color:var(--text);border:1px solid color-mix(in oklab,var(--danger) 30%,transparent)"><span style="color:var(--danger);display:flex;padding-top:1px">{{ icAlert }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 14px var(--font-sans);color:var(--danger)">Please fix 2 fields</b><span style="font:400 13px/1.45 var(--font-sans)">Username: must be 3–32 characters · Birthday: required</span></div></div>
+        <div role="status" style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--warning-soft);color:var(--text);border:1px solid color-mix(in oklab,var(--warning) 30%,transparent)"><span style="color:var(--warning);display:flex;padding-top:1px">{{ icAlert }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 14px var(--font-sans);color:var(--warning)">Couldn't add to cart</b><span style="font:400 13px/1.45 var(--font-sans)">insufficient stock (409)</span></div></div>
+        <div style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--info-soft);color:var(--text);border:1px solid color-mix(in oklab,var(--info) 30%,transparent)"><span style="color:var(--info);display:flex;padding-top:1px">{{ icInfo }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 14px var(--font-sans);color:var(--info)">Paid orders can't be cancelled</b><span style="font:400 13px/1.45 var(--font-sans)">This store has no refunds.</span></div></div>
+        <div style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--success-soft);color:var(--text);border:1px solid color-mix(in oklab,var(--success) 30%,transparent)"><span style="color:var(--success);display:flex;padding-top:1px">{{ icCheck }}</span><div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 14px var(--font-sans);color:var(--success)">Added to cart</b><span style="font:400 13px/1.45 var(--font-sans)">2 × Oolong Tea, 250 g</span></div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Pagination</div>
+        <nav aria-label="Pagination" style="display:flex;flex-direction:column;gap:10px">
+          <span style="font:400 13px var(--font-sans);color:var(--text-2)">Showing <b style="color:var(--text)">13–24</b> of <b style="color:var(--text)">57</b></span>
+          <div style="display:flex;gap:6px">
+            <a href="#" style="height:36px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:8px;color:var(--text);font:500 13px var(--font-sans);text-decoration:none">← Previous</a>
+            <a href="#" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);font:500 13px var(--font-sans);text-decoration:none">1</a>
+            <a href="#" aria-current="page" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--text);color:var(--bg);font:600 13px var(--font-sans);text-decoration:none">2</a>
+            <a href="#" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);font:500 13px var(--font-sans);text-decoration:none;box-shadow:0 0 0 2px var(--focus)">3</a>
+            <span style="height:36px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;color:var(--text-3);font:500 13px var(--font-sans)">Next →</span>
+          </div>
+        </nav>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Segmented filter · select · toggle</div>
+        <div style="display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);width:max-content">
+          <span style="padding:6px 12px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow-1);font:600 13px var(--font-sans)">Active</span>
+          <span style="padding:6px 12px;font:500 13px var(--font-sans);color:var(--text-2)">Inactive</span>
+          <span style="padding:6px 12px;font:500 13px var(--font-sans);color:var(--text-2)">All</span>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);font:500 13px var(--font-sans)">Sort: Name {{ icChevron }}</span>
+          <span style="display:inline-flex;align-items:center;gap:8px;font:500 13px var(--font-sans)"><span role="switch" aria-checked="true" style="width:36px;height:22px;border-radius:999px;background:var(--accent);display:flex;align-items:center;padding:2px;box-sizing:border-box;justify-content:flex-end"><span style="width:18px;height:18px;border-radius:50%;background:var(--surface)"></span></span>Active</span>
+          <span style="display:inline-flex;align-items:center;gap:8px;font:500 13px var(--font-sans);color:var(--text-2)"><span role="switch" aria-checked="false" style="width:36px;height:22px;border-radius:999px;background:var(--border-strong);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="width:18px;height:18px;border-radius:50%;background:var(--surface)"></span></span>Inactive</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Order timeline</div>
+        <ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)">
+          <sc-for list="{{ timeline }}" as="s" hint-placeholder-count="4">
+            <li style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center"><span style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:{{ s.dotBg }};color:var(--on-accent);border:2px solid {{ s.dotBorder }};box-sizing:border-box">{{ s.mark }}</span><span style="flex:1;height:2px;background:{{ s.line }}"></span></div>
+              <span style="font:600 12px var(--font-sans);color:{{ s.labelColor }}">{{ s.label }}</span>
+              <span style="font:400 11px var(--font-sans);color:var(--text-3)">{{ s.meta }}</span>
+            </li>
+          </sc-for>
+        </ol>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px dashed var(--border-strong);font:500 13px var(--font-sans);color:var(--text-2)"><span style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--neutral-soft);color:var(--neutral)">{{ icX }}</span>Cancelled · stock returned. Timeline is replaced, not greyed.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px var(--font-sans);color:var(--text-2)">Demo notice · confirm dialog</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--surface-2);font:500 12.5px var(--font-sans);color:var(--text-2)"><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;background:var(--text);color:var(--bg);font:600 10.5px var(--font-mono);letter-spacing:.06em">DEMO</span>Demo store: payments are simulated</div>
+        <div role="dialog" aria-modal="true" style="border-radius:14px;background:var(--surface);box-shadow:var(--shadow-3);border:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:10px">
+          <b style="font:600 16px var(--font-sans)">Deactivate "Oolong Tea"?</b>
+          <span style="font:400 13px/1.5 var(--font-sans);color:var(--text-2)">It disappears from the catalog and from customers' carts. Nothing is deleted; you can reactivate it later.</span>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button style="height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font:600 13px var(--font-sans)">Keep active</button><button style="height:36px;padding:0 12px;border-radius:8px;border:0;background:var(--danger);color:var(--surface);font:600 13px var(--font-sans)">Deactivate</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-for>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const h = React.createElement;
+    const svg = (d, s = 14) => h('svg', { width: s, height: s, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }, d.map((p, i) => h('path', { key: i, d: p })));
+    const spin = (c) => h('span', { 'aria-hidden': true, style: { width: 14, height: 14, borderRadius: '50%', border: '2px solid currentColor', borderRightColor: 'transparent', display: 'inline-block', animation: 'rs-spin .8s linear infinite', color: c, boxSizing: 'border-box' } });
+    const icCheck = svg(['M3.5 8.5l3 3 6-7']);
+    const icX = svg(['M4.5 4.5l7 7M11.5 4.5l-7 7']);
+    const icAlert = svg(['M8 2.5l6 11H2z', 'M8 7v3', 'M8 12.2v.1']);
+    const icInfo = svg(['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 7.5V11', 'M8 5v.1']);
+    const icClock = svg(['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M8 5v3l2 1.5']);
+    const icBox = svg(['M2.5 5L8 2.5 13.5 5v6L8 13.5 2.5 11z', 'M2.5 5L8 7.5 13.5 5', 'M8 7.5v6']);
+    const icCoin = svg(['M8 14A6 6 0 108 2a6 6 0 000 12z', 'M5.5 8h5']);
+    const icChevron = svg(['M4 6l4 4 4-4']);
+    const T = ['--bg', '--surface', '--surface-2', '--surface-sunken'];
+    return {
+      themes: [
+        { id: 'light', label: 'Light', selector: ':root' },
+        { id: 'dark', label: 'Dark', selector: '[data-theme="dark"]' },
+      ],
+      colorGroups: [
+        { name: 'Surfaces', tokens: T },
+        { name: 'Ink and lines', tokens: ['--text', '--text-2', '--text-3', '--border-strong'] },
+        { name: 'Accent', tokens: ['--accent', '--accent-hover', '--accent-soft', '--focus'] },
+        { name: 'Status (strong)', tokens: ['--success', '--warning', '--danger', '--info'] },
+        { name: 'Status (soft fill)', tokens: ['--success-soft', '--warning-soft', '--danger-soft', '--info-soft'] },
+        { name: 'Placeholder blocks', tokens: ['--ph-1-bg', '--ph-2-bg', '--ph-3-bg', '--ph-4-bg'] },
+      ],
+      typeScale: [
+        { token: '--fs-4xl', spec: '48 / 600', weight: 600, ls: '-0.025em', sample: 'Rust Store' },
+        { token: '--fs-3xl', spec: '36 / 600', weight: 600, ls: '-0.02em', sample: 'Order #1042' },
+        { token: '--fs-2xl', spec: '28 / 600', weight: 600, ls: '-0.015em', sample: 'Your cart' },
+        { token: '--fs-xl', spec: '22 / 600', weight: 600, ls: '-0.01em', sample: 'Oolong Tea' },
+        { token: '--fs-lg', spec: '18 / 500', weight: 500, ls: '0', sample: 'Total 1,240 unidades' },
+        { token: '--fs-md', spec: '16 / 400 body', weight: 400, ls: '0', sample: 'Roasted, honeyed leaves from a small farm.' },
+        { token: '--fs-sm', spec: '14 / 400 UI', weight: 400, ls: '0', sample: 'Showing 1–12 of 57' },
+        { token: '--fs-xs', spec: '12 / 500 meta', weight: 500, ls: '0.01em', sample: 'Created Oct 3, 2026' },
+      ],
+      spacing: [['--sp-1', 4], ['--sp-2', 8], ['--sp-3', 12], ['--sp-4', 16], ['--sp-5', 24], ['--sp-6', 32], ['--sp-7', 48], ['--sp-8', 64]].map(([token, px]) => ({ token, px: px + 'px' })),
+      radii: [['--r-sm', '6'], ['--r-md', '10'], ['--r-lg', '14'], ['--r-pill', '999']].map(([token, px]) => ({ token, px })),
+      shadows: [{ token: '--shadow-1', use: 'Segment, chip' }, { token: '--shadow-2', use: 'Card hover, popover' }, { token: '--shadow-3', use: 'Dialog' }],
+      statuses: [
+        { label: 'Pending', tone: 'warning', icon: icClock },
+        { label: 'Paid', tone: 'info', icon: icCoin },
+        { label: 'Shipped', tone: 'accent', icon: icBox },
+        { label: 'Delivered', tone: 'success', icon: icCheck },
+        { label: 'Cancelled', tone: 'neutral', icon: icX },
+      ],
+      timeline: [
+        { label: 'Pending', meta: 'Oct 3, 14:02', mark: svg(['M3.5 8.5l3 3 6-7'], 11), dotBg: 'var(--accent)', dotBorder: 'var(--accent)', line: 'var(--accent)', labelColor: 'var(--text)' },
+        { label: 'Paid', meta: 'Oct 3, 14:05', mark: svg(['M3.5 8.5l3 3 6-7'], 11), dotBg: 'var(--accent)', dotBorder: 'var(--accent)', line: 'var(--border-strong)', labelColor: 'var(--text)' },
+        { label: 'Shipped', meta: 'Next', mark: '', dotBg: 'var(--surface)', dotBorder: 'var(--border-strong)', line: 'var(--border-strong)', labelColor: 'var(--text-2)' },
+        { label: 'Delivered', meta: '', mark: '', dotBg: 'var(--surface)', dotBorder: 'var(--border-strong)', line: 'transparent', labelColor: 'var(--text-2)' },
+      ],
+      spinner: spin('var(--on-accent)'), spinnerInk: spin('var(--text-2)'), spinnerOnDanger: spin('var(--surface)'), spinnerAccent: spin('var(--accent)'),
+      icCheck, icX, icAlert, icInfo, icChevron,
+    };
+  }
+}
+</script>
+</body>
+</html>
