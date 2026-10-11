@@ -29,3 +29,39 @@ export interface Variant {
 export interface ProductDetail extends Product {
   variants: Variant[];
 }
+
+/** Par de tokens devolvido por `sign-in` e `refresh` (o `token_type` é sempre "Bearer"). */
+export interface Tokens {
+  session_token: string;
+  refresh_token: string;
+}
+
+export interface Customer {
+  id: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  /** `YYYY-MM-DD`. */
+  birthday: string;
+}
+
+export type UnavailableReason = "inactive" | "insufficient_stock";
+
+export interface CartItem {
+  variant_id: string;
+  product_id: string;
+  name: string;
+  sku: string;
+  unit_price: number;
+  quantity: number;
+  line_total: number;
+  available: boolean;
+  unavailable_reason: UnavailableReason | null;
+}
+
+export interface Cart {
+  items: CartItem[];
+  /** Soma TODAS as linhas, disponíveis ou não. */
+  total: number;
+  can_checkout: boolean;
+}

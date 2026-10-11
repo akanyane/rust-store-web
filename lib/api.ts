@@ -1,4 +1,10 @@
-import type { ProductDetail, ProductListItem } from "./types.ts";
+import type {
+  Cart,
+  Customer,
+  ProductDetail,
+  ProductListItem,
+  Tokens,
+} from "./types.ts";
 
 export const DEFAULT_API_URL = "http://localhost:3000";
 const TIMEOUT_MS = 5000;
@@ -55,11 +61,29 @@ async function toError(response: Response): Promise<Error> {
     : new ApiError(response.status, message);
 }
 
-async function call(path: string): Promise<Response> {
+interface CallOptions {
+  method?: string;
+  /** Session token: vai no `Authorization: Bearer`. */
+  token?: string;
+  body?: unknown;
+}
+
+async function call(
+  path: string,
+  options: CallOptions = {},
+): Promise<Response> {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (options.token) headers.authorization = `Bearer ${options.token}`;
+  if (options.body !== undefined) headers["content-type"] = "application/json";
+
   let response: Response;
   try {
     response = await fetch(`${apiUrl()}${path}`, {
-      headers: { accept: "application/json" },
+      method: options.method ?? "GET",
+      headers,
+      body: options.body === undefined
+        ? undefined
+        : JSON.stringify(options.body),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (cause) {
@@ -68,6 +92,12 @@ async function call(path: string): Promise<Response> {
   if (!response.ok) throw await toError(response);
   return response;
 }
+
+async function json<T>(path: string, options: CallOptions = {}): Promise<T> {
+  return await (await call(path, options)).json();
+}
+
+// ---------- Catálogo (público) ----------
 
 export interface ProductPage {
   products: ProductListItem[];
@@ -103,10 +133,111 @@ export async function listProducts(
 /** `null` quando o produto não existe ou está inativo (a API responde 404). */
 export async function getProduct(id: string): Promise<ProductDetail | null> {
   try {
-    const response = await call(`/products/${encodeURIComponent(id)}`);
-    return await response.json();
+    return await json<ProductDetail>(`/products/${encodeURIComponent(id)}`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+// ---------- Conta e sessão ----------
+
+export function signIn(username: string, password: string): Promise<Tokens> {
+  return json<Tokens>("/auth/sign-in", {
+    method: "POST",
+    body: { username, password },
+  });
+}
+
+export interface SignUpInput {
+  username: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  birthday: string;
+}
+
+export function signUp(input: SignUpInput): Promise<Customer> {
+  return json<Customer>("/auth/sign-up", { method: "POST", body: input });
+}
+
+/** Troca um refresh token por um par novo. O refresh antigo deixa de valer. */
+export function refreshTokens(refreshToken: string): Promise<Tokens> {
+  return json<Tokens>("/auth/refresh", {
+    method: "POST",
+    body: { refresh_token: refreshToken },
+  });
+}
+
+export async function signOut(refreshToken: string): Promise<void> {
+  await call("/auth/sign-out", {
+    method: "POST",
+    body: { refresh_token: refreshToken },
+  });
+}
+
+export function getMe(token: string): Promise<Customer> {
+  return json<Customer>("/me", { token });
+}
+
+export interface ProfileInput {
+  first_name: string;
+  last_name: string;
+  birthday: string;
+}
+
+export function updateMe(
+  token: string,
+  input: ProfileInput,
+): Promise<Customer> {
+  return json<Customer>("/me", { method: "PUT", token, body: input });
+}
+
+export async function deleteMe(token: string): Promise<void> {
+  await call("/me", { method: "DELETE", token });
+}
+
+/** Só os ids bastam: a conta usa a contagem para decidir se pode ser excluída. */
+export function listOrderIds(token: string): Promise<{ id: string }[]> {
+  return json<{ id: string }[]>("/orders", { token });
+}
+
+// ---------- Carrinho ----------
+
+export function getCart(token: string): Promise<Cart> {
+  return json<Cart>("/cart", { token });
+}
+
+export function addToCart(
+  token: string,
+  variantId: string,
+  quantity: number,
+): Promise<Cart> {
+  return json<Cart>("/cart/items", {
+    method: "POST",
+    token,
+    body: { variant_id: variantId, quantity },
+  });
+}
+
+export function setCartQuantity(
+  token: string,
+  variantId: string,
+  quantity: number,
+): Promise<Cart> {
+  return json<Cart>(`/cart/items/${encodeURIComponent(variantId)}`, {
+    method: "PUT",
+    token,
+    body: { quantity },
+  });
+}
+
+export function removeFromCart(
+  token: string,
+  variantId: string,
+): Promise<Cart> {
+  return json<Cart>(`/cart/items/${encodeURIComponent(variantId)}`, {
+    method: "DELETE",
+    token,
+  });
 }

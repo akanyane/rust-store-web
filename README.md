@@ -38,7 +38,8 @@ deno test --allow-env  # testes de unidade (lib/)
 
 ## Estado
 
-**Fase 1: catálogo e página de produto** (leitura pública).
+**Fase 1: catálogo e página de produto** (leitura pública) e **fase 2: login,
+cadastro, conta e carrinho**.
 
 - `/`: catálogo com ordem (`?sort=name|newest`), paginação de 12 em 12
   (`?page=`), total vindo de `X-Total-Count` e "from X unidades" só quando as
@@ -51,12 +52,35 @@ deno test --allow-env  # testes de unidade (lib/)
 Próximas fases: login, cadastro e carrinho; checkout e pedidos; console de
 admin.
 
+## Sessão e segurança
+
+- Os tokens ficam em cookies `httpOnly` (`rs_session`, 1 h; `rs_refresh`, 15
+  dias), `SameSite=Lax`, e `Secure` em HTTPS. O JavaScript do navegador nunca os
+  lê.
+- **Renovação automática:** se a sessão acabou, o servidor renova pelo refresh e
+  grava o par novo. O refresh token da API vale uma vez só; por isso as
+  renovações simultâneas (ou logo em seguida, enquanto o navegador ainda manda o
+  cookie antigo) são compartilhadas por 30 s, e ninguém é deslogado à toa.
+  Limite: isso vale por instância do servidor; com várias instâncias seria
+  preciso um cache compartilhado.
+- Falhou a renovação (a API recusou): os cookies são apagados e a pessoa vai
+  para `/signin?next=…&expired=1`. Se a API estiver fora do ar, a sessão não é
+  apagada.
+- **CSRF:** as ações são `POST` e os cookies são `SameSite=Lax`, que não vão em
+  `POST` vindo de outro site. Sair só funciona por `POST` (um link não desloga
+  ninguém).
+- Páginas de quem está logado saem com `Cache-Control: private, no-store`.
+- As mensagens de uma vez ("Added to cart", "Changes saved") viajam num cookie
+  `rs_flash` de 60 s, lido e apagado na página seguinte. Tudo funciona sem
+  JavaScript; a única ilha é o seletor de quantidade da página de produto.
+
 ## Estrutura
 
 ```
-lib/          lógica pura e testada: api (cliente), format (unidades, estoque), pagination, links, theme
-components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder
-routes/       _app (layout, tema), _error (404/403/500), index (catálogo), products/[id]
+lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, format, pagination, links, theme
+components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder, Field, Alert, ErrorSummary, AuthCard, CartLine, CartSummary
+islands/      QuantityStepper (a única ilha)
+routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId]
 assets/       styles.css (usa as variáveis de static/tokens.css)
 static/       tokens.css (tokens do design: claro e escuro)
 design/       handoff de design (referência; fora do fmt, lint e check)

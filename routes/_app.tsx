@@ -18,7 +18,11 @@ export default define.page(function App({ Component, state, url }) {
         )}
       </head>
       <body>
-        <Header path={url.pathname} />
+        <Header
+          path={url.pathname}
+          customer={state.customer}
+          cartCount={state.cartCount}
+        />
         <Component />
         <Footer />
       </body>

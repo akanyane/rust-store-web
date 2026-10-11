@@ -5,6 +5,26 @@ import { StatePanel } from "../components/StatePanel.tsx";
 export default function ErrorPage(props: PageProps) {
   const status = props.error instanceof HttpError ? props.error.status : 500;
 
+  if (status === 503) {
+    return (
+      <>
+        <Head>
+          <title>Store unavailable · Rust Store</title>
+        </Head>
+        <StatePanel
+          title="We couldn't reach the store"
+          tone="danger"
+          action={{
+            href: props.url.pathname + props.url.search,
+            label: "Try again",
+          }}
+        >
+          The store didn't respond. Your cart is unaffected.
+        </StatePanel>
+      </>
+    );
+  }
+
   if (status === 404) {
     return (
       <>
