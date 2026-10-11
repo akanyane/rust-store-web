@@ -66,3 +66,23 @@ export function cartSummaryLine(cart: Pick<Cart, "items">): string {
     items === 1 ? "item" : "items"
   }`;
 }
+
+/** O nome da variante que a API dá à variante criada junto com o produto. */
+const DEFAULT_VARIANT_NAME = "Default";
+
+/**
+ * Título da linha: "Oolong Tea · 250 g bag". Quando a variante é a padrão ("Default"),
+ * mostra só o produto ("Ceramic Mug"), porque "Ceramic Mug · Default" não diz nada a mais.
+ */
+export function lineTitle(
+  item: Pick<CartItem, "product_name" | "name">,
+): string {
+  const product = item.product_name.trim();
+  const variant = item.name.trim();
+  if (product === "") return variant;
+  if (
+    variant === "" ||
+    variant.toLowerCase() === DEFAULT_VARIANT_NAME.toLowerCase()
+  ) return product;
+  return `${product} · ${variant}`;
+}

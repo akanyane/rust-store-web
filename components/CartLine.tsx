@@ -1,4 +1,4 @@
-import { canDecrease, canIncrease, flagInfo } from "../lib/cart.ts";
+import { canDecrease, canIncrease, flagInfo, lineTitle } from "../lib/cart.ts";
 import { formatNumber, unitLabel } from "../lib/format.ts";
 import type { CartItem } from "../lib/types.ts";
 import { Icon } from "./Icon.tsx";
@@ -10,12 +10,13 @@ export function CartLine({ item }: { item: CartItem }) {
     ? flagInfo(item.unavailable_reason)
     : undefined;
   const action = `/cart/items/${encodeURIComponent(item.variant_id)}`;
+  const title = lineTitle(item);
   return (
     <li class={`rs-cartline ${flag ? "rs-cartline--flagged" : ""}`}>
       <div class="rs-cartline__item">
         <Placeholder
           id={item.product_id}
-          name={item.name}
+          name={item.product_name}
           class="rs-cartline__ph"
         />
         <div class="rs-cartline__text">
@@ -24,7 +25,7 @@ export function CartLine({ item }: { item: CartItem }) {
             class="rs-cartline__name"
             aria-current="false"
           >
-            {item.name}
+            {title}
           </a>
           <span class="rs-sku">SKU {item.sku}</span>
           {flag && (
@@ -50,14 +51,14 @@ export function CartLine({ item }: { item: CartItem }) {
             item.unavailable_reason === "inactive" ? "rs-stepper--locked" : ""
           }`}
           role="group"
-          aria-label={`Quantity for ${item.name}`}
+          aria-label={`Quantity for ${title}`}
         >
           <button
             type="submit"
             name="action"
             value="dec"
             class="rs-stepper__btn"
-            aria-label={`Decrease quantity of ${item.name}`}
+            aria-label={`Decrease quantity of ${title}`}
             disabled={!canDecrease(item)}
           >
             −
@@ -70,7 +71,7 @@ export function CartLine({ item }: { item: CartItem }) {
             name="action"
             value="inc"
             class="rs-stepper__btn"
-            aria-label={`Increase quantity of ${item.name}`}
+            aria-label={`Increase quantity of ${title}`}
             disabled={!canIncrease(item)}
           >
             +
@@ -89,7 +90,7 @@ export function CartLine({ item }: { item: CartItem }) {
           name="action"
           value="remove"
           class="rs-iconbtn"
-          aria-label={`Remove ${item.name}`}
+          aria-label={`Remove ${title}`}
         >
           <Icon name="trash" size={18} />
         </button>

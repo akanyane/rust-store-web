@@ -50,6 +50,8 @@ export type UnavailableReason = "inactive" | "insufficient_stock";
 export interface CartItem {
   variant_id: string;
   product_id: string;
+  /** Nome do produto (o `name` abaixo é o da variante). */
+  product_name: string;
   name: string;
   sku: string;
   unit_price: number;

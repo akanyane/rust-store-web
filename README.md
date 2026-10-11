@@ -49,8 +49,24 @@ cadastro, conta e carrinho**.
 - `404`/`403`/erro: páginas do design.
 - Tema claro/escuro: cookie `theme`, ou o do sistema (sem piscar).
 
-Próximas fases: login, cadastro e carrinho; checkout e pedidos; console de
-admin.
+**Fase 2:**
+
+- `/signin`, `/signup`, `POST /signout`: entrar, cadastrar (entra logo em
+  seguida) e sair. Erros de formulário por campo, com o resumo "Please fix N
+  fields". O `?next=` só aceita caminhos do próprio site.
+- `/account`: editar nome e nascimento (o username não muda) e excluir a conta.
+  A API mantém contas com pedidos, e a tela mostra a recusa.
+- `/cart`: linhas com quantidade (−, +) e remover, linhas sinalizadas ("No
+  longer sold", "Not enough stock"), a faixa "N lines need attention" e o resumo
+  com o total de todas as linhas. Ainda sem o botão de finalizar a compra (fase
+  3). O nome da linha é "Produto · Variante" (`product_name` da API), e só o
+  produto quando a variante é a padrão ("Default"); as iniciais do bloco
+  colorido saem do produto.
+- `/products/:id`: "Add to cart" por variante, com o resultado na própria linha.
+- Cabeçalho: o carrinho com a contagem (soma das quantidades) e a conta, ou
+  "Sign in".
+
+Próximas fases: checkout e pedidos; console de admin.
 
 ## Sessão e segurança
 

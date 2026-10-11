@@ -5,6 +5,7 @@ import {
   cartCount,
   cartSummaryLine,
   flagInfo,
+  lineTitle,
   splitTotals,
 } from "./cart.ts";
 import type { CartItem } from "./types.ts";
@@ -12,6 +13,7 @@ import type { CartItem } from "./types.ts";
 const item = (over: Partial<CartItem>): CartItem => ({
   variant_id: "v",
   product_id: "p",
+  product_name: "Product",
   name: "n",
   sku: "s",
   unit_price: 10,
@@ -99,4 +101,32 @@ Deno.test("canIncrease / canDecrease per line state", () => {
   assertEquals([canIncrease(lowStock), canDecrease(lowStock)], [false, true]);
   // Inativa: travada, só remover.
   assertEquals([canIncrease(inactive), canDecrease(inactive)], [false, false]);
+});
+
+Deno.test("lineTitle: 'Product · Variant', and just the product for the default variant", () => {
+  assertEquals(
+    lineTitle({ product_name: "Oolong Tea", name: "250 g bag" }),
+    "Oolong Tea · 250 g bag",
+  );
+  assertEquals(
+    lineTitle({ product_name: "Ceramic Mug", name: "Default" }),
+    "Ceramic Mug",
+  );
+  assertEquals(
+    lineTitle({ product_name: "Ceramic Mug", name: "default" }),
+    "Ceramic Mug",
+  );
+  assertEquals(
+    lineTitle({ product_name: "Ceramic Mug", name: "  Default " }),
+    "Ceramic Mug",
+  );
+  // Variante parecida com "Default" mas diferente continua aparecendo.
+  assertEquals(
+    lineTitle({ product_name: "Mug", name: "Default glaze" }),
+    "Mug · Default glaze",
+  );
+  // Sem nome de produto (não deveria acontecer), cai para a variante.
+  assertEquals(lineTitle({ product_name: "", name: "250 g bag" }), "250 g bag");
+  assertEquals(lineTitle({ product_name: "  ", name: "Default" }), "Default");
+  assertEquals(lineTitle({ product_name: "Mug", name: "" }), "Mug");
 });
