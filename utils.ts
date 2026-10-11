@@ -24,6 +24,12 @@ export interface State {
   flash?: Flash;
   /** Mensagem para a PRÓXIMA página: o middleware grava o cookie. */
   pendingFlash?: Flash;
+  /** Último username que entrou neste navegador (cookie `rs_last_user`), se válido. */
+  lastUser?: string;
+  /** Username a lembrar na resposta (login): o middleware grava o cookie. */
+  rememberUser?: string;
+  /** Esquecer o username lembrado (logout, "Not you?"): o middleware apaga o cookie. */
+  forgetUser?: boolean;
   /** O acesso é por HTTPS (cookies `Secure`). */
   secure: boolean;
 }

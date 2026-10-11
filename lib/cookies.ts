@@ -73,3 +73,36 @@ export function writeFlashCookie(
 export function clearFlashCookie(headers: Headers): void {
   deleteCookie(headers, FLASH_COOKIE, { path: "/" });
 }
+
+/**
+ * O último username que entrou neste navegador, só para preencher a tela "Your session
+ * expired". Não é um segredo, mas é um dado de quem usa a loja: `httpOnly`, some no logout e
+ * só vale se tiver o formato de um username.
+ */
+export const LAST_USER_COOKIE = "rs_last_user";
+
+const USERNAME_SHAPE = /^[a-z0-9._-]{3,32}$/;
+
+export function isUsernameShape(value: string): boolean {
+  return USERNAME_SHAPE.test(value);
+}
+
+export function readLastUser(headers: Headers): string | undefined {
+  const value = readCookie(headers, LAST_USER_COOKIE);
+  return value && isUsernameShape(value) ? value : undefined;
+}
+
+export function writeLastUserCookie(
+  headers: Headers,
+  username: string,
+  secure: boolean,
+): void {
+  setCookie(headers, {
+    ...options(LAST_USER_COOKIE, REFRESH_MAX_AGE, secure),
+    value: username,
+  });
+}
+
+export function clearLastUserCookie(headers: Headers): void {
+  deleteCookie(headers, LAST_USER_COOKIE, { path: "/" });
+}

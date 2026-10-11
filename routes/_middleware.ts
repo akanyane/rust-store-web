@@ -3,11 +3,14 @@ import { ApiUnavailableError, getCart, getMe, getSession } from "../lib/api.ts";
 import { cartCount } from "../lib/cart.ts";
 import {
   clearFlashCookie,
+  clearLastUserCookie,
   clearSessionCookies,
   FLASH_COOKIE,
   readCookie,
+  readLastUser,
   readSessionCookies,
   writeFlashCookie,
+  writeLastUserCookie,
   writeSessionCookies,
 } from "../lib/cookies.ts";
 import { parseFlash, serializeFlash } from "../lib/flash.ts";
@@ -51,6 +54,7 @@ export default define.middleware(async (ctx) => {
   state.secure = ctx.url.protocol === "https:" ||
     headers.get("x-forwarded-proto") === "https";
   state.session = new SessionManager(readSessionCookies(headers));
+  state.lastUser = readLastUser(headers);
   state.cartCount = 0;
   state.apiDown = false;
 
@@ -85,6 +89,9 @@ export default define.middleware(async (ctx) => {
   } else if (isRead && flashCookie) {
     clearFlashCookie(result.headers);
   }
+  if (state.rememberUser) {
+    writeLastUserCookie(result.headers, state.rememberUser, state.secure);
+  } else if (state.forgetUser) clearLastUserCookie(result.headers);
   // Páginas de quem está logado têm dados pessoais: nada de cache compartilhado.
   if (
     state.session.hasCredentials || state.session.cleared ||

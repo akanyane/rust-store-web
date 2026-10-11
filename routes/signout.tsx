@@ -17,6 +17,7 @@ export const handler = define.handlers({
       }
     }
     ctx.state.session.clear();
+    ctx.state.forgetUser = true;
     return ctx.redirect("/", 303);
   },
 });

@@ -2873,3 +2873,68 @@ a {
 .rs-variantform {
   background: var(--accent-soft);
 }
+
+/* Telas estreitas: o filtro rola dentro da própria caixa e as colunas secundárias das
+   tabelas do console somem, para Status, Total e Qty não ficarem fora da tela. */
+.rs-filter {
+  max-width: 100%;
+}
+
+.rs-filter .rs-segmented {
+  max-width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+.rs-filter .rs-segmented a {
+  white-space: nowrap;
+}
+
+@media (max-width: 899px) {
+  .rs-col-wide {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .rs-table th,
+  .rs-table td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Sessão expirada: modal no desktop, página inteira no celular */
+
+.rs-session {
+  max-width: 400px;
+  gap: 14px;
+}
+
+.rs-session .rs-auth__foot {
+  margin-top: 2px;
+}
+
+@media (max-width: 767px) {
+  .rs-modal--session {
+    align-items: stretch;
+    background: var(--bg);
+  }
+  .rs-modal--session .rs-session {
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 32px 20px;
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 768px) {
+  .rs-modal--session {
+    align-items: center;
+  }
+  .rs-modal--session .rs-session {
+    border-radius: 16px;
+    padding: 32px;
+  }
+}

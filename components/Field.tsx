@@ -11,6 +11,7 @@ interface FieldProps {
   placeholder?: string;
   inputMode?: "text" | "numeric";
   readOnly?: boolean;
+  autofocus?: boolean;
   required?: boolean;
   /** Mostra uma área de texto de várias linhas no lugar do campo de uma linha. */
   rows?: number;
@@ -47,6 +48,7 @@ export function Field(props: FieldProps) {
         type={type}
         value={value}
         autocomplete={props.autocomplete}
+        autofocus={props.autofocus}
         placeholder={props.placeholder}
         inputMode={props.inputMode}
         readOnly={props.readOnly}
