@@ -1,14 +1,23 @@
-import { catalogHref, type Sort } from "../lib/links.ts";
 import { type PageInfo, pageItems } from "../lib/pagination.ts";
 
-/** "Showing 1–12 of 57" mais os botões. Os botões só aparecem com mais de uma página. */
-export function Pagination({ info, sort }: { info: PageInfo; sort: Sort }) {
-  const href = (page: number) => catalogHref({ sort, page });
+/**
+ * "Showing 1–12 of 57" mais os botões. Os botões só aparecem com mais de uma página.
+ * `href` monta o link de cada página (cada lista tem os seus filtros) e `extra` é um
+ * complemento do resumo, como "57 active, 4 inactive".
+ */
+export function Pagination(
+  { info, href, extra }: {
+    info: PageInfo;
+    href: (page: number) => string;
+    extra?: string;
+  },
+) {
   const multiple = info.pages > 1;
   return (
     <nav aria-label="Pagination" class="rs-pagination">
       <span class="rs-pagination__summary">
         Showing <b>{info.from}–{info.to}</b> of <b>{info.total}</b>
+        {extra && <span class="rs-pagination__extra">· {extra}</span>}
         {multiple && (
           <span class="rs-pagination__pages-of">
             · Page {info.page} of {info.pages}

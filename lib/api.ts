@@ -1,10 +1,15 @@
 import type {
+  AdminOrder,
   Cart,
   Customer,
   Order,
+  OrderStatus,
+  Product,
   ProductDetail,
   ProductListItem,
+  Session,
   Tokens,
+  Variant,
 } from "./types.ts";
 
 export const DEFAULT_API_URL = "http://localhost:3000";
@@ -282,4 +287,208 @@ export function cancelOrder(token: string, id: string): Promise<Order> {
     method: "POST",
     token,
   });
+}
+
+// ---------- Sessão ----------
+
+export function getSession(token: string): Promise<Session> {
+  return json<Session>("/auth/session", { token });
+}
+
+// ---------- Admin: pedidos ----------
+
+function totalOf(response: Response, fallback: number): number {
+  const header = response.headers.get("x-total-count");
+  return header !== null && /^\d+$/.test(header) ? Number(header) : fallback;
+}
+
+export interface AdminOrdersParams {
+  status?: OrderStatus;
+  limit: number;
+  offset: number;
+}
+
+export async function listAdminOrders(
+  token: string,
+  params: AdminOrdersParams,
+): Promise<{ orders: AdminOrder[]; total: number }> {
+  const query = new URLSearchParams({
+    limit: String(params.limit),
+    offset: String(params.offset),
+  });
+  if (params.status) query.set("status", params.status);
+  const response = await call(`/admin/orders?${query}`, { token });
+  const orders: AdminOrder[] = await response.json();
+  return { orders, total: totalOf(response, orders.length) };
+}
+
+/** `null` quando o pedido não existe (a API responde 404). */
+export async function getAdminOrder(
+  token: string,
+  id: string,
+): Promise<AdminOrder | null> {
+  try {
+    return await json<AdminOrder>(`/admin/orders/${encodeURIComponent(id)}`, {
+      token,
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+/** Muda o status seguindo o ciclo da API; fora dele, 409. */
+export function setOrderStatus(
+  token: string,
+  id: string,
+  status: OrderStatus,
+): Promise<AdminOrder> {
+  return json<AdminOrder>(`/admin/orders/${encodeURIComponent(id)}/status`, {
+    method: "PUT",
+    token,
+    body: { status },
+  });
+}
+
+// ---------- Admin: produtos ----------
+
+export interface AdminProductsParams {
+  active?: boolean;
+  sort?: "name" | "newest";
+  limit: number;
+  offset: number;
+}
+
+export async function listAdminProducts(
+  token: string,
+  params: AdminProductsParams,
+): Promise<{ products: Product[]; total: number }> {
+  const query = new URLSearchParams({
+    limit: String(params.limit),
+    offset: String(params.offset),
+  });
+  if (params.active !== undefined) query.set("active", String(params.active));
+  if (params.sort) query.set("sort", params.sort);
+  const response = await call(`/admin/products?${query}`, { token });
+  const products: Product[] = await response.json();
+  return { products, total: totalOf(response, products.length) };
+}
+
+/** Quantos produtos casam com o filtro, lido do `X-Total-Count` de uma página de 1 item. */
+export async function countAdminProducts(
+  token: string,
+  active?: boolean,
+): Promise<number> {
+  const query = new URLSearchParams({ limit: "1" });
+  if (active !== undefined) query.set("active", String(active));
+  return totalOf(await call(`/admin/products?${query}`, { token }), 0);
+}
+
+/** `null` quando o produto não existe. Traz TODAS as variantes, inclusive as inativas. */
+export async function getAdminProduct(
+  token: string,
+  id: string,
+): Promise<ProductDetail | null> {
+  try {
+    return await json<ProductDetail>(
+      `/admin/products/${encodeURIComponent(id)}`,
+      { token },
+    );
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export interface NewProductInput {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+}
+
+export function createProduct(
+  token: string,
+  input: NewProductInput,
+): Promise<Product> {
+  return json<Product>("/products", { method: "POST", token, body: input });
+}
+
+export interface ProductEdit {
+  name: string;
+  description: string;
+  active: boolean;
+}
+
+export function updateProduct(
+  token: string,
+  id: string,
+  input: ProductEdit,
+): Promise<Product> {
+  return json<Product>(`/products/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    token,
+    body: input,
+  });
+}
+
+/** Exclusão lógica: marca o produto como inativo (pedidos e carrinhos apontam para ele). */
+export async function deactivateProduct(
+  token: string,
+  id: string,
+): Promise<void> {
+  await call(`/products/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export interface NewVariantInput {
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+}
+
+export function createVariant(
+  token: string,
+  productId: string,
+  input: NewVariantInput,
+): Promise<Variant> {
+  return json<Variant>(`/products/${encodeURIComponent(productId)}/variants`, {
+    method: "POST",
+    token,
+    body: input,
+  });
+}
+
+export interface VariantEdit extends NewVariantInput {
+  active: boolean;
+}
+
+export function updateVariant(
+  token: string,
+  productId: string,
+  variantId: string,
+  input: VariantEdit,
+): Promise<Variant> {
+  return json<Variant>(
+    `/products/${encodeURIComponent(productId)}/variants/${
+      encodeURIComponent(variantId)
+    }`,
+    { method: "PUT", token, body: input },
+  );
+}
+
+export async function deactivateVariant(
+  token: string,
+  productId: string,
+  variantId: string,
+): Promise<void> {
+  await call(
+    `/products/${encodeURIComponent(productId)}/variants/${
+      encodeURIComponent(variantId)
+    }`,
+    { method: "DELETE", token },
+  );
 }

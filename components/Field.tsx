@@ -12,6 +12,10 @@ interface FieldProps {
   inputMode?: "text" | "numeric";
   readOnly?: boolean;
   required?: boolean;
+  /** Mostra uma área de texto de várias linhas no lugar do campo de uma linha. */
+  rows?: number;
+  /** Texto à direita do campo (ex.: "unidades"). */
+  suffix?: string;
 }
 
 /** Campo de formulário com rótulo, dica e erro (o erro liga ao campo por `aria-describedby`). */
@@ -19,23 +23,48 @@ export function Field(props: FieldProps) {
   const { label, name, type = "text", value = "", error, hint } = props;
   const describedBy = [error ? `${name}-error` : "", hint ? `${name}-hint` : ""]
     .filter(Boolean).join(" ");
-  return (
-    <label class="rs-field" for={name}>
-      <span class="rs-field__label">{label}</span>
+  const common = {
+    id: name,
+    name,
+    class: `rs-input ${error ? "rs-input--error" : ""}`,
+    "aria-invalid": error ? ("true" as const) : undefined,
+    "aria-describedby": describedBy || undefined,
+  };
+
+  const control = props.rows
+    ? (
+      <textarea
+        {...common}
+        rows={props.rows}
+        class={`${common.class} rs-textarea`}
+      >
+        {value}
+      </textarea>
+    )
+    : (
       <input
-        id={name}
-        name={name}
+        {...common}
         type={type}
         value={value}
-        class={`rs-input ${error ? "rs-input--error" : ""}`}
         autocomplete={props.autocomplete}
         placeholder={props.placeholder}
         inputMode={props.inputMode}
         readOnly={props.readOnly}
         required={props.required}
-        aria-invalid={error ? "true" : undefined}
-        aria-describedby={describedBy || undefined}
       />
+    );
+
+  return (
+    <label class="rs-field" for={name}>
+      <span class="rs-field__label">{label}</span>
+      {props.suffix
+        ? (
+          <span class="rs-suffix">
+            {control}
+            <span class="rs-suffix__text">{props.suffix}</span>
+          </span>
+        )
+        : control}
       {error && (
         <span id={`${name}-error`} class="rs-field__error">
           <Icon name="alert" />

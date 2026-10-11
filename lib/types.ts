@@ -97,3 +97,17 @@ export interface Order {
   paid_at: string | null;
   items: OrderItem[];
 }
+
+export type Role = "customer" | "admin";
+
+/** Quem está logado (`GET /auth/session`): serve para cliente e para admin. */
+export interface Session {
+  id: string;
+  username: string;
+  role: Role;
+}
+
+/** Pedido na visão de admin: o de sempre mais o id de quem comprou (nenhum dado pessoal). */
+export interface AdminOrder extends Order {
+  customer_id: string;
+}

@@ -108,7 +108,7 @@ export default define.page<typeof handler>(function Catalog({ data }) {
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
-      <Pagination info={info} sort={sort} />
+      <Pagination info={info} href={(page) => catalogHref({ sort, page })} />
     </main>
   );
 });

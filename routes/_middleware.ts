@@ -1,6 +1,5 @@
 import { define, type State } from "../utils.ts";
-import { getCart, getMe } from "../lib/api.ts";
-import { ApiUnavailableError } from "../lib/api.ts";
+import { ApiUnavailableError, getCart, getMe, getSession } from "../lib/api.ts";
 import { cartCount } from "../lib/cart.ts";
 import {
   clearFlashCookie,
@@ -14,15 +13,32 @@ import {
 import { parseFlash, serializeFlash } from "../lib/flash.ts";
 import { SessionExpiredError, SessionManager } from "../lib/session.ts";
 
-/** Quem está logado e quantos itens há no carrinho, para o cabeçalho (duas chamadas em paralelo). */
+/**
+ * Quem está logado (papel e username) e, para cliente, o perfil e o carrinho do cabeçalho.
+ * O papel vem de `GET /auth/session`: o `/me` não serve, porque dá 404 para admin.
+ */
 async function loadHeaderData(state: State): Promise<void> {
+  try {
+    const who = await state.session.call(getSession);
+    state.role = who.role;
+    state.username = who.username;
+  } catch (error) {
+    if (error instanceof ApiUnavailableError) state.apiDown = true;
+    // SessionExpiredError: o SessionManager já marcou `expired` e vai apagar os cookies.
+    else if (!(error instanceof SessionExpiredError)) {
+      console.error("header: /auth/session failed", error);
+    }
+    return;
+  }
+  // Admin não tem perfil nem carrinho: não há mais nada para o cabeçalho.
+  if (state.role !== "customer") return;
+
   const [me, cart] = await Promise.allSettled([
     state.session.call(getMe),
     state.session.call(getCart),
   ]);
   if (me.status === "fulfilled") state.customer = me.value;
   else if (me.reason instanceof ApiUnavailableError) state.apiDown = true;
-  // SessionExpiredError: o SessionManager já marcou `expired` e vai apagar os cookies.
   else if (!(me.reason instanceof SessionExpiredError)) {
     console.error("header: /me failed", me.reason);
   }

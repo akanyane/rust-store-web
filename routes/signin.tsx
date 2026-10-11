@@ -1,7 +1,12 @@
 import { page } from "fresh";
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
-import { ApiError, ApiUnavailableError, signIn } from "../lib/api.ts";
+import {
+  ApiError,
+  ApiUnavailableError,
+  getSession,
+  signIn,
+} from "../lib/api.ts";
 import { field } from "../lib/form.ts";
 import { safeNext } from "../lib/redirect.ts";
 import { Alert } from "../components/Alert.tsx";
@@ -15,9 +20,17 @@ interface Data {
   error?: "credentials" | "unavailable";
 }
 
+/** Admin sem `next` (o formulário manda "/") vai para a lista de pedidos. */
+function adminLanding(next: string): string {
+  return next === "/" ? "/admin/orders" : next;
+}
+
 export const handler = define.handlers({
   GET(ctx) {
     const next = safeNext(ctx.url.searchParams.get("next"));
+    if (ctx.state.role === "admin") {
+      return ctx.redirect(adminLanding(next), 302);
+    }
     if (ctx.state.customer) return ctx.redirect(next, 302);
     const expired = ctx.url.searchParams.get("expired") === "1" ||
       ctx.state.session.expired;
@@ -30,8 +43,11 @@ export const handler = define.handlers({
     const password = field(form, "password");
     const next = safeNext(field(form, "next"));
     try {
-      ctx.state.session.setTokens(await signIn(username, password));
-      return ctx.redirect(next, 303);
+      const tokens = await signIn(username, password);
+      ctx.state.session.setTokens(tokens);
+      // O admin sem destino próprio cai no console, não na vitrine.
+      const { role } = await getSession(tokens.session_token);
+      return ctx.redirect(role === "admin" ? adminLanding(next) : next, 303);
     } catch (error) {
       // 401 (senha errada ou usuário que não existe) e 422 (formato) mostram o mesmo texto: a
       // API não revela qual dos dois falhou, e a tela também não.

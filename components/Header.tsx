@@ -9,10 +9,12 @@ function accountInitials(customer: Customer): string {
 
 /** Cabeçalho da loja: logo, Catalog, carrinho com contagem e a conta (ou "Sign in"). */
 export function Header(
-  { path, customer, cartCount }: {
+  { path, customer, cartCount, admin }: {
     path: string;
     customer?: Customer;
     cartCount: number;
+    /** Quem está logado é admin: não tem carrinho nem conta, só o link do console. */
+    admin?: boolean;
   },
 ) {
   const onCatalog = path === "/" || path.startsWith("/products");
@@ -36,44 +38,62 @@ export function Header(
           )}
         </nav>
         <div class="rs-header__actions">
-          {customer && (
-            <a
-              href="/orders"
-              class="rs-header__orders"
-              aria-current={onOrders ? "page" : "false"}
-              aria-label="Orders"
-            >
-              <Icon name="box" size={20} />
-            </a>
-          )}
-          <a
-            href="/cart"
-            class="rs-header__cart"
-            aria-current={onCart ? "page" : "false"}
-            aria-label={`Cart, ${cartCount} ${
-              cartCount === 1 ? "item" : "items"
-            }`}
-          >
-            <Icon name="cart" size={20} />
-            <span class="rs-header__cart-label">Cart</span>
-            <span class="rs-count-pill">{count}</span>
-          </a>
-          {customer
+          {admin
             ? (
               <a
-                href="/account"
-                class="rs-header__account"
-                aria-current={onAccount ? "page" : "false"}
-                aria-label="My account"
+                href="/admin/orders"
+                class="rs-header__signin"
+                aria-current="false"
               >
-                <span class="rs-avatar">{accountInitials(customer)}</span>
-                <span class="rs-header__account-label">My account</span>
+                Admin console
               </a>
             )
             : (
-              <a href="/signin" class="rs-header__signin" aria-current="false">
-                Sign in
-              </a>
+              <>
+                {customer && (
+                  <a
+                    href="/orders"
+                    class="rs-header__orders"
+                    aria-current={onOrders ? "page" : "false"}
+                    aria-label="Orders"
+                  >
+                    <Icon name="box" size={20} />
+                  </a>
+                )}
+                <a
+                  href="/cart"
+                  class="rs-header__cart"
+                  aria-current={onCart ? "page" : "false"}
+                  aria-label={`Cart, ${cartCount} ${
+                    cartCount === 1 ? "item" : "items"
+                  }`}
+                >
+                  <Icon name="cart" size={20} />
+                  <span class="rs-header__cart-label">Cart</span>
+                  <span class="rs-count-pill">{count}</span>
+                </a>
+                {customer
+                  ? (
+                    <a
+                      href="/account"
+                      class="rs-header__account"
+                      aria-current={onAccount ? "page" : "false"}
+                      aria-label="My account"
+                    >
+                      <span class="rs-avatar">{accountInitials(customer)}</span>
+                      <span class="rs-header__account-label">My account</span>
+                    </a>
+                  )
+                  : (
+                    <a
+                      href="/signin"
+                      class="rs-header__signin"
+                      aria-current="false"
+                    >
+                      Sign in
+                    </a>
+                  )}
+              </>
             )}
         </div>
       </div>

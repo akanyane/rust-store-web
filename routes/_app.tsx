@@ -4,6 +4,8 @@ import { Header } from "../components/Header.tsx";
 import { Footer } from "../components/Footer.tsx";
 
 export default define.page(function App({ Component, state, url }) {
+  const adminChrome = state.role === "admin" &&
+    url.pathname.startsWith("/admin");
   return (
     <html lang="en" data-theme={state.theme}>
       <head>
@@ -18,13 +20,22 @@ export default define.page(function App({ Component, state, url }) {
         )}
       </head>
       <body>
-        <Header
-          path={url.pathname}
-          customer={state.customer}
-          cartCount={state.cartCount}
-        />
-        <Component />
-        <Footer />
+        {
+          /* O console de admin tem o próprio layout (routes/admin/_layout.tsx): sem o
+              cabeçalho nem o rodapé da loja. */
+        }
+        {adminChrome ? <Component /> : (
+          <>
+            <Header
+              path={url.pathname}
+              customer={state.customer}
+              cartCount={state.cartCount}
+              admin={state.role === "admin"}
+            />
+            <Component />
+            <Footer />
+          </>
+        )}
       </body>
     </html>
   );

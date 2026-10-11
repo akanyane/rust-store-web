@@ -19,6 +19,7 @@ const ICONS = {
     ],
   },
   lock: { grid: 16, paths: ["M4.5 7.5h7v5.5h-7z", "M6 7.5V6a2 2 0 014 0v1.5"] },
+  pause: { grid: 16, paths: ["M5.5 4v8M10.5 4v8"] },
   clock: {
     grid: 16,
     paths: ["M8 14A6 6 0 108 2a6 6 0 000 12z", "M8 5v3l2 1.5"],

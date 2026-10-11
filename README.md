@@ -39,7 +39,8 @@ deno test --allow-env  # testes de unidade (lib/)
 ## Estado
 
 **Fase 1: catálogo e página de produto** (leitura pública), **fase 2: login,
-cadastro, conta e carrinho** e **fase 3: checkout e pedidos**.
+cadastro, conta e carrinho**, **fase 3: checkout e pedidos** e **fase 4: console
+de admin**.
 
 - `/`: catálogo com ordem (`?sort=name|newest`), paginação de 12 em 12
   (`?page=`), total vindo de `X-Total-Count` e "from X unidades" só quando as
@@ -94,7 +95,34 @@ guarda a data do pedido e a do pagamento, então Shipped e Delivered não têm d
 CSS, que funciona sem JavaScript mas não prende o foco do teclado como um
 `<dialog>` faria.
 
-Próxima fase: console de admin.
+**Fase 4: console de admin** (só para a conta admin; a API cria o admin com
+`ADMIN_USERNAME` e `ADMIN_PASSWORD`).
+
+- **Acesso:** o middleware pergunta o papel à API (`GET /auth/session`). Sem
+  login, `/admin/*` vai para `/signin?next=…`; cliente comum recebe 403; com a
+  API fora do ar, 503. O admin que entra sem destino cai em `/admin/orders`, e o
+  console não mostra a vitrine (sem carrinho, sem "Orders").
+- `/admin/orders`: filtro por status (`?status=`), paginação de 10 em 10 com o
+  total de `X-Total-Count`, e estado vazio por filtro.
+- `/admin/orders/:id`: cliente, datas, itens, total e os próximos passos do
+  ciclo: pendente → "Mark as paid" ou "Cancel order" (devolve o estoque); pago →
+  "Mark as shipped"; enviado → "Mark as delivered". Entregue e cancelado são
+  finais ("Final status. No further changes."). Um `status` forjado no `POST`
+  que não seja um dos passos oferecidos nem chega à API.
+- `/admin/products`: filtro Active/Inactive/All, ordem (`name`/`newest`),
+  paginação, estoque total por produto, "Deactivate"/"Reactivate" com
+  confirmação em `?confirm=`.
+- `/admin/products/new`: nome, descrição, preço e estoque (cria a variante
+  "Default").
+- `/admin/products/:id`: editar nome, descrição e `active`; variantes (todas,
+  inclusive as inativas) com adicionar, editar (`?edit=<id>`) e
+  ativar/desativar. SKU repetido (409) aparece no campo SKU.
+- Tudo é formulário com redirecionamento (POST → GET), então funciona sem
+  JavaScript; não há ilhas novas.
+
+Limites conhecidos: o modal de confirmação não prende o foco do teclado; a tela
+exige preço maior que zero, mais estrito que a API; o layout do console foi
+conferido pelo HTML e pelas respostas do servidor, não num navegador.
 
 ## Sessão e segurança
 
@@ -121,10 +149,10 @@ Próxima fase: console de admin.
 ## Estrutura
 
 ```
-lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, orders, format, pagination, links, theme
-components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder, Field, Alert, ErrorSummary, AuthCard, CartLine, CartSummary
+lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, orders, admin, guard, format, pagination, links, theme
+components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder, Field, Alert, ErrorSummary, AuthCard, CartLine, CartSummary, AdminNav, FilterGroup, Switch, ProductStatusBadge
 islands/      QuantityStepper, PendingButton
-routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId], orders, orders/[id] (pay, cancel)
+routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId], orders, orders/[id] (pay, cancel), admin/ (orders, products)
 assets/       styles.css (usa as variáveis de static/tokens.css)
 static/       tokens.css (tokens do design: claro e escuro)
 design/       handoff de design (referência; fora do fmt, lint e check)
