@@ -3002,3 +3002,29 @@ a {
   margin: 0;
   font: 600 18px var(--font-sans);
 }
+
+/* Busca de pedidos */
+
+.rs-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rs-search__field {
+  flex: 1 1 260px;
+  max-width: 420px;
+  min-width: 0;
+}
+
+.rs-search__input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rs-search__clear {
+  font: 600 13.5px var(--font-sans);
+  color: var(--accent);
+  text-decoration: none;
+}

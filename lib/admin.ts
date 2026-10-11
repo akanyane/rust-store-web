@@ -25,11 +25,27 @@ export function parseOrderFilter(value: string | null): OrderFilter {
     : "all";
 }
 
+/** O maior termo de busca que a API aceita. */
+export const MAX_SEARCH_LENGTH = 64;
+
+/**
+ * `?q=` da lista de pedidos: sem espaços nas pontas e no máximo `MAX_SEARCH_LENGTH`
+ * caracteres (acima disso a API recusa com 422, então o excesso é cortado). Vazio = sem busca.
+ */
+export function parseSearch(value: string | null): string {
+  return (value ?? "").trim().slice(0, MAX_SEARCH_LENGTH).trim();
+}
+
 export function adminOrdersHref(
-  { status = "all", page = 1 }: { status?: OrderFilter; page?: number } = {},
+  { status = "all", page = 1, q = "" }: {
+    status?: OrderFilter;
+    page?: number;
+    q?: string;
+  } = {},
 ): string {
   const query = new URLSearchParams();
   if (status !== "all") query.set("status", status);
+  if (q) query.set("q", q);
   if (page > 1) query.set("page", String(page));
   const text = query.toString();
   return text ? `/admin/orders?${text}` : "/admin/orders";

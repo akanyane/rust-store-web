@@ -24,6 +24,8 @@ export type FakeHandler = (
 export interface Call {
   method: string;
   path: string;
+  /** A query string, com o `?` (ou vazia). */
+  search: string;
   body: unknown;
 }
 
@@ -232,7 +234,12 @@ export class FakeApi {
     const url = new URL(request.url);
     const text = await request.text();
     const body = text ? JSON.parse(text) : undefined;
-    this.calls.push({ method: request.method, path: url.pathname, body });
+    this.calls.push({
+      method: request.method,
+      path: url.pathname,
+      search: url.search,
+      body,
+    });
 
     const segments = url.pathname.split("/").filter(Boolean);
     for (const route of this.routes) {

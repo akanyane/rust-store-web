@@ -8,9 +8,11 @@ import {
   isOfferedTransition,
   isOrderStatus,
   lowStockHref,
+  MAX_SEARCH_LENGTH,
   ORDER_FILTERS,
   parseOrderFilter,
   parseProductSort,
+  parseSearch,
   parseShow,
   parseWholeNumber,
   showToActive,
@@ -309,5 +311,41 @@ Deno.test("lowStockHref: opens the product, with the id encoded", () => {
   assertEquals(
     lowStockHref({ product_id: "a/b c" }),
     "/admin/products/a%2Fb%20c",
+  );
+});
+
+Deno.test("parseSearch: trims, treats empty as no search, and never exceeds what the API accepts", () => {
+  assertEquals(parseSearch(null), "");
+  assertEquals(parseSearch(""), "");
+  assertEquals(parseSearch("   "), "");
+  assertEquals(parseSearch("  #9FST3BCC  "), "#9FST3BCC");
+  assertEquals(parseSearch("a b"), "a b");
+  assertEquals(MAX_SEARCH_LENGTH, 64);
+  assertEquals(parseSearch("x".repeat(64)).length, 64);
+  assertEquals(parseSearch("x".repeat(65)).length, 64);
+  assertEquals(parseSearch("x".repeat(500)).length, 64);
+  // O corte não deixa espaço sobrando na ponta.
+  assertEquals(parseSearch(`${"x".repeat(63)} yyy`), "x".repeat(63));
+});
+
+Deno.test("adminOrdersHref: the search travels with the filter and the page", () => {
+  assertEquals(adminOrdersHref({ q: "9FST" }), "/admin/orders?q=9FST");
+  assertEquals(
+    adminOrdersHref({ status: "paid", q: "ana", page: 2 }),
+    "/admin/orders?status=paid&q=ana&page=2",
+  );
+  assertEquals(adminOrdersHref({ q: "" }), "/admin/orders");
+});
+
+Deno.test("adminOrdersHref: the term is encoded, so it cannot add parameters or break the page", () => {
+  assertEquals(
+    adminOrdersHref({ q: "#a b&status=paid" }),
+    "/admin/orders?q=%23a+b%26status%3Dpaid",
+  );
+  assertEquals(
+    new URL(adminOrdersHref({ q: "a&page=9" }), "http://x").searchParams.get(
+      "q",
+    ),
+    "a&page=9",
   );
 });

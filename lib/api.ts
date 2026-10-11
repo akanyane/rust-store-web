@@ -305,6 +305,8 @@ function totalOf(response: Response, fallback: number): number {
 
 export interface AdminOrdersParams {
   status?: OrderStatus;
+  /** Número do pedido ou id do cliente, por prefixo (a API normaliza maiúsculas e `#`). */
+  q?: string;
   limit: number;
   offset: number;
 }
@@ -318,6 +320,7 @@ export async function listAdminOrders(
     offset: String(params.offset),
   });
   if (params.status) query.set("status", params.status);
+  if (params.q) query.set("q", params.q);
   const response = await call(`/admin/orders?${query}`, { token });
   const orders: AdminOrder[] = await response.json();
   return { orders, total: totalOf(response, orders.length) };

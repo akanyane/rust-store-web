@@ -41,6 +41,10 @@ The currency is the **unit** (`1 unit`, `25 units`): whole numbers, no decimals.
 
 <img src="docs/screenshots/catalog-mobile.png" alt="Catalog on a phone" width="260">
 
+| Admin: searching orders                                  | Admin: no match, on a phone                                                                                    |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ![Order search](docs/screenshots/admin-order-search.png) | <img src="docs/screenshots/admin-order-search-empty-mobile.png" alt="No orders match, on a phone" width="260"> |
+
 ## Quick start
 
 You need [Deno](https://deno.com) and the API running (by default at
@@ -114,7 +118,7 @@ storefront chrome (no cart, no "Orders").
 | Route                 | What it does                                                                                                                                                                                                                                                                                              |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/admin`              | The dashboard: cards for pending orders, paid orders waiting to ship, revenue (paid, shipped and delivered) and products, the five most recent orders, and variants with 5 units or fewer in stock (from `GET /admin/stats` of the API). Cards that need an action are highlighted.                       |
-| `/admin/orders`       | Filter by status (`?status=`), pages of 10 with the total from `X-Total-Count`, and a per-filter empty state.                                                                                                                                                                                             |
+| `/admin/orders`       | Search by order number (with or without the `#`) or customer id, by prefix and ignoring case (`?q=`), filter by status (`?status=`), pages of 10 with the total from `X-Total-Count`, and a per-filter empty state.                                                                                       |
 | `/admin/orders/:id`   | Customer, dates, items, total, and the next steps of the cycle: pending → "Mark as paid" or "Cancel order" (returns the stock); paid → "Mark as shipped"; shipped → "Mark as delivered". Delivered and cancelled are final. A forged `status` that is not one of the offered steps never reaches the API. |
 | `/admin/products`     | Filter Active / Inactive / All, sort (`name` / `newest`), pages, total stock per product, and Deactivate / Reactivate with confirmation at `?confirm=`.                                                                                                                                                   |
 | `/admin/products/new` | Name, description, price and stock (creates the "Default" variant).                                                                                                                                                                                                                                       |
