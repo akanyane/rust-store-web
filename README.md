@@ -67,8 +67,14 @@ admin account created by the API: you land on `/admin/orders`.
 
 ```bash
 deno task check        # formatting, lint and types
-deno test --allow-env  # unit tests (lib/)
+deno test --allow-env  # unit tests (lib/) and route tests (testing/)
 ```
+
+The route tests run the real middleware and routes without a server, against a
+simulated API (`testing/fake_api.ts` swaps `fetch`). They cover the admin guard,
+sign in, the "session expired" dialog, sign out, the order status steps
+(including forged requests) and checkout, and each one fails if its rule is
+broken.
 
 ## What is in it
 
@@ -158,6 +164,7 @@ islands/      QuantityStepper, PendingButton
 routes/       _app (layout, theme), _middleware (session), _error (404/403/503/500), storefront, account, cart, orders, admin/ (orders, products)
 assets/       styles.css (uses the variables from static/tokens.css)
 static/       tokens.css (the design tokens: light and dark)
+testing/      route tests: the simulated API (fake_api), the test app and browser
 design/       design handoff (reference; excluded from fmt, lint and check)
 ```
 
