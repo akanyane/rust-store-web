@@ -221,9 +221,9 @@ export default define.page<typeof handler>(function AdminProducts({ data }) {
               <thead>
                 <tr>
                   <th>Product</th>
-                  <th>ID</th>
+                  <th class="rs-col-wide">ID</th>
                   <th>Status</th>
-                  <th>Created</th>
+                  <th class="rs-col-wide">Created</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -249,11 +249,13 @@ export default define.page<typeof handler>(function AdminProducts({ data }) {
                         </span>
                       </div>
                     </td>
-                    <td class="rs-mono-cell">{product.id}</td>
+                    <td class="rs-mono-cell rs-col-wide">{product.id}</td>
                     <td>
                       <ProductStatusBadge active={product.active} />
                     </td>
-                    <td>{formatCreated(product.created_at)}</td>
+                    <td class="rs-col-wide">
+                      {formatCreated(product.created_at)}
+                    </td>
                     <td>
                       <div class="rs-table__actions">
                         <a

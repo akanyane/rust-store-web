@@ -99,11 +99,11 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
               <thead>
                 <tr>
                   <th>Order</th>
-                  <th>Customer</th>
+                  <th class="rs-col-wide">Customer</th>
                   <th>Status</th>
                   <th class="rs-table__right">Total</th>
-                  <th>Created</th>
-                  <th>Paid</th>
+                  <th class="rs-col-wide">Created</th>
+                  <th class="rs-col-wide">Paid</th>
                   <th />
                 </tr>
               </thead>
@@ -119,7 +119,9 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
                         {shortOrderId(order.id)}
                       </a>
                     </td>
-                    <td class="rs-mono-cell">{order.customer_id}</td>
+                    <td class="rs-mono-cell rs-col-wide">
+                      {order.customer_id}
+                    </td>
                     <td>
                       <StatusBadge status={order.status} />
                     </td>
@@ -129,8 +131,10 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
                         {unitLabel(order.total)}
                       </span>
                     </td>
-                    <td>{formatDateTime(order.created_at)}</td>
-                    <td>
+                    <td class="rs-col-wide">
+                      {formatDateTime(order.created_at)}
+                    </td>
+                    <td class="rs-col-wide">
                       {order.paid_at ? formatDateTime(order.paid_at) : "—"}
                     </td>
                     <td>

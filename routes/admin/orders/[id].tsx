@@ -136,8 +136,8 @@ export default define.page<typeof handler>(function AdminOrder({ data }) {
             <thead>
               <tr>
                 <th>Item</th>
-                <th>SKU</th>
-                <th class="rs-table__right">Unit price</th>
+                <th class="rs-col-wide">SKU</th>
+                <th class="rs-table__right rs-col-wide">Unit price</th>
                 <th class="rs-table__right">Qty</th>
                 <th class="rs-table__right">Line total</th>
               </tr>
@@ -146,8 +146,8 @@ export default define.page<typeof handler>(function AdminOrder({ data }) {
               {order.items.map((item) => (
                 <tr key={item.variant_id}>
                   <td>{orderItemTitle(item)}</td>
-                  <td class="rs-mono-cell">{item.sku}</td>
-                  <td class="rs-table__right rs-nums">
+                  <td class="rs-mono-cell rs-col-wide">{item.sku}</td>
+                  <td class="rs-table__right rs-nums rs-col-wide">
                     {formatNumber(item.unit_price)}
                   </td>
                   <td class="rs-table__right rs-nums">{item.quantity}</td>
@@ -157,7 +157,10 @@ export default define.page<typeof handler>(function AdminOrder({ data }) {
                 </tr>
               ))}
               <tr class="rs-table__total">
-                <td colSpan={4}>Total</td>
+                <td>Total</td>
+                <td class="rs-col-wide" />
+                <td class="rs-col-wide" />
+                <td />
                 <td class="rs-table__right rs-nums">
                   {formatNumber(order.total)} {unitLabel(order.total)}
                 </td>

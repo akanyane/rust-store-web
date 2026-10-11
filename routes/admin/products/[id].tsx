@@ -435,7 +435,7 @@ export default define.page<typeof handler>(function AdminProduct({ data }) {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>SKU</th>
+                <th class="rs-col-wide">SKU</th>
                 <th class="rs-table__right">Price</th>
                 <th class="rs-table__right">Stock</th>
                 <th>Status</th>
@@ -449,7 +449,7 @@ export default define.page<typeof handler>(function AdminProduct({ data }) {
                   class={variant.active ? "" : "rs-table__row--off"}
                 >
                   <td>{variant.name}</td>
-                  <td class="rs-mono-cell">{variant.sku}</td>
+                  <td class="rs-mono-cell rs-col-wide">{variant.sku}</td>
                   <td class="rs-table__right rs-nums">
                     {formatNumber(variant.price)}{" "}
                     <span class="rs-muted-unit">
