@@ -1,169 +1,170 @@
 # Rust Store Web
 
-Frontend da [rust-store-api](https://github.com/akanyane/rust-store-api): loja
-de compras **simuladas** (sem dinheiro nem gateway de pagamento reais), em
-Deno + Fresh 2 (Preact, Vite, Tailwind 4). As telas seguem o handoff de design
-em [`design/`](design/README.md).
+[![Deno](https://img.shields.io/badge/Deno-2.x-black?logo=deno)](https://deno.com)
+[![Fresh](https://img.shields.io/badge/Fresh-2-yellow)](https://fresh.deno.dev)
+[![Tailwind](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Release](https://img.shields.io/github/v/release/akanyane/rust-store-web?include_prereleases&sort=semver)](https://github.com/akanyane/rust-store-web/releases)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-green)](LICENSE)
 
-A moeda é a **unidade** (`1 unidade`, `25 unidades`): números inteiros, sem
-casas decimais.
+The storefront and admin console for
+[rust-store-api](https://github.com/akanyane/rust-store-api): a store for
+**simulated** purchases (no real money, no payment gateway), built with Deno and
+Fresh 2 (Preact, Vite, Tailwind 4). The screens follow the design handoff in
+[`design/`](design/README.md).
 
-## Como rodar
+The currency is the **unit** (`1 unit`, `25 units`): whole numbers, no decimals.
 
-Precisa do Deno e da API rodando (por padrão em `http://localhost:3000`).
+## Highlights
+
+- **Works without JavaScript.** Every action is a plain form that posts and
+  redirects (POST-redirect-GET). Only two tiny islands exist: a quantity stepper
+  and a button that shows "Placing order…" and ignores repeated clicks.
+- **The browser never sees the API.** Only the Fresh server talks to it, so
+  there is no CORS, and the tokens live in `httpOnly` cookies that JavaScript
+  cannot read.
+- **Sessions renew themselves.** An expired session is refreshed with the
+  single-use refresh token, and simultaneous renewals are shared so nobody is
+  signed out by accident.
+- **Light and dark themes** with no flash on load, from a cookie or the system.
+- **An admin console** for orders and products, on the same stack, with no extra
+  client code.
+
+## Quick start
+
+You need [Deno](https://deno.com) and the API running (by default at
+`http://localhost:3000`).
 
 ```bash
-# 1) a API, no outro repositório
+# 1) the API, in the other repository (set ADMIN_USERNAME and ADMIN_PASSWORD in
+#    its .env to get an admin account)
 cd ../rust-store-api && cargo run
 
-# 2) o frontend
-API_URL=http://localhost:3000 deno task dev      # desenvolvimento (Vite)
-deno task build && deno task start               # produção, em http://localhost:8000
+# 2) this frontend
+deno task dev                                    # development (Vite)
+deno task build && deno task start               # production, at http://localhost:8000
 ```
 
-| Variável  | Descrição                                        |
-| --------- | ------------------------------------------------ |
-| `API_URL` | Endereço da API. Padrão `http://localhost:3000`. |
+| Variable  | Description                                          |
+| --------- | ---------------------------------------------------- |
+| `API_URL` | Address of the API. Default `http://localhost:3000`. |
 
-Só o **servidor** do Fresh fala com a API; o navegador nunca vê o endereço dela.
-Por isso não há CORS, e (nas próximas fases) os tokens ficarão em cookies
-`httpOnly`.
+Sign up in the storefront to shop. To open the admin console, sign in with the
+admin account created by the API: you land on `/admin/orders`.
 
-## Verificação
+## Checks
 
 ```bash
-deno task check        # formatação, lint e tipos
-deno test --allow-env  # testes de unidade (lib/)
+deno task check        # formatting, lint and types
+deno test --allow-env  # unit tests (lib/)
 ```
 
-## Estado
+## What is in it
 
-**Fase 1: catálogo e página de produto** (leitura pública), **fase 2: login,
-cadastro, conta e carrinho**, **fase 3: checkout e pedidos** e **fase 4: console
-de admin**.
+### Storefront
 
-- `/`: catálogo com ordem (`?sort=name|newest`), paginação de 12 em 12
-  (`?page=`), total vindo de `X-Total-Count` e "from X unidades" só quando as
-  variantes têm preços diferentes (`price_from` / `price_to`). Estados vazio e
-  de erro (503 quando a API não responde).
-- `/products/:id`: variantes com preço, SKU e rótulo de estoque.
-- `404`/`403`/erro: páginas do design.
-- Tema claro/escuro: cookie `theme`, ou o do sistema (sem piscar).
+| Route           | What it does                                                                                                                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`             | Catalog with sort (`?sort=name\|newest`), pages of 12 (`?page=`), the total from `X-Total-Count`, and "from X units" only when a product's variants have different prices. Empty and error states (503 when the API is down). |
+| `/products/:id` | Variants with price, SKU and stock label, and "Add to cart" per variant with the result on the row itself.                                                                                                                    |
 
-**Fase 2:**
+### Account and cart
 
-- `/signin`, `/signup`, `POST /signout`: entrar, cadastrar (entra logo em
-  seguida) e sair. Erros de formulário por campo, com o resumo "Please fix N
-  fields". O `?next=` só aceita caminhos do próprio site.
-- `/account`: editar nome e nascimento (o username não muda) e excluir a conta.
-  A API mantém contas com pedidos, e a tela mostra a recusa.
-- `/cart`: linhas com quantidade (−, +) e remover, linhas sinalizadas ("No
-  longer sold", "Not enough stock"), a faixa "N lines need attention" e o resumo
-  com o total de todas as linhas. Ainda sem o botão de finalizar a compra (fase
-  3). O nome da linha é "Produto · Variante" (`product_name` da API), e só o
-  produto quando a variante é a padrão ("Default"); as iniciais do bloco
-  colorido saem do produto.
-- `/products/:id`: "Add to cart" por variante, com o resultado na própria linha.
-- Cabeçalho: o carrinho com a contagem (soma das quantidades) e a conta, ou
-  "Sign in".
+| Route                                 | What it does                                                                                                                                                                                                                                                        |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/signin`, `/signup`, `POST /signout` | Sign in, sign up (you are signed in right away) and sign out. Per-field errors with a "Please fix N fields" summary. `?next=` only accepts paths of this same site.                                                                                                 |
+| `/account`                            | Edit name and birthday (the username does not change) and delete the account. The API keeps accounts that have orders, and the screen shows the refusal.                                                                                                            |
+| `/cart`                               | Rows with quantity (−, +) and remove, flagged rows ("No longer sold", "Not enough stock"), an "N lines need attention" banner, and a summary with the total of every row. A row reads "Product · Variant", or just the product when the variant is the default one. |
 
-**Fase 3:**
+The header shows the cart with its item count (the sum of quantities), an
+"Orders" link, and the account, or "Sign in".
 
-- **Checkout** (`POST /orders`, pelo botão "Place order" do carrinho): o
-  carrinho vira um pedido pendente e a pessoa vai para a página dele. O botão só
-  fica habilitado com `can_checkout`; se a API recusar (409: estoque que acabou,
-  item que saiu de venda, carrinho vazio), a mensagem da API aparece no carrinho
-  como "Order not placed: …". No celular o resumo vira uma barra fixa embaixo.
-- `/orders`: lista com número, data, status, "N items" e total, ou "No orders
-  yet".
-- `/orders/:id`: status, "Created" e "Paid", linha do tempo Placed → Paid →
-  Shipped → Delivered, itens ("Produto · Variante", SKU, preço da compra) e o
-  total. Pendente: "Pay N unidades (simulated)" e "Cancel order" (com
-  confirmação em `?confirm=cancel`). Pago, enviado e entregue: sem ações, com a
-  nota de que não há reembolso. Cancelado: painel no lugar da linha do tempo.
-  Pedido de outro cliente ou inexistente: 404.
-- Cabeçalho: link "Orders" (no celular, um ícone de caixa).
-- A única ilha nova é o `PendingButton`: mostra "Placing order…", "Paying…" ou
-  "Cancelling…" e ignora cliques repetidos. Sem JavaScript, os formulários
-  funcionam do mesmo jeito.
+### Checkout and orders
 
-**Decisões de exibição:** o número do pedido são os 8 primeiros caracteres do id
-em maiúsculas (`#9FST3BCC`), porque os ids da API são textos aleatórios; as
-datas saem em **UTC**, porque o servidor não sabe o fuso do navegador; a API só
-guarda a data do pedido e a do pagamento, então Shipped e Delivered não têm data
-(o passo da vez diz "Up next"); e a confirmação de cancelamento é um modal só de
-CSS, que funciona sem JavaScript mas não prende o foco do teclado como um
-`<dialog>` faria.
+| Route                                            | What it does                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /orders` (the cart's "Place order" button) | Turns the cart into a pending order and opens it. The button is enabled only when the API says `can_checkout`; if the API refuses (409: stock ran out, an item left sale, empty cart) its message shows in the cart as "Order not placed: …". On phones the summary becomes a fixed bar at the bottom.                                                                                        |
+| `/orders`                                        | Order number, date, status, "N items" and total, or "No orders yet".                                                                                                                                                                                                                                                                                                                          |
+| `/orders/:id`                                    | Status, "Created" and "Paid" dates, a Placed → Paid → Shipped → Delivered timeline, items with the purchase price, and the total. Pending: "Pay N units (simulated)" and "Cancel order" (confirmed at `?confirm=cancel`). Paid, shipped and delivered: no actions, with a note that there are no refunds. Cancelled: a panel instead of the timeline. Someone else's or a missing order: 404. |
 
-**Fase 4: console de admin** (só para a conta admin; a API cria o admin com
-`ADMIN_USERNAME` e `ADMIN_PASSWORD`).
+### Admin console
 
-- **Acesso:** o middleware pergunta o papel à API (`GET /auth/session`). Sem
-  login, `/admin/*` vai para `/signin?next=…`; cliente comum recebe 403; com a
-  API fora do ar, 503. O admin que entra sem destino cai em `/admin/orders`, e o
-  console não mostra a vitrine (sem carrinho, sem "Orders").
-- `/admin/orders`: filtro por status (`?status=`), paginação de 10 em 10 com o
-  total de `X-Total-Count`, e estado vazio por filtro.
-- `/admin/orders/:id`: cliente, datas, itens, total e os próximos passos do
-  ciclo: pendente → "Mark as paid" ou "Cancel order" (devolve o estoque); pago →
-  "Mark as shipped"; enviado → "Mark as delivered". Entregue e cancelado são
-  finais ("Final status. No further changes."). Um `status` forjado no `POST`
-  que não seja um dos passos oferecidos nem chega à API.
-- `/admin/products`: filtro Active/Inactive/All, ordem (`name`/`newest`),
-  paginação, estoque total por produto, "Deactivate"/"Reactivate" com
-  confirmação em `?confirm=`.
-- `/admin/products/new`: nome, descrição, preço e estoque (cria a variante
-  "Default").
-- `/admin/products/:id`: editar nome, descrição e `active`; variantes (todas,
-  inclusive as inativas) com adicionar, editar (`?edit=<id>`) e
-  ativar/desativar. SKU repetido (409) aparece no campo SKU.
-- Tudo é formulário com redirecionamento (POST → GET), então funciona sem
-  JavaScript; não há ilhas novas.
+Only for the admin account. The middleware asks the API for the role
+(`GET /auth/session`): anonymous visitors go to `/signin?next=…`, regular
+customers get a 403, and an API outage gives a 503. The console replaces the
+storefront chrome (no cart, no "Orders").
 
-Limites conhecidos: o modal de confirmação não prende o foco do teclado; a tela
-exige preço maior que zero, mais estrito que a API; o layout do console foi
-conferido pelo HTML e pelas respostas do servidor, não num navegador.
+| Route                 | What it does                                                                                                                                                                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/admin/orders`       | Filter by status (`?status=`), pages of 10 with the total from `X-Total-Count`, and a per-filter empty state.                                                                                                                                                                                             |
+| `/admin/orders/:id`   | Customer, dates, items, total, and the next steps of the cycle: pending → "Mark as paid" or "Cancel order" (returns the stock); paid → "Mark as shipped"; shipped → "Mark as delivered". Delivered and cancelled are final. A forged `status` that is not one of the offered steps never reaches the API. |
+| `/admin/products`     | Filter Active / Inactive / All, sort (`name` / `newest`), pages, total stock per product, and Deactivate / Reactivate with confirmation at `?confirm=`.                                                                                                                                                   |
+| `/admin/products/new` | Name, description, price and stock (creates the "Default" variant).                                                                                                                                                                                                                                       |
+| `/admin/products/:id` | Edit name, description and `active`; the variants (all of them, inactive too) with add, edit (`?edit=<id>`) and activate / deactivate. A repeated SKU (409) is shown on the SKU field.                                                                                                                    |
 
-## Sessão e segurança
+## Display decisions
 
-- Os tokens ficam em cookies `httpOnly` (`rs_session`, 1 h; `rs_refresh`, 15
-  dias), `SameSite=Lax`, e `Secure` em HTTPS. O JavaScript do navegador nunca os
-  lê.
-- **Renovação automática:** se a sessão acabou, o servidor renova pelo refresh e
-  grava o par novo. O refresh token da API vale uma vez só; por isso as
-  renovações simultâneas (ou logo em seguida, enquanto o navegador ainda manda o
-  cookie antigo) são compartilhadas por 30 s, e ninguém é deslogado à toa.
-  Limite: isso vale por instância do servidor; com várias instâncias seria
-  preciso um cache compartilhado.
-- Falhou a renovação (a API recusou): os cookies são apagados e a pessoa vai
-  para `/signin?next=…&expired=1`. Se a API estiver fora do ar, a sessão não é
-  apagada.
-- **CSRF:** as ações são `POST` e os cookies são `SameSite=Lax`, que não vão em
-  `POST` vindo de outro site. Sair só funciona por `POST` (um link não desloga
-  ninguém).
-- Páginas de quem está logado saem com `Cache-Control: private, no-store`.
-- As mensagens de uma vez ("Added to cart", "Changes saved") viajam num cookie
-  `rs_flash` de 60 s, lido e apagado na página seguinte. Tudo funciona sem
-  JavaScript; a única ilha é o seletor de quantidade da página de produto.
+- The order number is the first 8 characters of the id, uppercased
+  (`#9FST3BCC`), because the API's ids are random strings.
+- Dates are shown in **UTC**, because the server does not know the browser's
+  time zone.
+- The API only stores the order date and the payment date, so Shipped and
+  Delivered have no date (the current step says "Up next").
+- Product images do not exist in the API: the card uses a colored block with
+  initials, and the color comes from a hash of the id (the design uses `id % 5`,
+  but the ids are strings).
+- Text is ordered by name, ignoring case; numbers inside text have no natural
+  order (`10 kg` comes before `5 kg`).
 
-## Estrutura
+## Sessions and security
+
+- Tokens live in `httpOnly` cookies (`rs_session`, 1 h; `rs_refresh`, 15 days),
+  `SameSite=Lax`, and `Secure` over HTTPS. Browser JavaScript never reads them.
+- **Automatic renewal:** when the session has ended, the server renews it with
+  the refresh token and stores the new pair. The API's refresh token is
+  single-use, so simultaneous renewals (or right after, while the browser still
+  sends the old cookie) are shared for 30 s and nobody is signed out for
+  nothing. Limit: this holds per server instance; several instances would need a
+  shared cache.
+- If the renewal fails (the API refuses), the cookies are cleared and the person
+  goes to `/signin?next=…&expired=1`. If the API is down, the session is kept.
+- **CSRF:** actions are `POST`s and the cookies are `SameSite=Lax`, which are
+  not sent on a cross-site `POST`. Signing out only works by `POST` (a link
+  cannot sign anyone out).
+- Pages for signed-in users go out with `Cache-Control: private, no-store`.
+- One-time messages ("Added to cart", "Changes saved") travel in a 60 s
+  `rs_flash` cookie, read and deleted on the next page.
+
+## Project layout
 
 ```
-lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, orders, admin, guard, format, pagination, links, theme
+lib/          tested logic: api (client), session (renewal), cookies, flash, redirect, validation, cart, orders, admin, guard, format, pagination, links, theme
 components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder, Field, Alert, ErrorSummary, AuthCard, CartLine, CartSummary, AdminNav, FilterGroup, Switch, ProductStatusBadge
 islands/      QuantityStepper, PendingButton
-routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId], orders, orders/[id] (pay, cancel), admin/ (orders, products)
-assets/       styles.css (usa as variáveis de static/tokens.css)
-static/       tokens.css (tokens do design: claro e escuro)
-design/       handoff de design (referência; fora do fmt, lint e check)
+routes/       _app (layout, theme), _middleware (session), _error (404/403/503/500), storefront, account, cart, orders, admin/ (orders, products)
+assets/       styles.css (uses the variables from static/tokens.css)
+static/       tokens.css (the design tokens: light and dark)
+design/       design handoff (reference; excluded from fmt, lint and check)
 ```
 
-## Notas
+## Notes and limitations
 
-- O Fresh marca sozinho `aria-current` nos links que casam com a URL. Os links
-  de ordem e de paginação definem o valor explicitamente (`"true"`, `"page"` ou
-  `"false"`); o Fresh respeita o que for definido na mão.
-- A API não tem imagens de produto: o card usa um bloco colorido com iniciais, e
-  a cor sai de um hash do id (o design usa `id % 5`, mas os ids são textos).
-- Ordem de texto: por nome, sem diferenciar maiúsculas; números dentro do texto
-  não têm ordem natural (`10 kg` vem antes de `5 kg`).
+- Fresh marks `aria-current` on links that match the URL by itself. The sort and
+  pagination links set the value explicitly (`"true"`, `"page"` or `"false"`),
+  and Fresh respects what is set by hand.
+- The confirmation dialogs are CSS-only: they work without JavaScript but do not
+  trap keyboard focus the way a `<dialog>` would.
+- The admin forms require a price greater than zero, which is stricter than the
+  API.
+
+## Contributing and releases
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org)
+(`feat:`, `fix:`, `docs:`, and `!` or a `BREAKING CHANGE:` footer for breaking
+changes). [Release Please](https://github.com/googleapis/release-please-action)
+reads them on every push to `main`, keeps a release pull request open with the
+next version and the `CHANGELOG.md`, and tags and publishes the release when
+that pull request is merged.
+
+## License
+
+[The Unlicense](LICENSE): public domain, do whatever you want with it.
