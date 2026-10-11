@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+          cache: true
+
+      - run: deno ci
+
+      - name: Format, lint and types
+        run: deno task check
+
+      - name: Unit tests
+        run: deno test --allow-env
+
+      - name: Build
+        run: deno task build
