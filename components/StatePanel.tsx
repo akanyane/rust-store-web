@@ -3,9 +3,11 @@ import { Icon } from "./Icon.tsx";
 
 /** Painel de estado: catálogo vazio, falha ao carregar, página não encontrada. */
 export function StatePanel(
-  { title, children, tone = "neutral", code, action }: {
+  { title, children, tone = "neutral", code, action, above }: {
     title: string;
     children: ComponentChildren;
+    /** Aviso acima do painel (ex.: a recusa do checkout com o carrinho vazio). */
+    above?: ComponentChildren;
     tone?: "neutral" | "danger";
     code?: string;
     action?: { href: string; label: string };
@@ -13,6 +15,7 @@ export function StatePanel(
 ) {
   return (
     <main class="rs-main">
+      {above}
       <div class="rs-state" role={tone === "danger" ? "alert" : undefined}>
         <span
           class={`rs-state__icon ${

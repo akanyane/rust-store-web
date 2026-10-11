@@ -67,3 +67,33 @@ export interface Cart {
   total: number;
   can_checkout: boolean;
 }
+
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+export interface OrderItem {
+  variant_id: string;
+  /** Nome da variante na hora da compra. */
+  name: string;
+  /** Nome do produto na hora da compra; `null` em pedidos antigos, que não o guardaram. */
+  product_name: string | null;
+  sku: string;
+  unit_price: number;
+  quantity: number;
+  line_total: number;
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  total: number;
+  /** ISO 8601, em UTC. */
+  created_at: string;
+  /** Quando virou "paid"; `null` até o pagamento (e em pedidos pagos antes do campo existir). */
+  paid_at: string | null;
+  items: OrderItem[];
+}

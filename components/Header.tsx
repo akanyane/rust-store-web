@@ -16,6 +16,7 @@ export function Header(
   },
 ) {
   const onCatalog = path === "/" || path.startsWith("/products");
+  const onOrders = path.startsWith("/orders");
   const onCart = path.startsWith("/cart");
   const onAccount = path.startsWith("/account");
   const count = cartCount > 99 ? "99+" : String(cartCount);
@@ -28,8 +29,23 @@ export function Header(
         </a>
         <nav class="rs-nav" aria-label="Main">
           <a href="/" aria-current={onCatalog ? "page" : "false"}>Catalog</a>
+          {customer && (
+            <a href="/orders" aria-current={onOrders ? "page" : "false"}>
+              Orders
+            </a>
+          )}
         </nav>
         <div class="rs-header__actions">
+          {customer && (
+            <a
+              href="/orders"
+              class="rs-header__orders"
+              aria-current={onOrders ? "page" : "false"}
+              aria-label="Orders"
+            >
+              <Icon name="box" size={20} />
+            </a>
+          )}
           <a
             href="/cart"
             class="rs-header__cart"

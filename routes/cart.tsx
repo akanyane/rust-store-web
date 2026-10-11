@@ -45,6 +45,12 @@ export default define.page<typeof handler>(function CartPage({ data }) {
         <StatePanel
           title="Your cart is empty"
           action={{ href: "/", label: "Browse the catalog" }}
+          above={flash && (
+            <Alert
+              tone={flash.tone === "success" ? "success" : "danger"}
+              title={flash.message}
+            />
+          )}
         >
           Add something from the catalog and it will show up here.
         </StatePanel>
@@ -65,7 +71,7 @@ export default define.page<typeof handler>(function CartPage({ data }) {
 
       {flash && (
         <Alert
-          tone={flash.tone === "success" ? "success" : "warning"}
+          tone={flash.tone === "success" ? "success" : "danger"}
           title={flash.message}
         />
       )}

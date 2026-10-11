@@ -1,6 +1,7 @@
 import type {
   Cart,
   Customer,
+  Order,
   ProductDetail,
   ProductListItem,
   Tokens,
@@ -238,6 +239,47 @@ export function removeFromCart(
 ): Promise<Cart> {
   return json<Cart>(`/cart/items/${encodeURIComponent(variantId)}`, {
     method: "DELETE",
+    token,
+  });
+}
+
+// ---------- Pedidos ----------
+
+/** Pedidos do cliente, do mais recente para o mais antigo (a API não pagina). */
+export function listOrders(token: string): Promise<Order[]> {
+  return json<Order[]>("/orders", { token });
+}
+
+/** `null` quando o pedido não existe ou é de outro cliente (a API responde 404 nos dois casos). */
+export async function getOrder(
+  token: string,
+  id: string,
+): Promise<Order | null> {
+  try {
+    return await json<Order>(`/orders/${encodeURIComponent(id)}`, { token });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+/** Checkout: transforma o carrinho em um pedido `pending` e baixa o estoque. */
+export function createOrder(token: string): Promise<Order> {
+  return json<Order>("/orders", { method: "POST", token });
+}
+
+/** Pagamento simulado: só troca `pending` por `paid`. */
+export function payOrder(token: string, id: string): Promise<Order> {
+  return json<Order>(`/orders/${encodeURIComponent(id)}/pay`, {
+    method: "POST",
+    token,
+  });
+}
+
+/** Cancela um pedido pendente e devolve o estoque. Pedido pago não cancela. */
+export function cancelOrder(token: string, id: string): Promise<Order> {
+  return json<Order>(`/orders/${encodeURIComponent(id)}/cancel`, {
+    method: "POST",
     token,
   });
 }

@@ -38,8 +38,8 @@ deno test --allow-env  # testes de unidade (lib/)
 
 ## Estado
 
-**Fase 1: catálogo e página de produto** (leitura pública) e **fase 2: login,
-cadastro, conta e carrinho**.
+**Fase 1: catálogo e página de produto** (leitura pública), **fase 2: login,
+cadastro, conta e carrinho** e **fase 3: checkout e pedidos**.
 
 - `/`: catálogo com ordem (`?sort=name|newest`), paginação de 12 em 12
   (`?page=`), total vindo de `X-Total-Count` e "from X unidades" só quando as
@@ -66,7 +66,35 @@ cadastro, conta e carrinho**.
 - Cabeçalho: o carrinho com a contagem (soma das quantidades) e a conta, ou
   "Sign in".
 
-Próximas fases: checkout e pedidos; console de admin.
+**Fase 3:**
+
+- **Checkout** (`POST /orders`, pelo botão "Place order" do carrinho): o
+  carrinho vira um pedido pendente e a pessoa vai para a página dele. O botão só
+  fica habilitado com `can_checkout`; se a API recusar (409: estoque que acabou,
+  item que saiu de venda, carrinho vazio), a mensagem da API aparece no carrinho
+  como "Order not placed: …". No celular o resumo vira uma barra fixa embaixo.
+- `/orders`: lista com número, data, status, "N items" e total, ou "No orders
+  yet".
+- `/orders/:id`: status, "Created" e "Paid", linha do tempo Placed → Paid →
+  Shipped → Delivered, itens ("Produto · Variante", SKU, preço da compra) e o
+  total. Pendente: "Pay N unidades (simulated)" e "Cancel order" (com
+  confirmação em `?confirm=cancel`). Pago, enviado e entregue: sem ações, com a
+  nota de que não há reembolso. Cancelado: painel no lugar da linha do tempo.
+  Pedido de outro cliente ou inexistente: 404.
+- Cabeçalho: link "Orders" (no celular, um ícone de caixa).
+- A única ilha nova é o `PendingButton`: mostra "Placing order…", "Paying…" ou
+  "Cancelling…" e ignora cliques repetidos. Sem JavaScript, os formulários
+  funcionam do mesmo jeito.
+
+**Decisões de exibição:** o número do pedido são os 8 primeiros caracteres do id
+em maiúsculas (`#9FST3BCC`), porque os ids da API são textos aleatórios; as
+datas saem em **UTC**, porque o servidor não sabe o fuso do navegador; a API só
+guarda a data do pedido e a do pagamento, então Shipped e Delivered não têm data
+(o passo da vez diz "Up next"); e a confirmação de cancelamento é um modal só de
+CSS, que funciona sem JavaScript mas não prende o foco do teclado como um
+`<dialog>` faria.
+
+Próxima fase: console de admin.
 
 ## Sessão e segurança
 
@@ -93,10 +121,10 @@ Próximas fases: checkout e pedidos; console de admin.
 ## Estrutura
 
 ```
-lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, format, pagination, links, theme
+lib/          lógica pura e testada: api (cliente), session (renovação), cookies, flash, redirect, validation, cart, orders, format, pagination, links, theme
 components/   Header, Footer, ProductCard, Pagination, SortToggle, StatePanel, Icon, Placeholder, Field, Alert, ErrorSummary, AuthCard, CartLine, CartSummary
-islands/      QuantityStepper (a única ilha)
-routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId]
+islands/      QuantityStepper, PendingButton
+routes/       _app (layout, tema), _middleware (sessão), _error (404/403/503/500), index, products/[id], signin, signup, signout, account, cart, cart/items/[variantId], orders, orders/[id] (pay, cancel)
 assets/       styles.css (usa as variáveis de static/tokens.css)
 static/       tokens.css (tokens do design: claro e escuro)
 design/       handoff de design (referência; fora do fmt, lint e check)

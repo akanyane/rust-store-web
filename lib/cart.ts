@@ -75,8 +75,10 @@ const DEFAULT_VARIANT_NAME = "Default";
  * mostra só o produto ("Ceramic Mug"), porque "Ceramic Mug · Default" não diz nada a mais.
  */
 export function lineTitle(
-  item: Pick<CartItem, "product_name" | "name">,
+  item: { product_name: string | null; name: string },
 ): string {
+  // Item de pedido antigo: o nome do produto não foi guardado, só resta a variante.
+  if (item.product_name === null) return item.name;
   const product = item.product_name.trim();
   const variant = item.name.trim();
   if (product === "") return variant;

@@ -130,3 +130,10 @@ Deno.test("lineTitle: 'Product · Variant', and just the product for the default
   assertEquals(lineTitle({ product_name: "  ", name: "Default" }), "Default");
   assertEquals(lineTitle({ product_name: "Mug", name: "" }), "Mug");
 });
+
+Deno.test("lineTitle: a null product name (old order item) falls back to the variant name", () => {
+  assertEquals(
+    lineTitle({ product_name: null, name: "250 g bag" }),
+    "250 g bag",
+  );
+});

@@ -262,6 +262,9 @@ export default define.page<typeof handler>(function Account({ data }) {
                 <button type="button" class="rs-btn" disabled>
                   Delete account…
                 </button>
+                <a href="/orders" class="rs-locked__link" aria-current="false">
+                  View your orders →
+                </a>
               </div>
             </div>
           )
