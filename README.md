@@ -106,7 +106,10 @@ broken.
 | `/cart`                               | Rows with quantity (−, +) and remove, flagged rows ("No longer sold", "Not enough stock"), an "N lines need attention" banner, and a summary with the total of every row. A row reads "Product · Variant", or just the product when the variant is the default one.                                                                                                                               |
 
 The header shows the cart with its item count (the sum of quantities), an
-"Orders" link, and the account, or "Sign in".
+"Orders" link, and the account, or "Sign in". On phones the bar keeps only the
+cart and a menu button, which opens Catalog, Orders, the account and Sign out
+(or Sign in and Create an account); it is a plain `<details>`, so it works
+without JavaScript.
 
 ### Checkout and orders
 

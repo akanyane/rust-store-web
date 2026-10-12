@@ -1,5 +1,6 @@
 import { HttpError, page } from "fresh";
 import { Head } from "fresh/runtime";
+import { Fragment } from "preact";
 import { define } from "../../../utils.ts";
 import {
   ApiError,
@@ -272,19 +273,24 @@ export const handler = define.handlers({
 });
 
 function VariantForm(
-  { intent, values, errors, variantId, cancelHref, title, submitLabel }: {
-    intent: "add-variant" | "save-variant";
-    values: VariantValues;
-    errors: FormErrors;
-    variantId?: string;
-    cancelHref: string;
-    title: string;
-    submitLabel: string;
-  },
+  { intent, values, errors, variantId, cancelHref, title, submitLabel, inline }:
+    {
+      /** Dentro de uma linha da tabela (sem o cartão em volta). */
+      inline?: boolean;
+      intent: "add-variant" | "save-variant";
+      values: VariantValues;
+      errors: FormErrors;
+      variantId?: string;
+      cancelHref: string;
+      title: string;
+      submitLabel: string;
+    },
 ) {
   return (
     <section
-      class="rs-card-box rs-variantform"
+      class={`${inline ? "" : "rs-card-box "}rs-variantform${
+        inline ? " rs-variantform--inline" : ""
+      }`}
       id={intent === "add-variant" ? "add-variant" : "edit-variant"}
       aria-label={title}
     >
@@ -381,27 +387,28 @@ export default define.page<typeof handler>(function AdminProduct({ data }) {
       )}
       <ErrorSummary errors={productErrors} labels={PRODUCT_LABELS} />
 
-      <form
-        method="post"
-        class="rs-form rs-form--narrow rs-card-box"
-        noValidate
-      >
+      <form method="post" class="rs-form rs-card-box rs-prodform" noValidate>
         <input type="hidden" name="intent" value="save-product" />
-        <Field
-          label="Name"
-          name="name"
-          value={productValues.name}
-          error={productErrors.name}
-        />
-        <Field
-          label="Description"
-          name="description"
-          value={productValues.description}
-          error={productErrors.description}
-          rows={2}
-        />
-        <div class="rs-form__actions rs-form__actions--between">
-          <Switch name="active" label="Active" checked={productValues.active} />
+        <div class="rs-prodform__row">
+          <Field
+            label="Name"
+            name="name"
+            value={productValues.name}
+            error={productErrors.name}
+          />
+          <Field
+            label="Description"
+            name="description"
+            value={productValues.description}
+            error={productErrors.description}
+          />
+          <div class="rs-prodform__switch">
+            <Switch
+              name="active"
+              label="Active"
+              checked={productValues.active}
+            />
+          </div>
           <PendingButton
             label="Save"
             pendingLabel="Saving…"
@@ -444,81 +451,92 @@ export default define.page<typeof handler>(function AdminProduct({ data }) {
             </thead>
             <tbody>
               {product.variants.map((variant) => (
-                <tr
-                  key={variant.id}
-                  class={variant.active ? "" : "rs-table__row--off"}
-                >
-                  <td>{variant.name}</td>
-                  <td class="rs-mono-cell rs-col-wide">{variant.sku}</td>
-                  <td class="rs-table__right rs-nums">
-                    {formatNumber(variant.price)}{" "}
-                    <span class="rs-muted-unit">
-                      {unitLabel(variant.price)}
-                    </span>
-                  </td>
-                  <td
-                    class={`rs-table__right rs-nums ${
-                      variant.stock === 0
-                        ? "rs-stock-cell--out"
-                        : variant.stock <= 5
-                        ? "rs-stock-cell--low"
-                        : ""
-                    }`}
+                <Fragment key={variant.id}>
+                  <tr
+                    class={variant.active ? "" : "rs-table__row--off"}
                   >
-                    {variant.stock}
-                  </td>
-                  <td>
-                    <ProductStatusBadge active={variant.active} />
-                  </td>
-                  <td>
-                    <div class="rs-table__actions">
-                      <a
-                        href={`${here}?edit=${
-                          encodeURIComponent(variant.id)
-                        }#edit-variant`}
-                        aria-current="false"
-                      >
-                        Edit
-                      </a>
-                      <form method="post" class="rs-inline-form">
-                        <input
-                          type="hidden"
-                          name="intent"
-                          value="toggle-variant"
+                    <td>{variant.name}</td>
+                    <td class="rs-mono-cell rs-col-wide">{variant.sku}</td>
+                    <td class="rs-table__right rs-nums">
+                      {formatNumber(variant.price)}{" "}
+                      <span class="rs-muted-unit">
+                        {unitLabel(variant.price)}
+                      </span>
+                    </td>
+                    <td
+                      class={`rs-table__right rs-nums ${
+                        variant.stock === 0
+                          ? "rs-stock-cell--out"
+                          : variant.stock <= 5
+                          ? "rs-stock-cell--low"
+                          : ""
+                      }`}
+                    >
+                      {variant.stock}
+                    </td>
+                    <td>
+                      <ProductStatusBadge active={variant.active} />
+                    </td>
+                    <td>
+                      <div class="rs-table__actions">
+                        <a
+                          href={`${here}?edit=${
+                            encodeURIComponent(variant.id)
+                          }#edit-variant`}
+                          aria-current="false"
+                        >
+                          Edit
+                        </a>
+                        <form method="post" class="rs-inline-form">
+                          <input
+                            type="hidden"
+                            name="intent"
+                            value="toggle-variant"
+                          />
+                          <input
+                            type="hidden"
+                            name="variant_id"
+                            value={variant.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="active"
+                            value={variant.active ? "false" : "true"}
+                          />
+                          <button type="submit" class="rs-linkbtn">
+                            {variant.active ? "Deactivate" : "Reactivate"}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {editing?.id === variant.id && data.variantValues && (
+                    <tr class="rs-table__edit">
+                      <td colSpan={6}>
+                        <VariantForm
+                          inline
+                          intent="save-variant"
+                          variantId={editing.id}
+                          values={data.variantValues}
+                          errors={variantErrors}
+                          cancelHref={here}
+                          title={`Editing "${editing.name}"`}
+                          submitLabel="Save variant"
                         />
-                        <input
-                          type="hidden"
-                          name="variant_id"
-                          value={variant.id}
-                        />
-                        <input
-                          type="hidden"
-                          name="active"
-                          value={variant.active ? "false" : "true"}
-                        />
-                        <button type="submit" class="rs-linkbtn">
-                          {variant.active ? "Deactivate" : "Reactivate"}
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>
         </div>
 
-        {editing && data.variantValues && (
-          <VariantForm
-            intent="save-variant"
-            variantId={editing.id}
-            values={data.variantValues}
-            errors={variantErrors}
-            cancelHref={here}
-            title={`Editing "${editing.name}"`}
-            submitLabel="Save variant"
-          />
-        )}
+        <p class="rs-muted rs-variants-admin__note">
+          Inactive variants stay listed here (dimmed) and are hidden from the
+          catalog and carts. Nothing is ever deleted.
+        </p>
+
         {adding && (
           <VariantForm
             intent="add-variant"

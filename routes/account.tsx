@@ -249,23 +249,27 @@ export default define.page<typeof handler>(function Account({ data }) {
         <h2 id="delete-title">Delete account</h2>
         {hasOrders
           ? (
-            <div class="rs-locked" role="note">
-              <span class="rs-locked__icon">
-                <Icon name="lock" size={18} />
-              </span>
-              <div>
-                <b>This account can't be deleted</b>
-                <p>
-                  Accounts with orders are kept so order history stays complete.
-                  You have {orders} {orders === 1 ? "order" : "orders"}.
-                </p>
-                <button type="button" class="rs-btn" disabled>
-                  Delete account…
-                </button>
-                <a href="/orders" class="rs-locked__link" aria-current="false">
-                  View your orders →
-                </a>
+            <div class="rs-locked-wrap">
+              <div class="rs-locked" role="note">
+                <span class="rs-locked__icon">
+                  <Icon name="lock" size={16} />
+                </span>
+                <div>
+                  <b>This account can't be deleted</b>
+                  <p>
+                    Accounts with orders are kept so order history stays
+                    complete. You have {orders}{" "}
+                    {orders === 1 ? "order" : "orders"}, including cancelled
+                    ones.
+                  </p>
+                </div>
               </div>
+              <button type="button" class="rs-btn rs-btn--block" disabled>
+                Delete account
+              </button>
+              <a href="/orders" class="rs-locked__link" aria-current="false">
+                View your orders →
+              </a>
             </div>
           )
           : orders === null

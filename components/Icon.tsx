@@ -35,6 +35,7 @@ const ICONS = {
       "M3 13.5c.5-2.5 2.5-4 5-4s4.5 1.5 5 4",
     ],
   },
+  menu: { grid: 16, paths: ["M2.5 4.5h11", "M2.5 8h11", "M2.5 11.5h11"] },
   pause: { grid: 16, paths: ["M5.5 4v8M10.5 4v8"] },
   clock: {
     grid: 16,

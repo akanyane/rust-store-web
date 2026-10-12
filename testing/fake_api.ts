@@ -5,6 +5,7 @@ import type {
   AdminStats,
   Cart,
   Customer,
+  ProductDetail,
   Session,
   Tokens,
 } from "../lib/types.ts";
@@ -164,6 +165,10 @@ export class FakeApi {
   csvTruncated = false;
   /** Os clientes que `GET /admin/customers/:id` conhece. */
   readonly customers = new Map<string, AdminCustomer>();
+  /** Os produtos que `GET /admin/products/:id` conhece. */
+  readonly adminProducts = new Map<string, ProductDetail>();
+  /** O que `GET /orders` devolve (a conta só conta os pedidos). */
+  orderIds: { id: string }[] = [];
   /** O que `GET /admin/customers` devolve; o teste troca o que precisar. */
   customerList: AdminCustomerListItem[] = [];
   /** O que `GET /admin/stats` devolve; o teste troca o que precisar. */
@@ -220,6 +225,12 @@ export class FakeApi {
           })
           : apiError(403, "forbidden"),
     );
+    this.on("GET /orders", () => jsonResponse(this.orderIds));
+    this.on("GET /admin/products/:id", ({ token, params }) => {
+      if (token !== "session-boss") return apiError(403, "forbidden");
+      const found = this.adminProducts.get(params.id);
+      return found ? jsonResponse(found) : apiError(404, "not found");
+    });
     this.on("GET /admin/customers/:id", ({ token, params }) => {
       if (token !== "session-boss") return apiError(403, "forbidden");
       const found = this.customers.get(params.id);

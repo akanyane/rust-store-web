@@ -15,7 +15,6 @@ import { adminAuthed, requireAdmin } from "../../../lib/guard.ts";
 import {
   formatDateTime,
   orderItemTitle,
-  paidLabel,
   shortOrderId,
 } from "../../../lib/orders.ts";
 import type { AdminOrder } from "../../../lib/types.ts";
@@ -128,7 +127,7 @@ export default define.page<typeof handler>(function AdminOrder({ data }) {
         <div>
           <dt>Paid</dt>
           <dd>
-            {order.paid_at ? formatDateTime(order.paid_at) : paidLabel(order)}
+            {order.paid_at ? formatDateTime(order.paid_at) : "—"}
           </dd>
         </div>
         <div>

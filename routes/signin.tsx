@@ -12,6 +12,7 @@ import { safeNext } from "../lib/redirect.ts";
 import { Alert } from "../components/Alert.tsx";
 import { AuthCard } from "../components/AuthCard.tsx";
 import { Field } from "../components/Field.tsx";
+import { Icon } from "../components/Icon.tsx";
 
 interface Data {
   username: string;
@@ -122,6 +123,9 @@ export default define.page<typeof handler>(function SignIn({ data }) {
         value={data.username}
         autocomplete="username"
         autofocus={!data.username}
+        // Na tela de sessão expirada o username lembrado é só mostrado (o "Not you?" troca de
+        // conta); sem ele lembrado, o campo continua editável.
+        readOnly={data.expired && Boolean(data.username)}
         required
       />
       <Field
@@ -151,16 +155,23 @@ export default define.page<typeof handler>(function SignIn({ data }) {
             aria-labelledby="session-title"
             class="rs-modal__box rs-session"
           >
+            <span class="rs-session__icon" aria-hidden="true">
+              <Icon name="clock" size={22} />
+            </span>
             <h2 id="session-title">Your session expired, sign in again</h2>
-            <p>You'll come back to the page you were on.</p>
+            <p>
+              You were signed in for a while and we couldn't renew it. Sign in
+              to pick up right where you were.
+            </p>
             {alerts}
             {form}
-            <div class="rs-auth__foot">
-              Not you?{" "}
-              <a href={otherAccountHref} aria-current="false">
-                Sign in with another account
-              </a>
-            </div>
+            <a
+              href={otherAccountHref}
+              class="rs-session__other"
+              aria-current="false"
+            >
+              Not you? Sign in with another account
+            </a>
           </section>
         </div>
       </>

@@ -5,9 +5,12 @@ import middleware from "../routes/_middleware.ts";
 import * as signin from "../routes/signin.tsx";
 import * as signout from "../routes/signout.tsx";
 import * as cart from "../routes/cart.tsx";
+import * as account from "../routes/account.tsx";
+import appWrapper from "../routes/_app.tsx";
 import * as orders from "../routes/orders/index.tsx";
 import adminLayout from "../routes/admin/_layout.tsx";
 import * as adminHome from "../routes/admin/index.tsx";
+import * as adminProduct from "../routes/admin/products/[id].tsx";
 import * as adminCustomers from "../routes/admin/customers/index.tsx";
 import * as adminCustomer from "../routes/admin/customers/[id].tsx";
 import * as adminOrdersExport from "../routes/admin/orders/export.tsx";
@@ -27,8 +30,10 @@ interface RouteModule {
 }
 
 /** O app das rotas reais com o middleware real, sem servidor e sem build. */
-export function buildApp() {
+export function buildApp(options: { chrome?: boolean } = {}) {
   const app = new App<State>().use(middleware);
+  // Com `chrome`, as páginas saem dentro do layout real (cabeçalho, rodapé), como no navegador.
+  if (options.chrome) app.appWrapper(appWrapper as never);
   const mount = (path: string, route: RouteModule) =>
     app.route(path, {
       handler: route.handler,
@@ -44,6 +49,8 @@ export function buildApp() {
   mount("/admin", adminHome);
   mount("/admin/customers", adminCustomers);
   mount("/admin/customers/:id", adminCustomer);
+  mount("/admin/products/:id", adminProduct);
+  mount("/account", account);
   mount("/admin/orders", adminOrders);
   mount("/admin/orders/export", adminOrdersExport);
   mount("/admin/orders/:id", adminOrder);

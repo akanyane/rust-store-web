@@ -87,12 +87,51 @@ export function Header(
                   : (
                     <a
                       href="/signin"
-                      class="rs-header__signin"
+                      class="rs-header__signin rs-header__signin--guest"
                       aria-current="false"
                     >
                       Sign in
                     </a>
                   )}
+                {/* Só no celular: o menu leva ao que o desktop mostra na barra. Sem JavaScript. */}
+                <details class="rs-menu">
+                  <summary class="rs-menu__button" aria-label="Menu">
+                    <Icon name="menu" size={20} />
+                  </summary>
+                  <div class="rs-menu__panel">
+                    <a href="/" aria-current={onCatalog ? "page" : "false"}>
+                      Catalog
+                    </a>
+                    {customer
+                      ? (
+                        <>
+                          <a
+                            href="/orders"
+                            aria-current={onOrders ? "page" : "false"}
+                          >
+                            Orders
+                          </a>
+                          <a
+                            href="/account"
+                            aria-current={onAccount ? "page" : "false"}
+                          >
+                            My account
+                          </a>
+                          <form method="post" action="/signout">
+                            <button type="submit">Sign out</button>
+                          </form>
+                        </>
+                      )
+                      : (
+                        <>
+                          <a href="/signin" aria-current="false">Sign in</a>
+                          <a href="/signup" aria-current="false">
+                            Create an account
+                          </a>
+                        </>
+                      )}
+                  </div>
+                </details>
               </>
             )}
         </div>
