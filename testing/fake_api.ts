@@ -1,4 +1,5 @@
 import type {
+  AdminCustomer,
   AdminOrder,
   AdminStats,
   Cart,
@@ -73,6 +74,27 @@ export function emptyStats(): AdminStats {
   };
 }
 
+export function customer(
+  overrides: Partial<AdminCustomer> = {},
+): AdminCustomer {
+  return {
+    id: "cust1",
+    username: "ana",
+    created_at: "2026-03-02T10:00:00Z",
+    orders: {
+      total: 6,
+      pending: 1,
+      paid: 2,
+      shipped: 0,
+      delivered: 2,
+      cancelled: 1,
+    },
+    spent: 1240,
+    last_order_at: "2026-10-11T22:10:00Z",
+    ...overrides,
+  };
+}
+
 export function order(overrides: Partial<AdminOrder> = {}): AdminOrder {
   return {
     id: "ord1abcdefgh",
@@ -120,6 +142,8 @@ export class FakeApi {
   readonly calls: Call[] = [];
   /** Os pedidos que `GET /admin/orders/:id` e `PUT /admin/orders/:id/status` enxergam. */
   readonly orders = new Map<string, AdminOrder>();
+  /** Os clientes que `GET /admin/customers/:id` conhece. */
+  readonly customers = new Map<string, AdminCustomer>();
   /** O que `GET /admin/stats` devolve; o teste troca o que precisar. */
   stats: AdminStats = emptyStats();
   private readonly routes: {
@@ -165,6 +189,11 @@ export class FakeApi {
           : apiError(token ? 404 : 401, "not found"),
     );
     this.on("GET /cart", () => jsonResponse(EMPTY_CART));
+    this.on("GET /admin/customers/:id", ({ token, params }) => {
+      if (token !== "session-boss") return apiError(403, "forbidden");
+      const found = this.customers.get(params.id);
+      return found ? jsonResponse(found) : apiError(404, "not found");
+    });
     this.on(
       "GET /admin/stats",
       ({ token }) =>

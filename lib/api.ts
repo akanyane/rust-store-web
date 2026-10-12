@@ -1,4 +1,5 @@
 import type {
+  AdminCustomer,
   AdminOrder,
   AdminStats,
   Cart,
@@ -501,4 +502,20 @@ export async function deactivateVariant(
 
 export function getAdminStats(token: string): Promise<AdminStats> {
   return json<AdminStats>("/admin/stats", { token });
+}
+
+/** `null` quando o cliente não existe, ou é o admin, que não tem perfil (a API responde 404). */
+export async function getAdminCustomer(
+  token: string,
+  id: string,
+): Promise<AdminCustomer | null> {
+  try {
+    return await json<AdminCustomer>(
+      `/admin/customers/${encodeURIComponent(id)}`,
+      { token },
+    );
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 }

@@ -5,6 +5,7 @@ import { listAdminOrders } from "../../../lib/api.ts";
 import {
   ADMIN_PAGE_SIZE,
   adminOrdersHref,
+  customerHref,
   ORDER_FILTERS,
   parseOrderFilter,
   parseSearch,
@@ -175,7 +176,13 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
                       </a>
                     </td>
                     <td class="rs-mono-cell rs-col-wide">
-                      {order.customer_id}
+                      <a
+                        href={customerHref(order.customer_id)}
+                        class="rs-mono-link"
+                        aria-current="false"
+                      >
+                        {order.customer_id}
+                      </a>
                     </td>
                     <td>
                       <StatusBadge status={order.status} />

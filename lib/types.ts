@@ -123,17 +123,36 @@ export interface LowStockItem {
 }
 
 /** Os números do painel de admin (`GET /admin/stats`). Valores em unidades. */
+/** Pedidos contados por status (`total` soma todos). */
+export interface OrderCounts {
+  total: number;
+  pending: number;
+  paid: number;
+  shipped: number;
+  delivered: number;
+  cancelled: number;
+}
+
 export interface AdminStats {
-  orders: {
-    total: number;
-    pending: number;
-    paid: number;
-    shipped: number;
-    delivered: number;
-    cancelled: number;
-  };
+  orders: OrderCounts;
   /** Soma dos totais dos pedidos pagos, enviados e entregues. */
   revenue: number;
   products: { active: number; inactive: number };
   low_stock: LowStockItem[];
+}
+
+/**
+ * Um cliente na visão de admin (`GET /admin/customers/{id}`): só o username e o que ele fez.
+ * A API não devolve nome nem nascimento, e a tela nunca os pede.
+ */
+export interface AdminCustomer {
+  id: string;
+  username: string;
+  /** Quando a conta foi criada. */
+  created_at: string;
+  orders: OrderCounts;
+  /** Soma dos totais dos pedidos pagos, enviados e entregues. */
+  spent: number;
+  /** `null` para quem ainda não comprou. */
+  last_order_at: string | null;
 }

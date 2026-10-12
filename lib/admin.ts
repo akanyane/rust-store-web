@@ -1,6 +1,11 @@
 import { formatNumber, formatUnits } from "./format.ts";
 import type { FormErrors } from "./validation.ts";
-import type { AdminStats, LowStockItem, OrderStatus } from "./types.ts";
+import type {
+  AdminCustomer,
+  AdminStats,
+  LowStockItem,
+  OrderStatus,
+} from "./types.ts";
 
 /** Itens por página nas listas do console (o design mostra "1–10 of 312"). */
 export const ADMIN_PAGE_SIZE = 10;
@@ -295,4 +300,74 @@ export function dashboardCards(stats: AdminStats): StatCard[] {
 /** Onde editar o produto de uma variante com pouco estoque. */
 export function lowStockHref(item: Pick<LowStockItem, "product_id">): string {
   return `/admin/products/${encodeURIComponent(item.product_id)}`;
+}
+
+// ---------- Cliente ----------
+
+/** Quantos pedidos recentes a página do cliente mostra. */
+export const CUSTOMER_RECENT_ORDERS = 10;
+
+/** A página de um cliente no console. */
+export function customerHref(id: string): string {
+  return `/admin/customers/${encodeURIComponent(id)}`;
+}
+
+export interface CustomerCard {
+  key: "orders" | "spent" | "since" | "last";
+  label: string;
+  value: string;
+  hint: string;
+}
+
+/** Os quatro cartões da página do cliente, a partir dos números da API. */
+export function customerCards(customer: AdminCustomer): CustomerCard[] {
+  const last = customer.last_order_at;
+  return [
+    {
+      key: "orders",
+      label: "Orders",
+      value: formatNumber(customer.orders.total),
+      hint: customer.orders.total === 0
+        ? "Nothing bought yet"
+        : `${formatNumber(customer.orders.pending)} pending`,
+    },
+    {
+      key: "spent",
+      label: "Spent",
+      value: formatUnits(customer.spent),
+      hint: "Paid, shipped and delivered orders",
+    },
+    {
+      key: "since",
+      label: "Customer since",
+      value: formatCreated(customer.created_at),
+      hint: "Account created",
+    },
+    {
+      key: "last",
+      label: "Last order",
+      value: last ? formatCreated(last) : "None yet",
+      hint: last ? "Most recent order" : "Has not placed an order",
+    },
+  ];
+}
+
+export interface CustomerStatusLink {
+  status: OrderStatus;
+  count: number;
+  /** A lista de pedidos deste cliente nesse status. */
+  href: string;
+}
+
+/** Os status em que o cliente tem pedidos (os com zero ficam de fora), na ordem do ciclo. */
+export function customerStatusLinks(
+  customer: AdminCustomer,
+): CustomerStatusLink[] {
+  return STATUS_VALUES
+    .map((status) => ({ status, count: customer.orders[status] }))
+    .filter((entry) => entry.count > 0)
+    .map((entry) => ({
+      ...entry,
+      href: adminOrdersHref({ q: customer.id, status: entry.status }),
+    }));
 }

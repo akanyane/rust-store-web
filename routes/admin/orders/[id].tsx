@@ -4,6 +4,7 @@ import { define } from "../../../utils.ts";
 import { ApiError, getAdminOrder, setOrderStatus } from "../../../lib/api.ts";
 import {
   allowedTransitions,
+  customerHref,
   FINAL_TEXT,
   isOfferedTransition,
 } from "../../../lib/admin.ts";
@@ -110,7 +111,15 @@ export default define.page<typeof handler>(function AdminOrder({ data }) {
       <dl class="rs-meta">
         <div>
           <dt>Customer</dt>
-          <dd class="rs-mono-cell">{order.customer_id}</dd>
+          <dd class="rs-mono-cell">
+            <a
+              href={customerHref(order.customer_id)}
+              class="rs-mono-link"
+              aria-current="false"
+            >
+              {order.customer_id}
+            </a>
+          </dd>
         </div>
         <div>
           <dt>Created</dt>

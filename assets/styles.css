@@ -3028,3 +3028,31 @@ a {
   color: var(--accent);
   text-decoration: none;
 }
+
+/* Página do cliente */
+
+.rs-statuslinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rs-statuslinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  font: 500 14px var(--font-sans);
+}
+
+.rs-statuslinks a:hover {
+  border-color: var(--border-strong);
+}

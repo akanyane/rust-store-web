@@ -3,6 +3,9 @@ import {
   adminOrdersHref,
   adminProductsHref,
   allowedTransitions,
+  customerCards,
+  customerHref,
+  customerStatusLinks,
   dashboardCards,
   formatCreated,
   isOfferedTransition,
@@ -21,7 +24,7 @@ import {
   validateProductEdit,
   validateVariant,
 } from "./admin.ts";
-import type { AdminStats, OrderStatus } from "./types.ts";
+import type { AdminCustomer, AdminStats, OrderStatus } from "./types.ts";
 
 Deno.test("allowedTransitions mirrors the API lifecycle", () => {
   const next = (status: OrderStatus) =>
@@ -347,5 +350,84 @@ Deno.test("adminOrdersHref: the term is encoded, so it cannot add parameters or 
       "q",
     ),
     "a&page=9",
+  );
+});
+
+const CUSTOMER: AdminCustomer = {
+  id: "cust1",
+  username: "ana",
+  created_at: "2026-03-02T10:00:00Z",
+  orders: {
+    total: 6,
+    pending: 1,
+    paid: 2,
+    shipped: 0,
+    delivered: 2,
+    cancelled: 1,
+  },
+  spent: 1240,
+  last_order_at: "2026-10-11T22:10:00Z",
+};
+
+Deno.test("customerHref: encodes the id", () => {
+  assertEquals(customerHref("abc123"), "/admin/customers/abc123");
+  assertEquals(customerHref("a/b c"), "/admin/customers/a%2Fb%20c");
+});
+
+Deno.test("customerCards: four cards with numbers formatted for people", () => {
+  const cards = customerCards(CUSTOMER);
+  assertEquals(cards.map((c) => c.key), ["orders", "spent", "since", "last"]);
+  assertEquals(cards.map((c) => c.value), [
+    "6",
+    "1,240 unidades",
+    "Mar 2, 2026",
+    "Oct 11, 2026",
+  ]);
+  assertEquals(cards[0].hint, "1 pending");
+});
+
+Deno.test("customerCards: someone who never bought says so, instead of inventing a date", () => {
+  const cards = customerCards({
+    ...CUSTOMER,
+    orders: {
+      total: 0,
+      pending: 0,
+      paid: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+    },
+    spent: 0,
+    last_order_at: null,
+  });
+  assertEquals(cards[0].value, "0");
+  assertEquals(cards[0].hint, "Nothing bought yet");
+  assertEquals(cards[1].value, "0 unidades");
+  assertEquals(cards[3].value, "None yet");
+  assertEquals(cards[3].hint, "Has not placed an order");
+});
+
+Deno.test("customerStatusLinks: only statuses with orders, in lifecycle order, each filtered to this customer", () => {
+  const links = customerStatusLinks(CUSTOMER);
+  assertEquals(links.map((l) => [l.status, l.count]), [
+    ["pending", 1],
+    ["paid", 2],
+    ["delivered", 2],
+    ["cancelled", 1],
+  ]);
+  assertEquals(links[1].href, "/admin/orders?status=paid&q=cust1");
+  assertEquals(
+    customerStatusLinks({
+      ...CUSTOMER,
+      orders: {
+        total: 0,
+        pending: 0,
+        paid: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+      },
+    }),
+    [],
   );
 });
