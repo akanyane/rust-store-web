@@ -401,3 +401,19 @@ export function adminCustomersHref(
   const text = query.toString();
   return text ? `/admin/customers?${text}` : "/admin/customers";
 }
+
+// ---------- Exportação ----------
+
+/** O mais que um arquivo exportado traz (o teto da API). */
+export const EXPORT_LIMIT = 10_000;
+
+/** O download do CSV com o filtro e a busca da tela (sem a página: o arquivo traz tudo). */
+export function exportOrdersHref(
+  { status = "all", q = "" }: { status?: OrderFilter; q?: string } = {},
+): string {
+  const query = new URLSearchParams();
+  if (status !== "all") query.set("status", status);
+  if (q) query.set("q", q);
+  const text = query.toString();
+  return text ? `/admin/orders/export?${text}` : "/admin/orders/export";
+}

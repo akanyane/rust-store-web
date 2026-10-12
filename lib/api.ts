@@ -543,3 +543,40 @@ export async function listAdminCustomers(
   const customers: AdminCustomerListItem[] = await response.json();
   return { customers, total: totalOf(response, customers.length) };
 }
+
+/** Um CSV de pedidos para repassar ao navegador como download. */
+export interface CsvDownload {
+  body: ReadableStream<Uint8Array> | null;
+  contentType: string;
+  /** O `Content-Disposition` da API: `attachment; filename="orders-….csv"`. */
+  disposition: string;
+  /** Quantos pedidos casam com o filtro (o arquivo traz no máximo `EXPORT_LIMIT`). */
+  total: number;
+  /** O arquivo foi cortado no teto: há mais pedidos que linhas. */
+  truncated: boolean;
+}
+
+export interface ExportOrdersParams {
+  status?: OrderStatus;
+  q?: string;
+}
+
+export async function exportOrdersCsv(
+  token: string,
+  params: ExportOrdersParams,
+): Promise<CsvDownload> {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  if (params.q) query.set("q", params.q);
+  const suffix = query.size > 0 ? `?${query}` : "";
+  const response = await call(`/admin/orders/export.csv${suffix}`, { token });
+  return {
+    body: response.body,
+    contentType: response.headers.get("content-type") ??
+      "text/csv; charset=utf-8",
+    disposition: response.headers.get("content-disposition") ??
+      'attachment; filename="orders.csv"',
+    total: totalOf(response, 0),
+    truncated: response.headers.get("x-export-truncated") === "true",
+  };
+}

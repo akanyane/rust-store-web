@@ -3067,3 +3067,17 @@ a {
     font-size: 13px;
   }
 }
+
+/* Exportar pedidos */
+
+.rs-export {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rs-export__note {
+  font: 400 13px var(--font-sans);
+  color: var(--text-2);
+}

@@ -157,6 +157,11 @@ export class FakeApi {
   readonly calls: Call[] = [];
   /** Os pedidos que `GET /admin/orders/:id` e `PUT /admin/orders/:id/status` enxergam. */
   readonly orders = new Map<string, AdminOrder>();
+  /** O arquivo que `GET /admin/orders/export.csv` devolve; o teste troca o que precisar. */
+  csv = "order_id,order_number\r\nord1,#ORD1\r\n";
+  /** Quantos pedidos a API diz que casam, e se cortou o arquivo no teto. */
+  csvTotal = 1;
+  csvTruncated = false;
   /** Os clientes que `GET /admin/customers/:id` conhece. */
   readonly customers = new Map<string, AdminCustomer>();
   /** O que `GET /admin/customers` devolve; o teste troca o que precisar. */
@@ -231,6 +236,17 @@ export class FakeApi {
       if (token !== "session-boss") return apiError(403, "forbidden");
       const all = [...this.orders.values()];
       return jsonResponse(all, 200, { "x-total-count": String(all.length) });
+    });
+    // Antes da rota com `:id`, que também casaria com "export.csv".
+    this.on("GET /admin/orders/export.csv", ({ token }) => {
+      if (token !== "session-boss") return apiError(403, "forbidden");
+      const headers: Record<string, string> = {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": 'attachment; filename="orders-2026-10-12.csv"',
+        "x-total-count": String(this.csvTotal),
+      };
+      if (this.csvTruncated) headers["x-export-truncated"] = "true";
+      return new Response(this.csv, { headers });
     });
     this.on("GET /admin/orders/:id", ({ token, params }) => {
       if (token !== "session-boss") return apiError(403, "forbidden");

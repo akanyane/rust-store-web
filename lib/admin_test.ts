@@ -9,6 +9,8 @@ import {
   customerHref,
   customerStatusLinks,
   dashboardCards,
+  EXPORT_LIMIT,
+  exportOrdersHref,
   formatCreated,
   isOfferedTransition,
   isOrderStatus,
@@ -460,4 +462,22 @@ Deno.test("adminCustomersHref: only what is not the default, and the term is enc
     adminCustomersHref({ q: "a&sort=x" }),
     "/admin/customers?q=a%26sort%3Dx",
   );
+});
+
+Deno.test("exportOrdersHref: the status and the search, never the page", () => {
+  assertEquals(exportOrdersHref(), "/admin/orders/export");
+  assertEquals(
+    exportOrdersHref({ status: "all", q: "" }),
+    "/admin/orders/export",
+  );
+  assertEquals(
+    exportOrdersHref({ status: "paid" }),
+    "/admin/orders/export?status=paid",
+  );
+  assertEquals(exportOrdersHref({ q: "ana" }), "/admin/orders/export?q=ana");
+  assertEquals(
+    exportOrdersHref({ status: "shipped", q: "#9F ST" }),
+    "/admin/orders/export?status=shipped&q=%239F+ST",
+  );
+  assertEquals(EXPORT_LIMIT, 10_000);
 });

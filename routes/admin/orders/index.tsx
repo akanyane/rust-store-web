@@ -6,6 +6,8 @@ import {
   ADMIN_PAGE_SIZE,
   adminOrdersHref,
   customerHref,
+  EXPORT_LIMIT,
+  exportOrdersHref,
   ORDER_FILTERS,
   parseOrderFilter,
   parseSearch,
@@ -99,6 +101,29 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
           </a>
         )}
       </form>
+
+      {info.total > 0 && (
+        <div class="rs-export">
+          <a
+            href={exportOrdersHref({ status, q })}
+            class="rs-btn"
+            download
+            aria-current="false"
+          >
+            Export CSV
+          </a>
+          <span class="rs-export__note">
+            {info.total > EXPORT_LIMIT
+              ? `The ${formatNumber(EXPORT_LIMIT)} newest of ${
+                formatNumber(info.total)
+              } orders`
+              : `${formatNumber(info.total)} ${
+                info.total === 1 ? "order" : "orders"
+              }`}
+            {status !== "all" || q ? ", matching the filter and search" : ""}
+          </span>
+        </div>
+      )}
 
       <FilterGroup
         label="Status"
