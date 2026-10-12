@@ -28,16 +28,27 @@ export function CartSummary({ cart }: { cart: Cart }) {
         </div>
       </dl>
       <div class="rs-summary__total">
-        <span>Total, all lines</span>
+        <span>
+          Total, all{" "}
+          <span class="rs-copy-mobile">{`${cart.items.length} `}</span>lines
+        </span>
         <span>
           <b class="rs-nums">{formatNumber(cart.total)}</b>{" "}
           <span class="rs-muted-unit">{unitLabel(cart.total)}</span>
         </span>
       </div>
       {flagged.lines > 0 && (
-        <p class="rs-summary__note">
-          The total includes flagged lines, so it may drop once you fix them.
-        </p>
+        <>
+          <p class="rs-summary__note rs-copy-desktop">
+            The total includes flagged lines, so it may drop once you fix them.
+          </p>
+          {/* A barra do celular diz o mesmo em uma linha, como no design. */}
+          <p class="rs-summary__note-mobile rs-copy-mobile">
+            Includes {formatNumber(flagged.total)} {unitLabel(flagged.total)}
+            {" "}
+            from flagged lines.
+          </p>
+        </>
       )}
       <form method="post" action="/orders" class="rs-summary__checkout">
         {cart.can_checkout
@@ -61,14 +72,22 @@ export function CartSummary({ cart }: { cart: Cart }) {
               </button>
               <p id="why-disabled" class="rs-summary__why">
                 <Icon name="alert" />
-                You can place your order once no lines are flagged.
+                <span class="rs-copy-desktop">
+                  You can place your order once no lines are flagged.
+                </span>
+                <span class="rs-copy-mobile">
+                  Fix the {flagged.lines} flagged{" "}
+                  {flagged.lines === 1 ? "line" : "lines"} to continue.
+                </span>
               </p>
             </>
           )}
-        <p class="rs-summary__note">
-          Creates a pending order and reserves stock. You'll pay (simulated) on
-          the next screen.
-        </p>
+        {cart.can_checkout && (
+          <p class="rs-summary__note">
+            Creates a pending order and reserves stock. You'll pay (simulated)
+            on the next screen.
+          </p>
+        )}
       </form>
     </aside>
   );

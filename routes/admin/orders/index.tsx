@@ -18,7 +18,9 @@ import { formatDateTime, shortOrderId } from "../../../lib/orders.ts";
 import { type PageInfo, pageInfo, parsePage } from "../../../lib/pagination.ts";
 import type { AdminOrder } from "../../../lib/types.ts";
 import { FilterGroup } from "../../../components/FilterGroup.tsx";
+import { OrderCards } from "../../../components/AdminCards.tsx";
 import { Pagination } from "../../../components/Pagination.tsx";
+import FilterSelect from "../../../islands/FilterSelect.tsx";
 import { StatusBadge } from "../../../components/StatusBadge.tsx";
 
 interface Data {
@@ -125,14 +127,29 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
         </div>
       )}
 
-      <FilterGroup
-        label="Status"
-        items={ORDER_FILTERS.map((filter) => ({
-          label: filter.label,
-          href: adminOrdersHref({ status: filter.key, q }),
-          current: filter.key === status,
-        }))}
-      />
+      <div class="rs-desk-only">
+        <FilterGroup
+          label="Status"
+          items={ORDER_FILTERS.map((filter) => ({
+            label: filter.label,
+            href: adminOrdersHref({ status: filter.key, q }),
+            current: filter.key === status,
+          }))}
+        />
+      </div>
+      <div class="rs-mob-only">
+        <FilterSelect
+          label="Status"
+          name="status"
+          value={status}
+          action="/admin/orders"
+          hidden={q ? { q } : {}}
+          options={ORDER_FILTERS.map((filter) => ({
+            value: filter.key,
+            label: filter.label,
+          }))}
+        />
+      </div>
 
       {orders.length === 0
         ? q
@@ -175,68 +192,71 @@ export default define.page<typeof handler>(function AdminOrders({ data }) {
             </div>
           )
         : (
-          <div class="rs-tablewrap">
-            <table class="rs-table">
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th class="rs-col-wide">Customer</th>
-                  <th>Status</th>
-                  <th class="rs-table__right">Total</th>
-                  <th class="rs-col-wide">Created</th>
-                  <th class="rs-col-wide">Paid</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>
-                      <a
-                        href={`/admin/orders/${encodeURIComponent(order.id)}`}
-                        class="rs-mono-link"
-                        aria-current="false"
-                      >
-                        {shortOrderId(order.id)}
-                      </a>
-                    </td>
-                    <td class="rs-mono-cell rs-col-wide">
-                      <a
-                        href={customerHref(order.customer_id)}
-                        class="rs-mono-link"
-                        aria-current="false"
-                      >
-                        {order.customer_id}
-                      </a>
-                    </td>
-                    <td>
-                      <StatusBadge status={order.status} />
-                    </td>
-                    <td class="rs-table__right rs-nums">
-                      {formatNumber(order.total)}{" "}
-                      <span class="rs-muted-unit">
-                        {unitLabel(order.total)}
-                      </span>
-                    </td>
-                    <td class="rs-col-wide">
-                      {formatDateTime(order.created_at)}
-                    </td>
-                    <td class="rs-col-wide">
-                      {order.paid_at ? formatDateTime(order.paid_at) : "—"}
-                    </td>
-                    <td>
-                      <a
-                        href={`/admin/orders/${encodeURIComponent(order.id)}`}
-                        aria-current="false"
-                      >
-                        Open
-                      </a>
-                    </td>
+          <>
+            <OrderCards orders={orders} />
+            <div class="rs-tablewrap rs-desk-only">
+              <table class="rs-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th class="rs-col-wide">Customer</th>
+                    <th>Status</th>
+                    <th class="rs-table__right">Total</th>
+                    <th class="rs-col-wide">Created</th>
+                    <th class="rs-col-wide">Paid</th>
+                    <th />
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr key={order.id}>
+                      <td>
+                        <a
+                          href={`/admin/orders/${encodeURIComponent(order.id)}`}
+                          class="rs-mono-link"
+                          aria-current="false"
+                        >
+                          {shortOrderId(order.id)}
+                        </a>
+                      </td>
+                      <td class="rs-mono-cell rs-col-wide">
+                        <a
+                          href={customerHref(order.customer_id)}
+                          class="rs-mono-link"
+                          aria-current="false"
+                        >
+                          {order.customer_id}
+                        </a>
+                      </td>
+                      <td>
+                        <StatusBadge status={order.status} />
+                      </td>
+                      <td class="rs-table__right rs-nums">
+                        {formatNumber(order.total)}{" "}
+                        <span class="rs-muted-unit">
+                          {unitLabel(order.total)}
+                        </span>
+                      </td>
+                      <td class="rs-col-wide">
+                        {formatDateTime(order.created_at)}
+                      </td>
+                      <td class="rs-col-wide">
+                        {order.paid_at ? formatDateTime(order.paid_at) : "—"}
+                      </td>
+                      <td>
+                        <a
+                          href={`/admin/orders/${encodeURIComponent(order.id)}`}
+                          aria-current="false"
+                        >
+                          Open
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
       {orders.length > 0 && (

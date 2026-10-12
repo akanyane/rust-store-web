@@ -98,7 +98,8 @@ Deno.test("order search: the form keeps the status filter when a search is submi
       /<input type="hidden" name="status" value="paid"/,
     );
     const all = await browser.get("/admin/orders");
-    assert(!all.body.includes('name="status"'));
+    // Só o campo oculto do formulário de busca importa aqui (o `select` do celular tem o mesmo nome).
+    assert(!/<input type="hidden" name="status"/.test(all.body));
   });
 });
 

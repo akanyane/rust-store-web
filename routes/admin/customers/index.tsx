@@ -16,6 +16,7 @@ import { adminAuthed, requireAdmin } from "../../../lib/guard.ts";
 import { type PageInfo, pageInfo, parsePage } from "../../../lib/pagination.ts";
 import type { AdminCustomerListItem } from "../../../lib/types.ts";
 import { FilterGroup } from "../../../components/FilterGroup.tsx";
+import { CustomerCards } from "../../../components/AdminCards.tsx";
 import { Pagination } from "../../../components/Pagination.tsx";
 
 interface Data {
@@ -134,62 +135,68 @@ export default define.page<typeof handler>(function AdminCustomers({ data }) {
             </div>
           )
         : (
-          <div class="rs-tablewrap">
-            <table class="rs-table">
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th class="rs-table__right">Orders</th>
-                  <th class="rs-table__right">Spent</th>
-                  <th class="rs-col-wide">Customer since</th>
-                  <th class="rs-col-wide">Last order</th>
-                  <th class="rs-col-wide" />
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((customer) => (
-                  <tr key={customer.id}>
-                    <td>
-                      <div class="rs-table__stack">
+          <>
+            <CustomerCards customers={customers} />
+            <div class="rs-tablewrap rs-desk-only">
+              <table class="rs-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th class="rs-table__right">Orders</th>
+                    <th class="rs-table__right">Spent</th>
+                    <th class="rs-col-wide">Customer since</th>
+                    <th class="rs-col-wide">Last order</th>
+                    <th class="rs-col-wide" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map((customer) => (
+                    <tr key={customer.id}>
+                      <td>
+                        <div class="rs-table__stack">
+                          <a
+                            href={customerHref(customer.id)}
+                            class="rs-table__name"
+                            aria-current="false"
+                          >
+                            {customer.username}
+                          </a>
+                          <span class="rs-mono-cell rs-table__desc rs-col-wide">
+                            {customer.id}
+                          </span>
+                        </div>
+                      </td>
+                      <td class="rs-table__right rs-nums">
+                        {formatNumber(customer.orders)}
+                      </td>
+                      <td class="rs-table__right rs-nums">
+                        {formatNumber(customer.spent)}{" "}
+                        <span class="rs-muted-unit">
+                          {unitLabel(customer.spent)}
+                        </span>
+                      </td>
+                      <td class="rs-col-wide">
+                        {formatCreated(customer.created_at)}
+                      </td>
+                      <td class="rs-col-wide">
+                        {customer.last_order_at
+                          ? formatCreated(customer.last_order_at)
+                          : "—"}
+                      </td>
+                      <td class="rs-col-wide">
                         <a
                           href={customerHref(customer.id)}
-                          class="rs-table__name"
                           aria-current="false"
                         >
-                          {customer.username}
+                          Open
                         </a>
-                        <span class="rs-mono-cell rs-table__desc rs-col-wide">
-                          {customer.id}
-                        </span>
-                      </div>
-                    </td>
-                    <td class="rs-table__right rs-nums">
-                      {formatNumber(customer.orders)}
-                    </td>
-                    <td class="rs-table__right rs-nums">
-                      {formatNumber(customer.spent)}{" "}
-                      <span class="rs-muted-unit">
-                        {unitLabel(customer.spent)}
-                      </span>
-                    </td>
-                    <td class="rs-col-wide">
-                      {formatCreated(customer.created_at)}
-                    </td>
-                    <td class="rs-col-wide">
-                      {customer.last_order_at
-                        ? formatCreated(customer.last_order_at)
-                        : "—"}
-                    </td>
-                    <td class="rs-col-wide">
-                      <a href={customerHref(customer.id)} aria-current="false">
-                        Open
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
       {customers.length > 0 && (

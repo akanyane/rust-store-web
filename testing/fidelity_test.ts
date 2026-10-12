@@ -5,8 +5,8 @@ import {
   assertStringIncludes,
 } from "@std/assert";
 import { Browser, buildApp } from "./app.ts";
-import { order, withFakeApi } from "./fake_api.ts";
-import type { ProductDetail } from "../lib/types.ts";
+import { jsonResponse, order, withFakeApi } from "./fake_api.ts";
+import type { Cart, CartItem, ProductDetail } from "../lib/types.ts";
 
 const ADMIN = { rs_session: "session-boss", rs_refresh: "refresh-boss" };
 const ANA = { rs_session: "session-ana", rs_refresh: "refresh-ana" };
@@ -292,5 +292,250 @@ Deno.test("sign in: after a wrong password on the plain form the username stays 
     const input = reply.body.match(/<input id="username"[^>]*>/)?.[0] ?? "";
     assertStringIncludes(input, 'value="ana"');
     assert(!/readonly/i.test(input), input);
+  });
+});
+
+Deno.test("delete account: the button opens a dialog (?confirm=delete) instead of expanding the page", async () => {
+  await withFakeApi(async () => {
+    const browser = new Browser(buildApp(), ANA);
+    const closed = await browser.get("/account");
+    assertMatch(
+      closed.body,
+      /<a href="\/account\?confirm=delete#delete-title" class="rs-btn rs-btn--danger-outline"/,
+    );
+    assert(!closed.body.includes("Delete your account?"));
+    assert(!closed.body.includes("<details"));
+
+    const open = await browser.get("/account?confirm=delete");
+    assertStringIncludes(open.body, 'role="dialog"');
+    assertStringIncludes(open.body, "Delete your account?");
+    assertStringIncludes(
+      open.body,
+      "Your profile and cart are removed permanently. The username",
+    );
+    assertMatch(open.body, /<span class="rs-mono">ana<\/span>/);
+    assertStringIncludes(open.body, "may be taken by someone else.");
+    assertStringIncludes(open.body, "Type your username to confirm");
+    assertMatch(
+      open.body,
+      /<a href="\/account" class="rs-btn"[^>]*>Keep account<\/a>/,
+    );
+    assertMatch(
+      open.body,
+      /<button type="submit" class="rs-btn rs-btn--danger">Delete<\/button>/,
+    );
+    assertStringIncludes(open.body, "rs-modal--center");
+  });
+});
+
+Deno.test("delete account: with orders there is no dialog, even if the link is forged", async () => {
+  await withFakeApi(async (api) => {
+    api.orderIds = [{ id: "o1" }];
+    const reply = await new Browser(buildApp(), ANA).get(
+      "/account?confirm=delete",
+    );
+    assert(!reply.body.includes("Delete your account?"));
+    assert(!reply.body.includes('role="dialog"'));
+  });
+});
+
+Deno.test("delete account: a wrong confirmation keeps the dialog open with the message, and deletes nothing", async () => {
+  await withFakeApi(async (api) => {
+    const reply = await new Browser(buildApp(), ANA).post("/account", {
+      intent: "delete",
+      confirm: "someone-else",
+    });
+    assertEquals(reply.status, 422);
+    assertStringIncludes(reply.body, "Delete your account?");
+    assertStringIncludes(reply.body, "Type your username exactly to confirm.");
+    assert(!api.made.includes("DELETE /me"));
+  });
+});
+
+Deno.test("delete account: typing the username (any case) deletes it, signs out and goes home", async () => {
+  await withFakeApi(async (api) => {
+    const browser = new Browser(buildApp(), { ...ANA, rs_last_user: "ana" });
+    const reply = await browser.post("/account", {
+      intent: "delete",
+      confirm: " ANA ",
+    });
+    assertEquals(reply.status, 303);
+    assertEquals(reply.location, "/");
+    assert(api.made.includes("DELETE /me"));
+    assertEquals(browser.cookie("rs_session"), undefined);
+    assertEquals(browser.cookie("rs_refresh"), undefined);
+  });
+});
+
+Deno.test("state panels: the 404 is text only (no empty icon box), with the code and the way back", async () => {
+  await withFakeApi(async () => {
+    const reply = await new Browser(buildApp({ errorPages: true })).get(
+      "/nope",
+    );
+    assertEquals(reply.status, 404);
+    assertStringIncludes(reply.body, "404 · Not found");
+    assertMatch(reply.body, /We can(?:'|&#39;)t find that page/);
+    assertMatch(
+      reply.body,
+      /<a class="rs-btn" href="\/" aria-current="false">Back to the catalog<\/a>/,
+    );
+    assert(!reply.body.includes("rs-state__icon"));
+  });
+});
+
+Deno.test("state panels: a 403 offers 'Go to your orders'", async () => {
+  await withFakeApi(async () => {
+    const reply = await new Browser(buildApp({ errorPages: true }), ANA).get(
+      "/admin/orders",
+    );
+    assertEquals(reply.status, 403);
+    assertStringIncludes(reply.body, "403 · Not allowed");
+    assertMatch(reply.body, /You don(?:'|&#39;)t have access to this/);
+    assertMatch(
+      reply.body,
+      /<a class="rs-btn" href="\/orders" aria-current="false">Go to your orders<\/a>/,
+    );
+    assert(!reply.body.includes("rs-state__icon"));
+  });
+});
+
+Deno.test("state panels: an outage keeps the alert icon and a way to try again on the same page", async () => {
+  await withFakeApi(async (api) => {
+    api.goOffline();
+    const reply = await new Browser(buildApp({ errorPages: true }), ADMIN).get(
+      "/admin/orders",
+    );
+    assertEquals(reply.status, 503);
+    assertStringIncludes(reply.body, "rs-state__icon rs-state__icon--danger");
+    assertMatch(
+      reply.body,
+      /href="\/admin\/orders" aria-current="false">Try again<\/a>/,
+    );
+    assertStringIncludes(reply.body, 'role="alert"');
+  });
+});
+
+Deno.test("state panels: a customer with no orders sees the empty state as text, without an icon box", async () => {
+  await withFakeApi(async (api) => {
+    api.on(
+      "GET /orders",
+      () =>
+        new Response("[]", { headers: { "content-type": "application/json" } }),
+    );
+    const reply = await new Browser(buildApp(), ANA).get("/orders");
+    assertEquals(reply.status, 200);
+    assertStringIncludes(reply.body, "No orders yet");
+    assert(!reply.body.includes("rs-state__icon"));
+    assertStringIncludes(reply.body, "Browse the catalog");
+  });
+});
+
+function cartLine(overrides: Partial<CartItem> = {}): CartItem {
+  return {
+    variant_id: "v1",
+    product_id: "p1",
+    product_name: "Oolong Tea",
+    name: "Default",
+    sku: "TEA-1",
+    unit_price: 45,
+    quantity: 2,
+    line_total: 90,
+    available: true,
+    unavailable_reason: null,
+    ...overrides,
+  };
+}
+
+function cartOf(items: CartItem[], can_checkout: boolean): Cart {
+  return {
+    items,
+    total: items.reduce((sum, item) => sum + item.line_total, 0),
+    can_checkout,
+  };
+}
+
+Deno.test("cart summary: with flagged lines, the desktop and the phone say it their own way", async () => {
+  await withFakeApi(async (api) => {
+    const flagged = cartLine({
+      variant_id: "v2",
+      name: "Sampler",
+      unit_price: 5,
+      quantity: 2,
+      line_total: 10,
+      available: false,
+      unavailable_reason: "inactive",
+    });
+    api.on(
+      "GET /cart",
+      () => jsonResponse(cartOf([cartLine(), flagged], false)),
+    );
+    const reply = await new Browser(buildApp(), ANA).get("/cart");
+    // Desktop.
+    assertMatch(
+      reply.body,
+      /rs-copy-desktop[^>]*>\s*The total includes flagged lines, so it may drop once you fix them\./,
+    );
+    assertMatch(
+      reply.body,
+      /rs-copy-desktop[^>]*>\s*You can place your order once no lines are flagged\./,
+    );
+    // Celular: o número de linhas, o valor sinalizado e o que fazer.
+    assertMatch(
+      reply.body,
+      /Total, all <span class="rs-copy-mobile">2 <\/span>lines/,
+    );
+    assertMatch(
+      reply.body,
+      /rs-copy-mobile[^>]*>Includes 10 unidades from flagged lines\./,
+    );
+    assertMatch(
+      reply.body,
+      /rs-copy-mobile[^>]*>Fix the 1 flagged line to continue\./,
+    );
+  });
+});
+
+Deno.test("cart summary: two flagged lines are 'lines', one is 'line'", async () => {
+  await withFakeApi(async (api) => {
+    const bad = (id: string) =>
+      cartLine({
+        variant_id: id,
+        available: false,
+        unavailable_reason: "inactive",
+      });
+    api.on(
+      "GET /cart",
+      () => jsonResponse(cartOf([bad("a"), bad("b")], false)),
+    );
+    const reply = await new Browser(buildApp(), ANA).get("/cart");
+    assertStringIncludes(reply.body, "Fix the 2 flagged lines to continue.");
+  });
+});
+
+Deno.test("cart summary: the 'creates a pending order' note appears only when the order can be placed", async () => {
+  await withFakeApi(async (api) => {
+    const browser = new Browser(buildApp(), ANA);
+    api.on("GET /cart", () => jsonResponse(cartOf([cartLine()], true)));
+    const ready = await browser.get("/cart");
+    assertStringIncludes(
+      ready.body,
+      "Creates a pending order and reserves stock.",
+    );
+    assert(!ready.body.includes("Includes"));
+    assert(!ready.body.includes("flagged lines"));
+
+    api.on(
+      "GET /cart",
+      () =>
+        jsonResponse(
+          cartOf([
+            cartLine({ available: false, unavailable_reason: "inactive" }),
+          ], false),
+        ),
+    );
+    const blocked = await browser.get("/cart");
+    assert(
+      !blocked.body.includes("Creates a pending order and reserves stock."),
+    );
   });
 });

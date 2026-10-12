@@ -50,7 +50,7 @@ export default function ErrorPage(props: PageProps) {
         <StatePanel
           title="You don't have access to this"
           code="403 · Not allowed"
-          action={{ href: "/", label: "Back to the catalog" }}
+          action={{ href: "/orders", label: "Go to your orders" }}
         >
           This page belongs to another account or to store staff.
         </StatePanel>

@@ -34,6 +34,8 @@ interface Data {
   errors: FormErrors;
   /** O que o formulário de exclusão mostra: erro de confirmação, ou a recusa da API. */
   deleteError?: string;
+  /** O diálogo "Delete your account?" está aberto (`?confirm=delete`, ou a confirmação errada). */
+  confirmDelete?: boolean;
   flash?: Flash;
 }
 
@@ -70,6 +72,9 @@ export const handler = define.handlers({
         birthday: customer.birthday,
       },
       errors: {},
+      // O diálogo só abre para quem pode apagar a conta (sem pedidos).
+      confirmDelete: orders === 0 &&
+        ctx.url.searchParams.get("confirm") === "delete",
       flash: ctx.state.flash?.scope === "account" ? ctx.state.flash : undefined,
     });
   },
@@ -134,6 +139,7 @@ export const handler = define.handlers({
             values,
             errors: {},
             deleteError: "Type your username exactly to confirm.",
+            confirmDelete: true,
           },
           { status: 422 },
         );
@@ -285,32 +291,55 @@ export default define.page<typeof handler>(function Account({ data }) {
                 Deleting your account removes your profile and your cart. This
                 can't be undone.
               </p>
-              <details
-                class="rs-confirm"
-                open={data.deleteError ? true : undefined}
+              <a
+                href="/account?confirm=delete#delete-title"
+                class="rs-btn rs-btn--danger-outline"
+                aria-current="false"
               >
-                <summary class="rs-btn rs-btn--danger-outline">
-                  Delete account…
-                </summary>
-                <form method="post" class="rs-form">
-                  <input type="hidden" name="intent" value="delete" />
-                  <Field
-                    label={`Type your username (${customer.username}) to confirm`}
-                    name="confirm"
-                    error={data.deleteError}
-                    autocomplete="off"
-                  />
-                  <button type="submit" class="rs-btn rs-btn--danger">
-                    Delete my account
-                  </button>
-                </form>
-              </details>
+                Delete account…
+              </a>
             </>
           )}
         {hasOrders && data.deleteError && (
           <Alert tone="danger" title={data.deleteError} />
         )}
       </section>
+
+      {data.confirmDelete && (
+        <div class="rs-modal rs-modal--center" role="presentation">
+          <div
+            class="rs-modal__box"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+          >
+            <h2 id="delete-dialog-title">Delete your account?</h2>
+            <p>
+              Your profile and cart are removed permanently. The username{" "}
+              <span class="rs-mono">{customer.username}</span>{" "}
+              may be taken by someone else.
+            </p>
+            <form method="post" class="rs-form">
+              <input type="hidden" name="intent" value="delete" />
+              <Field
+                label="Type your username to confirm"
+                name="confirm"
+                error={data.deleteError}
+                autocomplete="off"
+                autofocus
+              />
+              <div class="rs-modal__actions">
+                <a href="/account" class="rs-btn" aria-current="false">
+                  Keep account
+                </a>
+                <button type="submit" class="rs-btn rs-btn--danger">
+                  Delete
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 });

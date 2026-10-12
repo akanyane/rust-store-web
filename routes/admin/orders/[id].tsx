@@ -48,6 +48,9 @@ export const handler = define.handlers({
 
   /** Muda o status. O valor enviado só vale se for um dos próximos passos oferecidos. */
   async POST(ctx) {
+    // Quem não é admin não chega a validar o formulário nem a ver a página do console.
+    const denied = requireAdmin(ctx);
+    if (denied) return denied;
     const id = ctx.params.id;
     const back = `/admin/orders/${encodeURIComponent(id)}`;
     const to = field(await ctx.req.formData(), "status");

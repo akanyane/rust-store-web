@@ -226,6 +226,7 @@ export class FakeApi {
           : apiError(403, "forbidden"),
     );
     this.on("GET /orders", () => jsonResponse(this.orderIds));
+    this.on("DELETE /me", () => new Response(null, { status: 204 }));
     this.on("GET /admin/products/:id", ({ token, params }) => {
       if (token !== "session-boss") return apiError(403, "forbidden");
       const found = this.adminProducts.get(params.id);

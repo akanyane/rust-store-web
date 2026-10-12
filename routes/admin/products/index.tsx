@@ -27,6 +27,7 @@ import { safeNext } from "../../../lib/redirect.ts";
 import type { Product } from "../../../lib/types.ts";
 import { Alert } from "../../../components/Alert.tsx";
 import { FilterGroup } from "../../../components/FilterGroup.tsx";
+import { ProductCards } from "../../../components/AdminCards.tsx";
 import { Pagination } from "../../../components/Pagination.tsx";
 import { ProductStatusBadge } from "../../../components/ProductStatusBadge.tsx";
 import PendingButton from "../../../islands/PendingButton.tsx";
@@ -97,6 +98,9 @@ export const handler = define.handlers({
 
   /** Desativar (DELETE lógico) ou reativar (PUT com `active: true`) um produto da lista. */
   async POST(ctx) {
+    // Quem não é admin não chega a validar o formulário nem a ver a página do console.
+    const denied = requireAdmin(ctx);
+    if (denied) return denied;
     const form = await ctx.req.formData();
     const intent = field(form, "intent");
     const id = field(form, "id");
@@ -216,95 +220,98 @@ export default define.page<typeof handler>(function AdminProducts({ data }) {
           </div>
         )
         : (
-          <div class="rs-tablewrap">
-            <table class="rs-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th class="rs-col-wide">ID</th>
-                  <th>Status</th>
-                  <th class="rs-col-wide">Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr
-                    key={product.id}
-                    class={product.active ? "" : "rs-table__row--off"}
-                  >
-                    <td>
-                      <div class="rs-table__stack">
-                        <a
-                          href={`/admin/products/${
-                            encodeURIComponent(product.id)
-                          }`}
-                          class="rs-table__name"
-                          aria-current="false"
-                        >
-                          {product.name}
-                        </a>
-                        <span class="rs-table__desc">
-                          {product.description}
-                        </span>
-                      </div>
-                    </td>
-                    <td class="rs-mono-cell rs-col-wide">{product.id}</td>
-                    <td>
-                      <ProductStatusBadge active={product.active} />
-                    </td>
-                    <td class="rs-col-wide">
-                      {formatCreated(product.created_at)}
-                    </td>
-                    <td>
-                      <div class="rs-table__actions">
-                        <a
-                          href={`/admin/products/${
-                            encodeURIComponent(product.id)
-                          }`}
-                          aria-current="false"
-                        >
-                          Edit
-                        </a>
-                        {product.active
-                          ? (
-                            <a
-                              href={adminProductsHref({
-                                show,
-                                sort,
-                                page: info.page,
-                                confirm: product.id,
-                              })}
-                              aria-current="false"
-                            >
-                              Deactivate
-                            </a>
-                          )
-                          : (
-                            <form method="post" class="rs-inline-form">
-                              <input
-                                type="hidden"
-                                name="intent"
-                                value="reactivate"
-                              />
-                              <input
-                                type="hidden"
-                                name="id"
-                                value={product.id}
-                              />
-                              <input type="hidden" name="back" value={here} />
-                              <button type="submit" class="rs-linkbtn">
-                                Reactivate
-                              </button>
-                            </form>
-                          )}
-                      </div>
-                    </td>
+          <>
+            <ProductCards products={products} />
+            <div class="rs-tablewrap rs-desk-only">
+              <table class="rs-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="rs-col-wide">ID</th>
+                    <th>Status</th>
+                    <th class="rs-col-wide">Created</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr
+                      key={product.id}
+                      class={product.active ? "" : "rs-table__row--off"}
+                    >
+                      <td>
+                        <div class="rs-table__stack">
+                          <a
+                            href={`/admin/products/${
+                              encodeURIComponent(product.id)
+                            }`}
+                            class="rs-table__name"
+                            aria-current="false"
+                          >
+                            {product.name}
+                          </a>
+                          <span class="rs-table__desc">
+                            {product.description}
+                          </span>
+                        </div>
+                      </td>
+                      <td class="rs-mono-cell rs-col-wide">{product.id}</td>
+                      <td>
+                        <ProductStatusBadge active={product.active} />
+                      </td>
+                      <td class="rs-col-wide">
+                        {formatCreated(product.created_at)}
+                      </td>
+                      <td>
+                        <div class="rs-table__actions">
+                          <a
+                            href={`/admin/products/${
+                              encodeURIComponent(product.id)
+                            }`}
+                            aria-current="false"
+                          >
+                            Edit
+                          </a>
+                          {product.active
+                            ? (
+                              <a
+                                href={adminProductsHref({
+                                  show,
+                                  sort,
+                                  page: info.page,
+                                  confirm: product.id,
+                                })}
+                                aria-current="false"
+                              >
+                                Deactivate
+                              </a>
+                            )
+                            : (
+                              <form method="post" class="rs-inline-form">
+                                <input
+                                  type="hidden"
+                                  name="intent"
+                                  value="reactivate"
+                                />
+                                <input
+                                  type="hidden"
+                                  name="id"
+                                  value={product.id}
+                                />
+                                <input type="hidden" name="back" value={here} />
+                                <button type="submit" class="rs-linkbtn">
+                                  Reactivate
+                                </button>
+                              </form>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
       {products.length > 0 && (

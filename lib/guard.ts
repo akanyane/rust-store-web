@@ -62,7 +62,8 @@ export function requireAdmin(ctx: FreshContext<State>): Response | undefined {
   if (ctx.state.role === "customer") throw new HttpError(403);
   return ctx.redirect(
     signInHref(ctx.url.pathname + ctx.url.search, ctx.state.session.expired),
-    302,
+    // 303 depois de um POST: o navegador volta ao login com GET.
+    ctx.req.method === "GET" ? 302 : 303,
   );
 }
 

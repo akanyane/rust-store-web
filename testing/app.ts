@@ -1,4 +1,5 @@
-import { App } from "fresh";
+import { App, HttpError } from "fresh";
+import { h } from "preact";
 import { getSetCookies } from "@std/http";
 import type { State } from "../utils.ts";
 import middleware from "../routes/_middleware.ts";
@@ -7,9 +8,12 @@ import * as signout from "../routes/signout.tsx";
 import * as cart from "../routes/cart.tsx";
 import * as account from "../routes/account.tsx";
 import appWrapper from "../routes/_app.tsx";
+import ErrorPage from "../routes/_error.tsx";
 import * as orders from "../routes/orders/index.tsx";
 import adminLayout from "../routes/admin/_layout.tsx";
 import * as adminHome from "../routes/admin/index.tsx";
+import * as adminProducts from "../routes/admin/products/index.tsx";
+import * as adminNewProduct from "../routes/admin/products/new.tsx";
 import * as adminProduct from "../routes/admin/products/[id].tsx";
 import * as adminCustomers from "../routes/admin/customers/index.tsx";
 import * as adminCustomer from "../routes/admin/customers/[id].tsx";
@@ -30,8 +34,20 @@ interface RouteModule {
 }
 
 /** O app das rotas reais com o middleware real, sem servidor e sem build. */
-export function buildApp(options: { chrome?: boolean } = {}) {
+export function buildApp(
+  options: { chrome?: boolean; errorPages?: boolean } = {},
+) {
   const app = new App<State>().use(middleware);
+  // Com `errorPages`, 404, 403, 503 e 500 saem pela página de erro real (routes/_error.tsx).
+  if (options.errorPages) {
+    app.onError("*", (ctx) => {
+      const status = ctx.error instanceof HttpError ? ctx.error.status : 500;
+      return ctx.render(
+        h(ErrorPage, { error: ctx.error, url: ctx.url } as never),
+        { status },
+      );
+    });
+  }
   // Com `chrome`, as páginas saem dentro do layout real (cabeçalho, rodapé), como no navegador.
   if (options.chrome) app.appWrapper(appWrapper as never);
   const mount = (path: string, route: RouteModule) =>
@@ -49,6 +65,8 @@ export function buildApp(options: { chrome?: boolean } = {}) {
   mount("/admin", adminHome);
   mount("/admin/customers", adminCustomers);
   mount("/admin/customers/:id", adminCustomer);
+  mount("/admin/products", adminProducts);
+  mount("/admin/products/new", adminNewProduct);
   mount("/admin/products/:id", adminProduct);
   mount("/account", account);
   mount("/admin/orders", adminOrders);

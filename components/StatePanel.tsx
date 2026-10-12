@@ -17,13 +17,12 @@ export function StatePanel(
     <main class="rs-main">
       {above}
       <div class="rs-state" role={tone === "danger" ? "alert" : undefined}>
-        <span
-          class={`rs-state__icon ${
-            tone === "danger" ? "rs-state__icon--danger" : ""
-          }`}
-        >
-          {tone === "danger" && <Icon name="alert" size={22} />}
-        </span>
+        {/* Só o erro tem ícone; o vazio e o "não encontrado" são só texto, como no design. */}
+        {tone === "danger" && (
+          <span class="rs-state__icon rs-state__icon--danger">
+            <Icon name="alert" size={22} />
+          </span>
+        )}
         {code && <span class="rs-state__code">{code}</span>}
         <h1>{title}</h1>
         <p>{children}</p>

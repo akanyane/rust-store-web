@@ -61,7 +61,11 @@ export default define.middleware(async (ctx) => {
   const isRead = ctx.req.method === "GET";
   const flashCookie = readCookie(headers, FLASH_COOKIE);
   if (isRead) state.flash = parseFlash(flashCookie);
-  if (isRead && state.session.hasCredentials) await loadHeaderData(state);
+  // O papel decide o layout (loja ou console). Num POST sob `/admin` a página volta renderizada
+  // quando o formulário tem erro (422, 409), então o papel também precisa estar carregado ali:
+  // sem ele, o console saía com o cabeçalho e o rodapé da loja por cima.
+  const needsRole = isRead || ctx.url.pathname.startsWith("/admin");
+  if (needsRole && state.session.hasCredentials) await loadHeaderData(state);
 
   const response = await ctx.next();
 

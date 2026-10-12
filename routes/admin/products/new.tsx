@@ -34,6 +34,9 @@ export const handler = define.handlers({
   },
 
   async POST(ctx) {
+    // Quem não é admin não chega a validar o formulário nem a ver a página do console.
+    const denied = requireAdmin(ctx);
+    if (denied) return denied;
     const form = await ctx.req.formData();
     const values = {
       name: field(form, "name").trim(),

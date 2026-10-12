@@ -102,7 +102,7 @@ broken.
 | Route                                 | What it does                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/signin`, `/signup`, `POST /signout` | Sign in, sign up (you are signed in right away) and sign out. When a session can no longer be renewed, `/signin` becomes the "Your session expired, sign in again" dialog (a full page on phones) with the username filled in and a "Not you?" link; you come back to the page you were on. Per-field errors with a "Please fix N fields" summary. `?next=` only accepts paths of this same site. |
-| `/account`                            | Edit name and birthday (the username does not change) and delete the account. The API keeps accounts that have orders, and the screen shows the refusal.                                                                                                                                                                                                                                          |
+| `/account`                            | Edit name and birthday (the username does not change) and delete the account: "Delete account…" opens a dialog (`?confirm=delete`) that asks for the username. The API keeps accounts that have orders, and the screen shows the refusal.                                                                                                                                                         |
 | `/cart`                               | Rows with quantity (−, +) and remove, flagged rows ("No longer sold", "Not enough stock"), an "N lines need attention" banner, and a summary with the total of every row. A row reads "Product · Variant", or just the product when the variant is the default one.                                                                                                                               |
 
 The header shows the cart with its item count (the sum of quantities), an
@@ -124,7 +124,11 @@ without JavaScript.
 Only for the admin account. The middleware asks the API for the role
 (`GET /auth/session`): anonymous visitors go to `/signin?next=…`, regular
 customers get a 403, and an API outage gives a 503. The console replaces the
-storefront chrome (no cart, no "Orders").
+storefront chrome (no cart, no "Orders"), also on the pages that answer a form
+with an error. Every admin `POST` checks the role first, before it validates or
+calls the API. On phones the lists (orders, products, customers) are cards, and
+the orders status filter is a `select` that submits on change (an "Apply" button
+appears without JavaScript).
 
 | Route                  | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
