@@ -145,6 +145,19 @@ export interface AdminStats {
  * Um cliente na visão de admin (`GET /admin/customers/{id}`): só o username e o que ele fez.
  * A API não devolve nome nem nascimento, e a tela nunca os pede.
  */
+/** Um cliente na listagem de admin (`GET /admin/customers`): só o username e a atividade. */
+export interface AdminCustomerListItem {
+  id: string;
+  username: string;
+  created_at: string;
+  /** Quantos pedidos, de qualquer status. */
+  orders: number;
+  /** Soma dos totais dos pedidos pagos, enviados e entregues. */
+  spent: number;
+  /** `null` para quem ainda não comprou. */
+  last_order_at: string | null;
+}
+
 export interface AdminCustomer {
   id: string;
   username: string;

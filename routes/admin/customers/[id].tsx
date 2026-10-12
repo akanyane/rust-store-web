@@ -60,7 +60,9 @@ export default define.page<typeof handler>(function Customer({ data }) {
       <Head>
         <title>{customer.username} · Customer · Admin · Rust Store</title>
       </Head>
-      <a href="/admin/orders" class="rs-back" aria-current="false">← Orders</a>
+      <a href="/admin/customers" class="rs-back" aria-current="false">
+        ← Customers
+      </a>
       <div class="rs-admin__head">
         <h1 class="rs-h1">{customer.username}</h1>
         <span class="rs-admin__sub">

@@ -371,3 +371,33 @@ export function customerStatusLinks(
       href: adminOrdersHref({ q: customer.id, status: entry.status }),
     }));
 }
+
+// ---------- Lista de clientes ----------
+
+export type CustomerSortKey = "newest" | "username";
+
+export const CUSTOMER_SORTS: { key: CustomerSortKey; label: string }[] = [
+  { key: "newest", label: "Newest" },
+  { key: "username", label: "Username" },
+];
+
+/** `?sort=` da lista de clientes; qualquer valor desconhecido vira "newest". */
+export function parseCustomerSort(value: string | null): CustomerSortKey {
+  return value === "username" ? "username" : "newest";
+}
+
+/** A lista de clientes, com a busca, a ordem e a página (só o que não é o padrão). */
+export function adminCustomersHref(
+  { q = "", sort = "newest", page = 1 }: {
+    q?: string;
+    sort?: CustomerSortKey;
+    page?: number;
+  } = {},
+): string {
+  const query = new URLSearchParams();
+  if (q) query.set("q", q);
+  if (sort !== "newest") query.set("sort", sort);
+  if (page > 1) query.set("page", String(page));
+  const text = query.toString();
+  return text ? `/admin/customers?${text}` : "/admin/customers";
+}

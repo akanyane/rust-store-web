@@ -28,6 +28,13 @@ const ICONS = {
       "M9 9h4.5v4.5H9z",
     ],
   },
+  users: {
+    grid: 16,
+    paths: [
+      "M8 7.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z",
+      "M3 13.5c.5-2.5 2.5-4 5-4s4.5 1.5 5 4",
+    ],
+  },
   pause: { grid: 16, paths: ["M5.5 4v8M10.5 4v8"] },
   clock: {
     grid: 16,

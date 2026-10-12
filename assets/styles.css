@@ -3056,3 +3056,14 @@ a {
 .rs-statuslinks a:hover {
   border-color: var(--border-strong);
 }
+
+/* Quatro abas no menu do celular: um pouco menos de folga para caberem todas */
+@media (max-width: 479px) {
+  .rs-admintop__tabs {
+    padding: 0 4px;
+  }
+  .rs-admintop__tab {
+    gap: 5px;
+    font-size: 13px;
+  }
+}

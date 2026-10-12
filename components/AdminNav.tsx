@@ -20,6 +20,12 @@ const LINKS = [
     icon: "cart" as const,
     match: "/admin/products",
   },
+  {
+    href: "/admin/customers",
+    label: "Customers",
+    icon: "users" as const,
+    match: "/admin/customers",
+  },
 ];
 
 /**

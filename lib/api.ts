@@ -1,5 +1,6 @@
 import type {
   AdminCustomer,
+  AdminCustomerListItem,
   AdminOrder,
   AdminStats,
   Cart,
@@ -518,4 +519,27 @@ export async function getAdminCustomer(
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+export interface AdminCustomersParams {
+  /** Username ou id, por prefixo (a API normaliza maiúsculas e `#`). */
+  q?: string;
+  sort?: "newest" | "username";
+  limit: number;
+  offset: number;
+}
+
+export async function listAdminCustomers(
+  token: string,
+  params: AdminCustomersParams,
+): Promise<{ customers: AdminCustomerListItem[]; total: number }> {
+  const query = new URLSearchParams({
+    limit: String(params.limit),
+    offset: String(params.offset),
+  });
+  if (params.q) query.set("q", params.q);
+  if (params.sort) query.set("sort", params.sort);
+  const response = await call(`/admin/customers?${query}`, { token });
+  const customers: AdminCustomerListItem[] = await response.json();
+  return { customers, total: totalOf(response, customers.length) };
 }

@@ -1,5 +1,6 @@
 import type {
   AdminCustomer,
+  AdminCustomerListItem,
   AdminOrder,
   AdminStats,
   Cart,
@@ -74,6 +75,20 @@ export function emptyStats(): AdminStats {
   };
 }
 
+export function customerItem(
+  overrides: Partial<AdminCustomerListItem> = {},
+): AdminCustomerListItem {
+  return {
+    id: "cust1",
+    username: "ana",
+    created_at: "2026-03-02T10:00:00Z",
+    orders: 6,
+    spent: 1240,
+    last_order_at: "2026-10-11T22:10:00Z",
+    ...overrides,
+  };
+}
+
 export function customer(
   overrides: Partial<AdminCustomer> = {},
 ): AdminCustomer {
@@ -144,6 +159,8 @@ export class FakeApi {
   readonly orders = new Map<string, AdminOrder>();
   /** Os clientes que `GET /admin/customers/:id` conhece. */
   readonly customers = new Map<string, AdminCustomer>();
+  /** O que `GET /admin/customers` devolve; o teste troca o que precisar. */
+  customerList: AdminCustomerListItem[] = [];
   /** O que `GET /admin/stats` devolve; o teste troca o que precisar. */
   stats: AdminStats = emptyStats();
   private readonly routes: {
@@ -189,6 +206,15 @@ export class FakeApi {
           : apiError(token ? 404 : 401, "not found"),
     );
     this.on("GET /cart", () => jsonResponse(EMPTY_CART));
+    this.on(
+      "GET /admin/customers",
+      ({ token }) =>
+        token === "session-boss"
+          ? jsonResponse(this.customerList, 200, {
+            "x-total-count": String(this.customerList.length),
+          })
+          : apiError(403, "forbidden"),
+    );
     this.on("GET /admin/customers/:id", ({ token, params }) => {
       if (token !== "session-boss") return apiError(403, "forbidden");
       const found = this.customers.get(params.id);

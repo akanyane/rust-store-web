@@ -1,8 +1,10 @@
 import { assertEquals } from "@std/assert";
 import {
+  adminCustomersHref,
   adminOrdersHref,
   adminProductsHref,
   allowedTransitions,
+  CUSTOMER_SORTS,
   customerCards,
   customerHref,
   customerStatusLinks,
@@ -13,6 +15,7 @@ import {
   lowStockHref,
   MAX_SEARCH_LENGTH,
   ORDER_FILTERS,
+  parseCustomerSort,
   parseOrderFilter,
   parseProductSort,
   parseSearch,
@@ -429,5 +432,32 @@ Deno.test("customerStatusLinks: only statuses with orders, in lifecycle order, e
       },
     }),
     [],
+  );
+});
+
+Deno.test("parseCustomerSort: username or newest, anything else is newest", () => {
+  assertEquals(parseCustomerSort("username"), "username");
+  assertEquals(parseCustomerSort("newest"), "newest");
+  for (const odd of [null, "", "spent", "USERNAME", "name"]) {
+    assertEquals(parseCustomerSort(odd), "newest", String(odd));
+  }
+  assertEquals(CUSTOMER_SORTS.map((s) => s.key), ["newest", "username"]);
+});
+
+Deno.test("adminCustomersHref: only what is not the default, and the term is encoded", () => {
+  assertEquals(adminCustomersHref(), "/admin/customers");
+  assertEquals(adminCustomersHref({ q: "ana" }), "/admin/customers?q=ana");
+  assertEquals(
+    adminCustomersHref({ sort: "username" }),
+    "/admin/customers?sort=username",
+  );
+  assertEquals(
+    adminCustomersHref({ q: "an", sort: "username", page: 3 }),
+    "/admin/customers?q=an&sort=username&page=3",
+  );
+  assertEquals(adminCustomersHref({ page: 1 }), "/admin/customers");
+  assertEquals(
+    adminCustomersHref({ q: "a&sort=x" }),
+    "/admin/customers?q=a%26sort%3Dx",
   );
 });

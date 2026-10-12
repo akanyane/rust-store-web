@@ -8,6 +8,7 @@ import * as cart from "../routes/cart.tsx";
 import * as orders from "../routes/orders/index.tsx";
 import adminLayout from "../routes/admin/_layout.tsx";
 import * as adminHome from "../routes/admin/index.tsx";
+import * as adminCustomers from "../routes/admin/customers/index.tsx";
 import * as adminCustomer from "../routes/admin/customers/[id].tsx";
 import * as adminOrders from "../routes/admin/orders/index.tsx";
 import * as adminOrder from "../routes/admin/orders/[id].tsx";
@@ -40,6 +41,7 @@ export function buildApp() {
   app.layout("/admin", adminLayout as never);
   app.layout("/admin/*", adminLayout as never);
   mount("/admin", adminHome);
+  mount("/admin/customers", adminCustomers);
   mount("/admin/customers/:id", adminCustomer);
   mount("/admin/orders", adminOrders);
   mount("/admin/orders/:id", adminOrder);
